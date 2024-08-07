@@ -6,7 +6,7 @@ import {
   ServerStackIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
+import { Home, Profile, Tables, Notifications, Rules, Farms, Boards } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 const icon = {
@@ -19,15 +19,9 @@ export const routes = [
     pages: [
       {
         icon: <HomeIcon {...icon} />,
-        name: "dashboard",
+        name: "홈",
         path: "/home",
         element: <Home />,
-      },
-      {
-        icon: <UserCircleIcon {...icon} />,
-        name: "profile",
-        path: "/profile",
-        element: <Profile />,
       },
       {
         icon: <TableCellsIcon {...icon} />,
@@ -36,10 +30,34 @@ export const routes = [
         element: <Tables />,
       },
       {
+        icon: <TableCellsIcon {...icon} />,
+        name: "농장 그룹",
+        path: "/farms",
+        element: <Farms />,
+      },
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "룰셋",
+        path: "/rules",
+        element: <Rules />,
+      },
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "대시보드",
+        path: "/boards",
+        element: <Boards />,
+      },
+      {
         icon: <InformationCircleIcon {...icon} />,
-        name: "notifications",
+        name: "알림",
         path: "/notifications",
         element: <Notifications />,
+      },
+      {
+        icon: <UserCircleIcon {...icon} />,
+        name: "유저 정보",
+        path: "/profile",
+        element: <Profile />,
       },
     ],
   },

@@ -18,6 +18,17 @@ export function Sidenav({ brandImg, brandName, routes }) {
     transparent: "bg-transparent",
   };
 
+  const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+    const [key, value] = cookie.split("=").map(part => part.trim());
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  // filter routes 
+  if(cookies.userAuth){
+    routes = routes.filter(route => route.layout === "dashboard");
+  }
+
   return (
     <aside
       className={`${sidenavTypes[sidenavType]} ${
