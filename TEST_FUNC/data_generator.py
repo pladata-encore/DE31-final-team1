@@ -4,9 +4,10 @@ import random
 import time
 import os
 import sys
+import threading
 
 #################### VARIABLES ####################
-JSON_FILE_PATH = './endpoint_list.json'
+JSON_FILE_PATH = os.path.join(os.path.dirname(__file__), 'endpoint_list.json')
 DATA_LIST = ["temperature", "humidity", "light", "noise", "dust", "co2", "voc", "pm1", "pm2.5", "pm10"]
 #################### VARIABLES ####################
 
@@ -25,6 +26,12 @@ def generate_random_data():
   data['timestamp'] = int(time.time())
   return data
 
+def threading_data_transfer(endpoint):
+  # Generate random data
+  data = generate_random_data()
+  # response = requests.post(endpoint['url'], json=data)
+  print(f"Send data to {endpoint['url']}, data: {data}")
+
 #################### FUNCTIONS ####################
 
 
@@ -34,25 +41,32 @@ if __name__ == '__main__':
   time_cursor = time.time()
 
   # Read JSON file(initially)
-  # endpoint_list = read_json_file(JSON_FILE_PATH)
+  endpoint_list = read_json_file(JSON_FILE_PATH)
 
   # do forever
   while True:
-    # Read JSON file, if time_cursor is greater than 30min, read JSON file again
-    if time.time() - time_cursor > 1800:
+    # Read JSON file, if time_cursor is greater than 1min, read JSON file again
+    if time.time() - time_cursor > 60:
       endpoint_list = read_json_file(JSON_FILE_PATH)
       time_cursor = time.time()
 
-    # for endpoint in endpoint_list:
-      # Generate random data
-    data = generate_random_data()
-    print(f"Generate random data: {data}")
+    # get endpoint list length
+    endpoint_list_length = len(endpoint_list)
 
-      # Send data to endpoint
-      # response = requests.post(endpoint['url'], json=data)
-      # print(f"Send data to {endpoint['url']}: {response.status_code}")
+    # make thread list
+    thread_list = []
 
-      # Sleep
+    # add job to thread list
+    for i in range(endpoint_list_length):
+      thread = threading.Thread(target=threading_data_transfer, args=(endpoint_list[i],))
+      thread_list.append(thread)
+      thread.start()
+
+    # join all threads
+    for thread in thread_list:
+      thread.join()
+    
+    # Sleep
     time.sleep(1)
 
 ####################### MAIN ######################
