@@ -4,9 +4,9 @@ services:
   postgresql:
     image: 'bitnami/postgresql:latest'
     environment:
-      - POSTGRESQL_DATABASE=bitnami_airflow
-      - POSTGRESQL_USERNAME=bn_airflow
-      - POSTGRESQL_PASSWORD=bitnami1
+      - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
+      - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
     entrypoint: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
     volumes:
@@ -28,16 +28,16 @@ services:
   airflow-worker:
     image: bitnami/airflow-worker:latest
     environment:
-      - AIRFLOW_FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - AIRFLOW_SECRET_KEY=a25mQ1FHTUh3MnFRSk5KMEIyVVU2YmN0VGRyYTVXY08=
+      - AIRFLOW_FERNET_KEY=${AIRFLOW_FERNET_KEY}
+      - AIRFLOW_SECRET_KEY=${AIRFLOW_SECRET_KEY}
       - AIRFLOW_EXECUTOR=CeleryExecutor
-      - AIRFLOW_DATABASE_NAME=bitnami_airflow
-      - AIRFLOW_DATABASE_USERNAME=bn_airflow
-      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_DATABASE_NAME=${POSTGRESQL_DATABASE}
+      - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
+      - AIRFLOW_DATABASE_PASSWORD=${AIRFLOW_DATABASE_PASSWORD}
       - AIRFLOW_DATABASE_HOST=postgresql
       - AIRFLOW_DATABASE_PORT=5432
       - AIRFLOW_BROKER_URL=redis://redis:6379/0
-      - AIRFLOW_RESULT_BACKEND=db+postgresql://bn_airflow:bitnami1@postgresql:5432/bitnami_airflow
+      - AIRFLOW_RESULT_BACKEND=db+postgresql://${POSTGRESQL_USERNAME}:${AIRFLOW_DATABASE_PASSWORD}@postgresql:5432/${POSTGRESQL_DATABASE}
       - AIRFLOW_LOAD_EXAMPLES=no
       - AIRFLOW_WEBSERVER_HOST=airflow
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
@@ -52,16 +52,16 @@ services:
   airflow-scheduler:
     image: bitnami/airflow-scheduler:latest
     environment:
-      - AIRFLOW_FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - AIRFLOW_SECRET_KEY=a25mQ1FHTUh3MnFRSk5KMEIyVVU2YmN0VGRyYTVXY08=
+      - AIRFLOW_FERNET_KEY=${AIRFLOW_FERNET_KEY}
+      - AIRFLOW_SECRET_KEY=${AIRFLOW_SECRET_KEY}
       - AIRFLOW_EXECUTOR=CeleryExecutor
-      - AIRFLOW_DATABASE_NAME=bitnami_airflow
-      - AIRFLOW_DATABASE_USERNAME=bn_airflow
-      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_DATABASE_NAME=${POSTGRESQL_DATABASE}
+      - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
+      - AIRFLOW_DATABASE_PASSWORD=${AIRFLOW_DATABASE_PASSWORD}
       - AIRFLOW_DATABASE_HOST=postgresql
       - AIRFLOW_DATABASE_PORT=5432
       - AIRFLOW_BROKER_URL=redis://redis:6379/0
-      - AIRFLOW_RESULT_BACKEND=db+postgresql://bn_airflow:bitnami1@postgresql:5432/bitnami_airflow
+      - AIRFLOW_RESULT_BACKEND=db+postgresql://${POSTGRESQL_USERNAME}:${AIRFLOW_DATABASE_PASSWORD}@postgresql:5432/${POSTGRESQL_DATABASE}
       - AIRFLOW_LOAD_EXAMPLES=no
       - AIRFLOW_WEBSERVER_HOST=airflow
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
@@ -76,19 +76,19 @@ services:
   airflow:
     image: bitnami/airflow:latest
     environment:
-      - AIRFLOW_FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - AIRFLOW_SECRET_KEY=a25mQ1FHTUh3MnFRSk5KMEIyVVU2YmN0VGRyYTVXY08=
+      - AIRFLOW_FERNET_KEY=${AIRFLOW_FERNET_KEY}
+      - AIRFLOW_SECRET_KEY=${AIRFLOW_SECRET_KEY}
       - AIRFLOW_EXECUTOR=CeleryExecutor
-      - AIRFLOW_DATABASE_NAME=bitnami_airflow
-      - AIRFLOW_DATABASE_USERNAME=bn_airflow
-      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_DATABASE_NAME=${POSTGRESQL_DATABASE}
+      - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
+      - AIRFLOW_DATABASE_PASSWORD=${AIRFLOW_DATABASE_PASSWORD}
       - AIRFLOW_DATABASE_HOST=postgresql
       - AIRFLOW_DATABASE_PORT=5432
       - AIRFLOW_BROKER_URL=redis://redis:6379/0
-      - AIRFLOW_RESULT_BACKEND=db+postgresql://bn_airflow:bitnami1@postgresql:5432/bitnami_airflow
-      - AIRFLOW_PASSWORD=bitnami123
-      - AIRFLOW_USERNAME=user
-      - AIRFLOW_EMAIL=user@example.com
+      - AIRFLOW_RESULT_BACKEND=db+postgresql://${POSTGRESQL_USERNAME}:${AIRFLOW_DATABASE_PASSWORD}@postgresql:5432/${POSTGRESQL_DATABASE}
+      - AIRFLOW_PASSWORD=${AIRFLOW_PASSWORD}
+      - AIRFLOW_USERNAME=${AIRFLOW_USERNAME}
+      - AIRFLOW_EMAIL=${AIRFLOW_EMAIL}
       - AIRFLOW_LOAD_EXAMPLES=no
       - AIRFLOW__API__AUTH_BACKEND=airflow.api.auth.backend.basic_auth
       - AIRFLOW__WEBSERVER__RBAC=True
@@ -108,14 +108,14 @@ services:
   airflow-init:
     image: bitnami/airflow:latest
     environment:
-      - AIRFLOW_DATABASE_NAME=bitnami_airflow
-      - AIRFLOW_DATABASE_USERNAME=bn_airflow
-      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_DATABASE_NAME=${POSTGRESQL_DATABASE}
+      - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
+      - AIRFLOW_DATABASE_PASSWORD=${AIRFLOW_DATABASE_PASSWORD}
       - AIRFLOW_DATABASE_HOST=postgresql
       - AIRFLOW_DATABASE_PORT=5432
-      - AIRFLOW_USERNAME=user
-      - AIRFLOW_PASSWORD=bitnami123
-      - AIRFLOW_EMAIL=user@example.com
+      - AIRFLOW_USERNAME=${AIRFLOW_USERNAME}
+      - AIRFLOW_PASSWORD=${AIRFLOW_PASSWORD}
+      - AIRFLOW_EMAIL=${AIRFLOW_EMAIL}
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
     entrypoint: /bin/bash -c "airflow db upgrade && airflow users create --username $${AIRFLOW_USERNAME} --password $${AIRFLOW_PASSWORD} --firstname Airflow --lastname Admin --role Admin --email $${AIRFLOW_EMAIL}"
     depends_on:
