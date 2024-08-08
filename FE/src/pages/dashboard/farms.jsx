@@ -7,9 +7,10 @@ import {
   Chip,
   Tooltip,
   Progress,
+  Button,
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { authorsTableData, projectsTableData } from "@/data";
+import { farmTableData } from "@/data";
 
 export function Farms() {
   return (
@@ -17,17 +18,28 @@ export function Farms() {
       <Card>
         <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
           <Typography variant="h6" color="white">
-            Authors Table
+            Farm List Table
           </Typography>
         </CardHeader>
+        <Button
+          variant="text"
+          color="blue-gray"
+          className="flex items-center gap-2"
+          // positon to right
+          style={{ marginLeft: "auto" }}
+        >
+          <Typography variant="button" color="gray">
+            Add Farm
+          </Typography>
+        </Button>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <table className="w-full min-w-[640px] table-auto">
             <thead>
               <tr>
-                {["author", "function", "status", "employed", ""].map((el) => (
+                {["num", "name", "location", "type", "online", "date", ""].map((el) => (
                   <th
                     key={el}
-                    className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                    className="border-b border-blue-gray-50 py-3  px-5 text-left"
                   >
                     <Typography
                       variant="small"
@@ -40,19 +52,24 @@ export function Farms() {
               </tr>
             </thead>
             <tbody>
-              {authorsTableData.map(
-                ({ img, name, email, job, online, date }, key) => {
+              {farmTableData.map(
+                ({ num, name, location, type, online, date }, key) => {
                   const className = `py-3 px-5 ${
-                    key === authorsTableData.length - 1
+                    key === farmTableData.length - 1
                       ? ""
                       : "border-b border-blue-gray-50"
                   }`;
 
                   return (
-                    <tr key={name}>
+                    <tr key={num}>
+                      <td className={className}>
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {num}
+                        </Typography>
+                      </td>
                       <td className={className}>
                         <div className="flex items-center gap-4">
-                          <Avatar src={img} alt={name} size="sm" variant="rounded" />
+                          {/* <Avatar src={img} alt={name} size="sm" variant="rounded" /> */}
                           <div>
                             <Typography
                               variant="small"
@@ -61,18 +78,20 @@ export function Farms() {
                             >
                               {name}
                             </Typography>
-                            <Typography className="text-xs font-normal text-blue-gray-500">
-                              {email}
-                            </Typography>
                           </div>
                         </div>
                       </td>
                       <td className={className}>
                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                          {job[0]}
+                          {location}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {type}
                         </Typography>
                         <Typography className="text-xs font-normal text-blue-gray-500">
-                          {job[1]}
+                          {type}
                         </Typography>
                       </td>
                       <td className={className}>
@@ -105,7 +124,7 @@ export function Farms() {
           </table>
         </CardBody>
       </Card>
-      <Card>
+      {/* <Card>
         <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
           <Typography variant="h6" color="white">
             Projects Table
@@ -213,7 +232,7 @@ export function Farms() {
             </tbody>
           </table>
         </CardBody>
-      </Card>
+      </Card> */}
     </div>
   );
 }

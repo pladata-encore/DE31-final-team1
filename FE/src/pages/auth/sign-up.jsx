@@ -15,12 +15,15 @@ export function SignUp() {
     email: "",
     name: "",
     password: "",
+    isCheck: false,
   });
 
   function checkFormValidation() {
     // check form validation
     if(regForm.email === "" || regForm.name === "" || regForm.password === ""){
       return "ERR_EMPTY";
+    } else if(regForm.isCheck === false){
+      return "ERR_CHECK";
     } else if(RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$").test(regForm.email) === false){
       return "ERR_EMAIL";
     } else if(RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\[\\]{}|;:\'",.<>/?`~\\-])[a-zA-Z0-9!@#$%^&*()_+\\[\\]{}|;:\'",.<>/?`~\\-]{8,16}$').test(regForm.password) === false){
@@ -41,16 +44,20 @@ export function SignUp() {
       return;
     }
 
-    // encode password to base64
-    regForm.password = btoa(regForm.password);
+    // make object to send to api
+    const regUserInfo = {
+      email: regForm.email,
+      name: regForm.name,
+      password: btoa(regForm.password) // encode password to base64
+    }
 
-    console.log(regForm);
+    console.log(regUserInfo);
     // call register api
-    // axios.post("http://localhost:3001/register", {
-    //   email: regForm.email,
-    //   name: regForm.name,
-    //   password: regForm.password,
-    // }).then((res) => {});
+    axios.post("http://localhost:3001/register", {
+      email: regForm.email,
+      name: regForm.name,
+      password: regForm.password,
+    }).then((res) => {});
   }
 
 
@@ -125,6 +132,7 @@ export function SignUp() {
               </Typography>
             }
             containerProps={{ className: "-ml-2.5" }}
+            onChange={(e) => setRegForm({ ...regForm, isCheck: e.target.checked })}
           />
           <Button
           className="mt-6" fullWidth
