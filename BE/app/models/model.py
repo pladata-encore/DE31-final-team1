@@ -15,13 +15,6 @@ class A(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(20)) 
 
-class UserInfo(Base):
-    __tablename__ = 'UserInfo'
-    UserId = Column(String(20), primary_key=True)
-    UserNm = Column(String(50))
-    UserEmail = Column(String(30))
-    UserPwd = Column(String(64))
-
 # 초기화
 async def init_models():
     async with engine.begin() as conn:
