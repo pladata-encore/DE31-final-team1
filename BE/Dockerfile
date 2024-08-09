@@ -21,7 +21,7 @@ COPY . /home/mydir/api-server
 # 가상환경 & 패키지 설치
 RUN apt update && \
     apt -y install python3.10 python3-venv python3-pip && \
-    . /home/mydir/api-server/.venv/bin/activate && pip install -r requirements.txt 
+    pip install -r requirements.txt 
 
 # Flask 환경 변수를 설정합니다.
 ENV FLASK_APP=run.py
@@ -29,4 +29,4 @@ ENV FLASK_APP=run.py
 # 포트 설정
 EXPOSE 5000
 
-CMD ["/home/mydir/api-server/.venv/bin/python", "run.py", "--host=0.0.0.0", "--port=5000"]
+CMD ["/usr/bin/python3", "run.py", "--host=0.0.0.0", "--port=19020"]
