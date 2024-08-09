@@ -11,4 +11,4 @@ app.register_blueprint(v2_bp, url_prefix='/v2')
 app.register_blueprint(t_bp, url_prefix='/t')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=19020)

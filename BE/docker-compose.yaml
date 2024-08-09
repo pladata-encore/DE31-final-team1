@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  flask-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "19020:19020"
+    environment:
+      FLASK_APP: run.py
+      FLASK_ENV: development
+    volumes:
+      - /home/dp/workspace/DE31-final-team1/BE:/home/mydir/api-server
