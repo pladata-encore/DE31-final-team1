@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: flask-api:1.0 
     ports:
       - "19020:19020"
     environment:
