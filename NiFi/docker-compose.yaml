@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  nifi:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: nifi
+    ports:
+      - "8443:8443"
+    environment:
+      - NIFI_WEB_HTTPS_PORT=8443
+      - NIFI_WEB_HTTPS_HOST=0.0.0.0
+      - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      - SINGLE_USER_CREDENTIALS_PASSWORD=admin_password
+      - NIFI_WEB_PROXY_HOST=192.168.1.234:8443
+    volumes:
+      - ./nifi/data/flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
+      - ./nifi/data/content_repository:/opt/nifi/nifi-current/content_repository
+      - ./nifi/data/provenance_repository:/opt/nifi/nifi-current/provenance_repository
+      - ./nifi/conf/authorizations.xml:/opt/nifi/nifi-current/conf/authorizations.xml
+      - ./nifi/conf/update-authorizations.sh:/opt/nifi/nifi-current/conf/update-authorizations.sh
+    user: root
