@@ -57,7 +57,19 @@ export function SignUp() {
       email: regForm.email,
       name: regForm.name,
       password: regForm.password,
-    }).then((res) => {});
+    }).then((res) => {
+      console.log(res);
+      if(res.data.status === "success"){
+        // redirect to main page
+        
+        // setIsSuccess(true);
+        console.log("Register success");
+      } else {
+        // show error modal
+        // setIsError(true);
+        console.log("Register error");
+      }
+    });
   }
 
 
