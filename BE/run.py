@@ -2,8 +2,12 @@ from quart import Quart
 from app.v1.main import v1_bp
 from app.v2.main import v2_bp
 from app.test.main import t_bp
+from flask_cors import CORS 
 
 app = Quart(__name__)
+
+# cors 적용 (모두 허용)
+CORS(app)
 
 # 블루프린트를 등록하여 버전별로 API를 관리
 app.register_blueprint(v1_bp, url_prefix='/v1')
