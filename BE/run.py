@@ -2,12 +2,30 @@ from quart import Quart
 from app.v1.main import v1_bp
 from app.v2.main import v2_bp
 from app.test.main import t_bp
-from flask_cors import CORS 
+import quart_cors
+import quart
+from dotenv import load_dotenv
+import os 
 
-app = Quart(__name__)
+# .env 파일 로드
+load_dotenv()
+
+# 환경 변수 가져오기
+CLIENT=os.getenv('CLIENT')
 
 # cors 적용 (모두 허용)
-CORS(app)
+app = quart_cors.cors(quart.Quart(__name__), 
+    allow_origin=f'{CLIENT}', 
+    allow_methods=['*'], 
+    allow_headers=['Content-Type', 
+                   'Authorization',
+                   'Access-Control-Max-Age', 
+                   'Access-Control-Allow-Methods',
+                   'access-control-allow-origin',
+                   'access-control-allow-credentials',
+                   'access-control-allow-headers'],
+    allow_credentials=True
+    )
 
 # 블루프린트를 등록하여 버전별로 API를 관리
 app.register_blueprint(v1_bp, url_prefix='/v1')
