@@ -17,7 +17,7 @@ class A(Base):
 
 class UserInfo(Base):
     __tablename__ = 'UserInfo'
-    UserId = Column(String(20), primary_key=True)
+    UserId = Column(Integer, primary_key=True, autoincrement=True)
     UserNm = Column(String(50))
     UserEmail = Column(String(30))
     UserPwd = Column(String(64))
