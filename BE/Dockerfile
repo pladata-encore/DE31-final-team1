@@ -27,6 +27,6 @@ RUN apt update && \
 ENV FLASK_APP=run.py
 
 # 포트 설정
-EXPOSE 5000
+EXPOSE 19020
 
 CMD ["/usr/bin/python3", "run.py", "--host=0.0.0.0", "--port=19020"]
