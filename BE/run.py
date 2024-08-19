@@ -4,26 +4,17 @@ from app.v2.main import v2_bp
 from app.test.main import t_bp
 import quart_cors
 import quart
-from dotenv import load_dotenv
-import os 
-
-# .env 파일 로드
-load_dotenv()
-
-# 환경 변수 가져오기
-CLIENT=os.getenv('CLIENT')
 
 # cors 적용 (모두 허용)
 app = quart_cors.cors(quart.Quart(__name__), 
-    allow_origin=f'{CLIENT}', 
-    allow_methods=['*'], 
+    allow_origin='*', 
+    allow_methods=['POST','GET','OPTIONS','PUT'], 
     allow_headers=['Content-Type', 
-                   'Authorization',
+                   'Access-Control-Allow-Origin',
                    'Access-Control-Max-Age', 
                    'Access-Control-Allow-Methods',
-                   'access-control-allow-origin',
-                   'access-control-allow-credentials',
-                   'access-control-allow-headers'],
+                   'Access-Control-Allow-Headers',
+                   'Access-Control-Allow-Credentials'],
     allow_credentials=True
     )
 
