@@ -7,7 +7,7 @@ import quart
 
 # cors 적용 (모두 허용)
 app = quart_cors.cors(quart.Quart(__name__), 
-    allow_origin='http://localhost:9090', 
+    allow_origin='*', 
     allow_methods=['POST','GET','OPTIONS','PUT'], 
     allow_headers=['Content-Type', 
                    'Access-Control-Allow-Origin',
