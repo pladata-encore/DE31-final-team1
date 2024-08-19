@@ -2,6 +2,7 @@ from quart import Quart
 from app.v1.main import v1_bp
 from app.v2.main import v2_bp
 from app.test.main import t_bp
+
 import quart_cors
 import quart
 
@@ -17,6 +18,7 @@ app = quart_cors.cors(quart.Quart(__name__),
                    'Access-Control-Allow-Credentials'],
     allow_credentials=True
     )
+
 
 # 블루프린트를 등록하여 버전별로 API를 관리
 app.register_blueprint(v1_bp, url_prefix='/v1')

@@ -6,9 +6,74 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
+import React from "react";
+import axios from "axios";
 
 
 export function SignUp() {
+  const [regForm, setRegForm] = React.useState({
+    email: "",
+    name: "",
+    password: "",
+    isCheck: false,
+  });
+
+  function checkFormValidation() {
+    // check form validation
+    if(regForm.email === "" || regForm.name === "" || regForm.password === ""){
+      return "ERR_EMPTY";
+    } else if(regForm.isCheck === false){
+      return "ERR_CHECK";
+    } else if(RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$").test(regForm.email) === false){
+      return "ERR_EMAIL";
+    } else if(RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\[\\]{}|;:\'",.<>/?`~\\-])[a-zA-Z0-9!@#$%^&*()_+\\[\\]{}|;:\'",.<>/?`~\\-]{8,16}$').test(regForm.password) === false){
+      return "ERR_PASSWORD";
+    }
+    return "OK";
+  }
+
+  function onClickRegister() {
+    console.log("Register");
+    // check form validation
+    const formValidation = checkFormValidation();
+    if(formValidation !== "OK"){
+      console.log("Form validation error", formValidation);
+      // show error modal
+      // show modal
+      // setIsError(true);
+      return;
+    }
+
+    // make object to send to api
+    const regUserInfo = {
+      email: regForm.email,
+      name: regForm.name,
+      password: btoa(regForm.password) // encode password to base64
+    }
+
+    console.log(regUserInfo);
+    // call register api
+    axios.post("http://localhost:3001/register", {
+      email: regForm.email,
+      name: regForm.name,
+      password: regForm.password,
+    }).then((res) => {
+      console.log(res);
+      if(res.data.status === "success"){
+        // redirect to main page
+        
+        // setIsSuccess(true);
+        console.log("Register success");
+      } else {
+        // show error modal
+        // setIsError(true);
+        console.log("Register error");
+      }
+    });
+  }
+
+
+
   return (
     <section className="m-8 flex">
             <div className="w-2/5 h-full hidden lg:block">
@@ -34,6 +99,32 @@ export function SignUp() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
+            />
+            <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
+              Your name
+            </Typography>
+            <Input
+              size="lg"
+              placeholder="John Doe"
+              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+              onChange={(e) => setRegForm({ ...regForm, name: e.target.value })}
+            />
+            <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
+              Password
+            </Typography>
+            <Input
+              size="lg"
+              placeholder="********"
+              type="password"
+              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+              onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
             />
           </div>
           <Checkbox
@@ -53,12 +144,16 @@ export function SignUp() {
               </Typography>
             }
             containerProps={{ className: "-ml-2.5" }}
+            onChange={(e) => setRegForm({ ...regForm, isCheck: e.target.checked })}
           />
-          <Button className="mt-6" fullWidth>
+          <Button
+          className="mt-6" fullWidth
+          onClick={onClickRegister}
+          >
             Register Now
           </Button>
 
-          <div className="space-y-4 mt-8">
+          {/* <div className="space-y-4 mt-8">
             <Button size="lg" color="white" className="flex items-center gap-2 justify-center shadow-md" fullWidth>
               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_1156_824)">
@@ -79,7 +174,7 @@ export function SignUp() {
               <img src="/img/twitter-logo.svg" height={24} width={24} alt="" />
               <span>Sign in With Twitter</span>
             </Button>
-          </div>
+          </div> */}
           <Typography variant="paragraph" className="text-center text-blue-gray-500 font-medium mt-4">
             Already have an account?
             <Link to="/auth/sign-in" className="text-gray-900 ml-1">Sign in</Link>

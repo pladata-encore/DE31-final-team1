@@ -32,17 +32,22 @@ export function DashboardNavbar() {
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
 
-  // get user cookie "userName" and "userAuth"
-  const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+  let cookies = document.cookie.split(";").reduce((acc, cookie) => {
     const [key, value] = cookie.split("=").map(part => part.trim());
     acc[key] = value;
-    return acc;
+  return acc;
   }, {});
-  
-  const userName = cookies["userName"];
-  const userAuth = cookies["userAuth"];
-  
 
+  console.log("init", cookies.userAuth);
+
+  function onClickSignOut() {
+    // remove user cookie
+    document.cookie = `userName=; expires=${new Date(0).toUTCString()}; path=/`;
+    document.cookie = `userAuth=; expires=${new Date(0).toUTCString()}; path=/`;
+
+    // reload current page
+    window.location.reload();
+  }
 
   return (
     <Navbar
@@ -96,7 +101,7 @@ export function DashboardNavbar() {
             <Bars3Icon strokeWidth={3} className="h-6 w-6 text-blue-gray-500" />
           </IconButton>
           {/* if user cookie is exist replace login to userinfo */}
-          {userName && userAuth ? (
+          {!cookies.userAuth ? (
 
           <Link to="/auth/sign-in">
             <Button
@@ -116,10 +121,20 @@ export function DashboardNavbar() {
             </IconButton>
           </Link>
           ):(
-            <Link to="/auth/sign-in">
-              <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
-              {userName}
-            </Link>
+            <>
+              <Link to="/auth/sign-in">
+                <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
+                {cookies.userName}
+              </Link>
+              <Button
+                variant="text"
+                color="blue-gray"
+                className="hidden items-center gap-1 px-4 xl:flex normal-case"
+                onClick={onClickSignOut}
+              >
+                Sign Out
+              </Button>
+            </>
           )
           }
           <Menu>
