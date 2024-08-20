@@ -3,3 +3,4 @@
 .venv
 .docker
 __pycache__/
+.create_jwt_secret_key.py

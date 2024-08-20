@@ -2,7 +2,7 @@ from quart import Blueprint, request, jsonify
 from app.models.model import UserInfo, async_session
 from sqlalchemy.future import select
 import base64
-import bcrypt # type: ignore
+import bcrypt # type: ignore 
 
 
 # Create Blueprint
@@ -40,11 +40,12 @@ async def createUser():
             return jsonify({"error": "중복된 이메일입니다."}), 400
 
         # 디코딩 & 해시화 (64글자)
-        decoded_pwd = base64.b64encode(pwd.encode()).decode()
-        hashed_pwd = bcrypt.hashpw(decoded_pwd.encode(), bcrypt.gensalt())
+        # client에서 base64로 인코딩 된 값을 디코딩 -> 해시화 -> 문자열로 변환
+        decoded_pwd = base64.b64encode(pwd.encode("utf-8"))
+        hashed_pwd = bcrypt.hashpw(decoded_pwd, bcrypt.gensalt())
         serializable_pwd = hashed_pwd.decode("utf-8")
-        
-        # 신규 유저 정보 매핑
+
+        # 신규 유저 정보 매핑 
         new_user = UserInfo(UserNm=name, UserEmail=email, UserPwd=hashed_pwd)
 
         try:
