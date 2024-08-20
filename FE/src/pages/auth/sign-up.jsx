@@ -53,7 +53,7 @@ export function SignUp() {
 
     console.log(regUserInfo);
     // call register api
-    axios.post("http://localhost:3001/register", {
+    axios.post("http://localhost:19020/v1/users/createUser/", {
       email: regForm.email,
       name: regForm.name,
       password: regForm.password,
@@ -71,8 +71,6 @@ export function SignUp() {
       }
     });
   }
-
-
 
   return (
     <section className="m-8 flex">

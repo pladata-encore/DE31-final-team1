@@ -11,28 +11,39 @@ import {
 } from "@material-tailwind/react";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 
 export function SignIn() {
   const navigate = useNavigate();
   const [isError, setIsError] = React.useState(false);
+  const [loginForm, setLoginForm] = React.useState({
+    email: "",
+    password: "",
+  });
   
   function onClickLogin() {
       console.log("Login");
       // call login api
-      // if success
-      // save user data to local storage or cookie
-      // and redirect to dashboard with user data
-      if(true){
-        // save user data to cookie, expires in 1 hour
-        document.cookie = `userName=userName; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
-        document.cookie = `userAuth=auth; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
-        // redirect to dashboard
-        navigate("/dashboard/home");
-      } else { // if failed show error modal
+      axios.post("http://localhost:19020/v1/users/login/", {
+        email: loginForm.email,
+        password: btoa(loginForm.password),
+      }).then((res) => {
+        if(res.access_token){
+          console.log(res);
+          document.cookie = `userEmail=${res.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
+          document.cookie = `userName=${res.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+          document.cookie = `userAuth=${res.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+          navigate("/dashboard/home");
+        } else { // if failed show error modal
+          // show modal
+          setIsError(true);
+        }
+      }).catch((err) => {
+        console.log(err);
         // show modal
         setIsError(true);
-      }
+      });
   };
 
   return (
@@ -69,6 +80,7 @@ export function SignIn() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
             />
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Password
@@ -81,6 +93,7 @@ export function SignIn() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
             />
           </div>
           {/* <Checkbox
