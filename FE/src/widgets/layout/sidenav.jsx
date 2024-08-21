@@ -24,10 +24,20 @@ export function Sidenav({ brandImg, brandName, routes }) {
     return acc;
   }, {});
 
+  let case_routes = [];
+
   // filter routes 
   if(cookies.userAuth){
-    routes = routes.filter(route => route.layout === "dashboard");
+    case_routes = routes.filter(route => route.layout === "dashboard" || route.isAuth === true);
+    // only show isAuth = true routes
+    // case_routes+=routes.filter(route => route.isAuth === true);
+    // .append(routes.filter(route => route.isAuth === true));
+  } else {
+    // only show isAuth = false routes
+    case_routes = routes.filter(route => (route.layout === "dashboard" || route.isAuth === false) && (route.title !== "user pages"));
+    // case_routes+=routes.filter(route => route.isAuth === false);
   }
+
 
   return (
     <aside
@@ -58,7 +68,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
         </IconButton>
       </div>
       <div className="m-4">
-        {routes.map(({ layout, title, pages }, key) => (
+        {case_routes.map(({ layout, title, pages }, key) => (
           <ul key={key} className="mb-4 flex flex-col gap-1">
             {title && (
               <li className="mx-3.5 mt-4 mb-2">
