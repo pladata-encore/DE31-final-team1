@@ -22,7 +22,7 @@ async def login():
         
         email = req.get("email")
         pwd = req.get("password")
-        decoded_pwd = base64.b64decode(pwd.encode("utf-8"))
+        encoded_pwd = base64.b64encode(pwd.encode("utf-8"))
 
         # eamil을 통한 사용자 정보 불러오기
         search = await session.execute(select(UserInfo).where(UserInfo.UserEmail == email))
@@ -33,9 +33,9 @@ async def login():
             return jsonify({"error": "존재하지 않는 이메일입니다."}), 401
 
         # 패스워드 일치 여부 확인
-        if not bcrypt.checkpw(decoded_pwd, result.UserPwd.encode("utf-8")):
+        if not bcrypt.checkpw(encoded_pwd, result.UserPwd.encode("utf-8")):
             return jsonify({"error": "패스워드가 일치하지 않습니다."}), 402
-        
+
         # UserID를 통한 토큰 정보 불러오기
         search_token = await session.execute(select(JwtInfo).where(JwtInfo.UserID == result.UserID))
         result_token = search_token.scalar()
