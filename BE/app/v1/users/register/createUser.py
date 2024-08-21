@@ -41,12 +41,12 @@ async def createUser():
 
         # 디코딩 & 해시화 (64글자)
         # client에서 base64로 인코딩 된 값을 디코딩 -> 해시화 -> 문자열로 변환
-        decoded_pwd = base64.b64encode(pwd.encode("utf-8"))
+        decoded_pwd = base64.b64decode(pwd.encode("utf-8"))
         hashed_pwd = bcrypt.hashpw(decoded_pwd, bcrypt.gensalt())
         serializable_pwd = hashed_pwd.decode("utf-8")
 
         # 신규 유저 정보 매핑 
-        new_user = UserInfo(UserNm=name, UserEmail=email, UserPwd=hashed_pwd)
+        new_user = UserInfo(UserNm=name, UserEmail=email, UserPwd=serializable_pwd)
 
         try:
             if result != email:
