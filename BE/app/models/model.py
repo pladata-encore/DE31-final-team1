@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.config.settings import DATABASE_URL
@@ -17,10 +17,17 @@ class A(Base):
 
 class UserInfo(Base):
     __tablename__ = 'UserInfo'
-    UserId = Column(Integer, primary_key=True, autoincrement=True)
+    UserID = Column(Integer, primary_key=True, autoincrement=True)
     UserNm = Column(String(50))
     UserEmail = Column(String(30))
     UserPwd = Column(String(64))
+
+class JwtInfo(Base):
+    __tablename__ = 'JwtInfo'
+    UserID = Column(Integer, ForeignKey('UserInfo.UserID'), primary_key=True, nullable=False)
+    AccessToken = Column(String(1024), nullable=True)
+    IssuedAt = Column(DateTime, nullable=True)
+    ExpiryAt = Column(DateTime, nullable=True)
 
 # 초기화
 async def init_models():

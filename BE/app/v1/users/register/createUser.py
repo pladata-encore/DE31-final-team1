@@ -2,7 +2,7 @@ from quart import Blueprint, request, jsonify
 from app.models.model import UserInfo, async_session
 from sqlalchemy.future import select
 import base64
-import bcrypt # type: ignore
+import bcrypt # type: ignore 
 
 
 # Create Blueprint
@@ -26,6 +26,7 @@ async def createUser():
         name = req.get("name")
         email = req.get("email")
         pwd = req.get("password")
+        
 
         # 1. 필수 정보 체크
         if not name or not email or not pwd:
@@ -40,24 +41,23 @@ async def createUser():
             return jsonify({"error": "중복된 이메일입니다."}), 400
 
         # 디코딩 & 해시화 (64글자)
-        decoded_pwd = base64.b64encode(pwd.encode()).decode()
-        hashed_pwd = bcrypt.hashpw(decoded_pwd.encode(), bcrypt.gensalt())
+        # client에서 base64로 들어온 값을 bytes객체로 변환 -> 해시화 -> 문자열로 변환
+        encoded_pwd = base64.b64encode(pwd.encode("utf-8"))
+        hashed_pwd = bcrypt.hashpw(encoded_pwd, bcrypt.gensalt())
         serializable_pwd = hashed_pwd.decode("utf-8")
-        
-        # 신규 유저 정보 매핑
-        new_user = UserInfo(UserNm=name, UserEmail=email, UserPwd=hashed_pwd)
+
+        # 신규 유저 정보 매핑 
+        new_user = UserInfo(UserNm=name, UserEmail=email, UserPwd=serializable_pwd)
 
         try:
             if result != email:
                 # 3. 중복이 없을 경우 DB에 추가
                 session.add(new_user)
                 await session.commit()
-                return jsonify({"response": 200, 
-                                "message" : "Successfully", 
-                                "user" : {
-                                    "name" : new_user.UserNm,
-                                    "email" : new_user.UserEmail,
-                                    "pwd" : serializable_pwd
-                                }})
+                return jsonify({
+                            "name" : new_user.UserNm,
+                            "email" : new_user.UserEmail,
+                            "pwd" : serializable_pwd
+                            })
         except Exception as e:
             return jsonify({"error": str(e)})

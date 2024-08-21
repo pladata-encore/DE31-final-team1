@@ -9,9 +9,11 @@ attrs==23.2.0
 bcrypt==4.2.0
 blinker==1.8.2
 certifi==2024.7.4
+cffi==1.17.0
 charset-normalizer==3.3.2
 click==8.1.7
 comm==0.2.2
+cryptography==43.0.0
 debugpy==1.8.2
 decorator==5.1.1
 exceptiongroup==1.2.2
@@ -46,7 +48,9 @@ prompt_toolkit==3.0.47
 psutil==6.0.0
 ptyprocess==0.7.0
 pure_eval==0.2.3
+pycparser==2.22
 Pygments==2.18.0
+PyJWT==2.9.0
 PyMySQL==1.1.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
