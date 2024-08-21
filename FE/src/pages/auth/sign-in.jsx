@@ -13,6 +13,11 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// axios custom header for evade cors error
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Headers"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Methods"] = "*";
+axios.defaults.headers.post["Content-Type"] = "application/json";
 
 export function SignIn() {
   const navigate = useNavigate();

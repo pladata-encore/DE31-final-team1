@@ -9,6 +9,12 @@ import { Link } from "react-router-dom";
 import React from "react";
 import axios from "axios";
 
+// axios custom header for evade cors error
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Headers"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Methods"] = "*";
+axios.defaults.headers.post["Content-Type"] = "application/json";
+
 
 export function SignUp() {
   const [regForm, setRegForm] = React.useState({
