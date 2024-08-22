@@ -141,7 +141,7 @@ async def verify_token(email):
         token = await create_token(email)
 
         issued_time = datetime.now() + timedelta(hours=9)
-        expiry_time = issued_time + timedelta(hours=30)
+        expiry_time = issued_time + timedelta(minutes=30)
 
         if update_token:
                 update_token.AccessToken = token
