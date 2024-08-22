@@ -59,11 +59,8 @@ export function SignUp() {
 
     console.log(regUserInfo);
     // call register api
-    axios.post("http://localhost:19020/v1/users/createUser/", {
-      email: regForm.email,
-      name: regForm.name,
-      password: regForm.password,
-    }).then((res) => {
+    axios.post("http://192.168.1.230:19020/v1/users/createUser/", regUserInfo)
+    .then((res) => {
       console.log(res);
       if(res.data.status === "success"){
         // redirect to main page

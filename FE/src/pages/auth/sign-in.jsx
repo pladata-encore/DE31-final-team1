@@ -30,7 +30,7 @@ export function SignIn() {
   function onClickLogin() {
       console.log("Login");
       // call login api
-      axios.post("http://localhost:19020/v1/users/login/", {
+      axios.post("http://192.168.1.230:19020/v1/users/login/", {
         email: loginForm.email,
         password: btoa(loginForm.password),
       }).then((res) => {
