@@ -13,16 +13,19 @@ from types import SimpleNamespace
 # 비동기 컨텍스트 관리자
 @asynccontextmanager
 
+
 # 데이터 베이스 세션 함수화
 async def get_session():
     async with async_session() as session:
         yield session
+
 
 # 프리플라이트 요청 처리
 async def preflight_request():
     if request.method == 'OPTIONS':
         return jsonify({"message": "Preflight request"}), 200
     return None 
+
 
 # JSON 데이터 유효성 검사
 async def json_validation(require_name=True):
@@ -65,6 +68,7 @@ async def get_email(email):
         search = await session.execute(select(UserInfo).where(UserInfo.UserEmail == email))
         return search.scalar()
     
+
 # 비밀번호 해시화 및 문자열 변환
 async def hashed_password(pwd):
     # 비밀번호를 utf-8로 인코딩하여 바이트 스트림으로 변환
@@ -72,6 +76,7 @@ async def hashed_password(pwd):
     # 해시된 비밀번호를 utf-8로 디코딩하여 저장 (DB에 문자열로 저장하기 위함)
     serializable_pwd = hashed_pwd.decode("utf-8")
     return hashed_pwd, serializable_pwd
+
 
 # 비밀번호 검증 
 async def verify_password(user_info, pwd):
@@ -122,6 +127,7 @@ async def create_token(email):
     token = jwt.encode(payload, current_app.config["JWT_SECRET_KEY"], "HS256")
     return token
             
+
 # 토큰 갱신
 async def verify_token(email):
     async with get_session() as session:
@@ -145,7 +151,8 @@ async def verify_token(email):
 
                 return token
 
-# 신규 토큰 삽입
+
+# 신규 토큰 DB 삽입
 async def new_insert_token(id, token):
     async with get_session() as session:
         if not token:
