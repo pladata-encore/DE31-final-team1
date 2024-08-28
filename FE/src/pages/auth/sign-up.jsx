@@ -9,6 +9,12 @@ import { Link } from "react-router-dom";
 import React from "react";
 import axios from "axios";
 
+// axios custom header for evade cors error
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Headers"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Methods"] = "*";
+axios.defaults.headers.post["Content-Type"] = "application/json";
+
 
 export function SignUp() {
   const [regForm, setRegForm] = React.useState({
@@ -53,11 +59,8 @@ export function SignUp() {
 
     console.log(regUserInfo);
     // call register api
-    axios.post("http://localhost:3001/register", {
-      email: regForm.email,
-      name: regForm.name,
-      password: regForm.password,
-    }).then((res) => {
+    axios.post("http://192.168.1.230:19020/v1/users/createUser/", regUserInfo)
+    .then((res) => {
       console.log(res);
       if(res.data.status === "success"){
         // redirect to main page
@@ -71,8 +74,6 @@ export function SignUp() {
       }
     });
   }
-
-
 
   return (
     <section className="m-8 flex">
