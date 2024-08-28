@@ -7,7 +7,10 @@ main_bp = Blueprint('main',__name__)
 @main_bp.route('/createUser/', methods=['POST', 'OPTIONS'])
 async def createUser():
 
-        await preflight_request()
+        pr = await preflight_request()
+        if(pr):
+            return pr
+
         
         # 정합성 체크
         success, req = await json_validation(require_name=True)
@@ -27,7 +30,9 @@ async def createUser():
 @main_bp.route('/login/', methods=['POST', 'OPTIONS'])
 async def login():
 
-        await preflight_request()
+        pr = await preflight_request()
+        if(pr):
+            return pr
         
         # 정합성 체크
         success, req = await json_validation(require_name=False)

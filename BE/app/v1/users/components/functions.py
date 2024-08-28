@@ -39,7 +39,7 @@ async def create_user(email, name, pwd):
                 "email" : new_user.UserEmail,
                 "name" : new_user.UserNm,
                 "access_token" : token
-            }), 201
+            }), 200
         
         except Exception as e:
             await session.rollback()  # 트랜잭션 롤백
@@ -76,7 +76,7 @@ async def login_validation(email, pwd):
                     "email" : email,
                     "name" : user_info.UserNm,
                     "access_token" : token
-                }), 201
+                }), 200
 
             issued_time = datetime.now() + timedelta(hours=9)
 
@@ -87,7 +87,7 @@ async def login_validation(email, pwd):
                     "email" : email, 
                     "name" : user_info.UserNm,
                     "access_token" : token
-                }), 201
+                }), 200
             
             return True, jsonify({
                 "email" : email, 
