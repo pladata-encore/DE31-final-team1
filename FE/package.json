@@ -3,9 +3,9 @@
   "private": true,
   "version": "2.1.0",
   "type": "module",
-  "scripts": {
+  "scripts": { 
     "dev": "vite --port 9090 --host 0.0.0.0 --debug",
-    "build": "vite build",
+    "build": "vite build", 
     "preview": "vite preview --port 9090 --host 0.0.0.0"
   },
   "dependencies": {
