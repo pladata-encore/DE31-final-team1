@@ -91,7 +91,7 @@ async def verify_password(user_info, pwd):
             return True, None, 200
         else:
             # 비밀번호가 일치하지 않을 경우
-            return False, jsonify({"error": "패스워드가 일치하지 않습니다."}), 402
+            return False, jsonify({"error": "패스워드가 일치하지 않습니다."}), 400
     except Exception as e:
         return False, jsonify({"error": "비밀번호 검증 중 오류가 발생했습니다.", "details": str(e)}), 500
         
@@ -168,7 +168,7 @@ async def new_insert_token(id, token):
             )
             session.add(new_token)
             await session.commit()
-            return True, jsonify({"message": "토큰이 성공적으로 저장되었습니다."}), 201
+            return True, jsonify({"message": "토큰이 성공적으로 저장되었습니다."}), 200
 
         except Exception as e:
             await session.rollback()  # 트랜잭션 롤백
