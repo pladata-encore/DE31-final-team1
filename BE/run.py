@@ -1,5 +1,5 @@
 from quart import Quart
-from app.v1.main import v1_bp
+from app.v1.routes import v1_bp
 from app.v2.main import v2_bp
 from app.test.main import t_bp
 import os
