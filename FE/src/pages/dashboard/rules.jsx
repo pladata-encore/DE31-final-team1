@@ -18,7 +18,7 @@ import "@xyflow/react/dist/style.css";
 export function Rules() {
   
   return (
-    <Flow width="100%" height="50vw" />
+    <Flow width="100%" height="86vh" />
   );
 }
 
