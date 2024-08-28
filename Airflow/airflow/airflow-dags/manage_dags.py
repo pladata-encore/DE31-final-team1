@@ -1,6 +1,7 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
-from datetime import datetime, timedelta
+fom airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from airflow.utils.dates import days_ago
+from airflow.utils.task_group import TaskGroup
 import os
 
 # DAGs를 저장할 디렉토리
@@ -8,7 +9,7 @@ DAG_DIR = "/opt/bitnami/airflow/dags"
 
 # 기본 인자 설정
 default_args = {
-    'start_date': datetime(2023, 1, 1),
+    'start_date': days_ago(1),
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
     'catchup': False
@@ -32,12 +33,13 @@ def create_new_dag(**kwargs):
 
     dag_content = f"""
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
 
 default_args = {{
     'owner': '{user_id}',
-    'start_date': datetime(2023, 1, 1),
+    'start_date': days_ago(1),
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }}
@@ -58,9 +60,15 @@ def print_context(ds, **kwargs):
     return f'Logged date for {user_id}'
 
 with dag:
-    t1 = PythonOperator(
+    t1 = KubernetesPodOperator(
+        namespace='airflow',
+        image="python:3.8-slim",
+        cmds=["python", "-c"],
+        arguments=["print_context(ds='{{ ds }}', **{{ task_instance.xcom_pull(task_ids='print_date') }})"],
+        name="airflow-task-pod",
         task_id='print_date',
-        python_callable=print_context,
+        get_logs=True,
+        is_delete_operator_pod=True
     )
 """
     try:
@@ -102,36 +110,45 @@ def list_dags(**kwargs):
 with DAG('dag_manager', schedule_interval=None, default_args=default_args, access_control={'User': {'can_dag_read'}, 'Admin': {'can_dag_read', 'can_dag_edit'}}) as dag:
 
     # DAG 생성 Task
-    create_dag_task = PythonOperator(
+    create_dag_task = KubernetesPodOperator(
         task_id='create_new_dag',
-        python_callable=create_new_dag,
-        op_kwargs={
-            'user_id': '{{ dag_run.conf["user_id"] }}',  # 사용자 ID
-            'dag_id': '{{ dag_run.conf["dag_id"] }}',
-            'execute_task': '{{ dag_run.conf["execute_task"] }}'  # 실행할 태스크 지정
-        },
+        namespace='airflow',
+        image='python:3.8-slim',
+        cmds=['python', '-c'],
+        arguments=[
+            "from manage_dag import create_new_dag; create_new_dag(user_id='{{ dag_run.conf['user_id'] }}', dag_id='{{ dag_run.conf['dag_id'] }}', execute_task='{{ dag_run.conf['execute_task'] }}')"
+        ],
+        name='create-dag-task-pod',
+        get_logs=True,
+        is_delete_operator_pod=True,
     )
 
     # DAG 삭제 Task
-    delete_dag_task = PythonOperator(
+    delete_dag_task = KubernetesPodOperator(
         task_id='delete_dag',
-        python_callable=delete_dag,
-        op_kwargs={
-            'user_id': '{{ dag_run.conf["user_id"] }}',  # 사용자 ID
-            'dag_id': '{{ dag_run.conf["dag_id"] }}',
-            'execute_task': '{{ dag_run.conf["execute_task"] }}'  # 실행할 태스크 지정
-        },
+        namespace='airflow',
+        image='python:3.8-slim',
+        cmds=['python', '-c'],
+        arguments=[
+            "from manage_dag import delete_dag; delete_dag(user_id='{{ dag_run.conf['user_id'] }}', dag_id='{{ dag_run.conf['dag_id'] }}', execute_task='{{ dag_run.conf['execute_task'] }}')"
+        ],
+        name='delete-dag-task-pod',
+        get_logs=True,
+        is_delete_operator_pod=True,
     )
 
     # DAG 목록 조회 Task
-    list_dags_task = PythonOperator(
+    list_dags_task = KubernetesPodOperator(
         task_id='list_dags',
-        python_callable=list_dags,
-        op_kwargs={
-            'user_id': '{{ dag_run.conf["user_id"] }}',  # 사용자 ID
-            'execute_task': '{{ dag_run.conf["execute_task"] }}'  # 실행할 태스크 지정
-        },
+        namespace='airflow',
+        image='python:3.8-slim',
+        cmds=['python', '-c'],
+        arguments=[
+            "from manage_dag import list_dags; list_dags(user_id='{{ dag_run.conf['user_id'] }}', execute_task='{{ dag_run.conf['execute_task'] }}')"
+        ],
+        name='list-dags-task-pod',
+        get_logs=True,
+        is_delete_operator_pod=True,
     )
 
     # 각 태스크는 독립적으로 실행될 수 있도록 의존성을 설정하지 않음
-
