@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -11,6 +11,8 @@ import {
 } from '@xyflow/react';
 import FlowSidenav from '@/widgets/layout/flow-sidenav';
 import { DnDProvider, useDnD } from '@/widgets/layout/flow-dndContext'
+import FlowSideinfo from '@/widgets/layout/flow-sideinfo';
+
 
 import '@xyflow/react/dist/style.css';
 import '#/css/flow.css';
@@ -29,14 +31,19 @@ const getId = () => `dndnode_${id++}`;
 
 // Start Widget
 export const Flow = ({width, height}) => {
+  // Start Widget Variables
   const reactFlowWrapper = useRef(null);
+  const nodeInfoRef = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
+  // End Widget Variables
 
+  // Start Widget Functions
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    // set edges as step style
+    (params) => setEdges((eds) => addEdge({ ...params, type: 'step' }, eds)),
     [],
   );
 
@@ -73,6 +80,25 @@ export const Flow = ({width, height}) => {
     [screenToFlowPosition, type],
   );
 
+  const onNodeClickEvent = (event, node) => {
+    console.log('click', node, event);
+    console.log(nodeInfoRef.current);
+
+    // change the info of nodeInfoRef with the clicked node
+    nodeInfoRef.current.innerHTML = `
+      <div class="description">Information of selected node:</div>
+      <ul>
+        <li>Node ID: ${node.id}</li>
+        <li>Node Type: ${node.type}</li>
+        <li>Node Data: ${node.data.label}</li>
+        <li>Node Position: x: ${node.position.x}, y: ${node.position.y}</li>
+      </ul>
+    `;
+    // redraw the nodeInfoRef
+    nodeInfoRef.current.style.display = 'block';
+  };
+  // End Widget Functions
+
   return (
     <div className="dndflow" style={{ width, height, display:'flex' }}>
       <FlowSidenav style={{ width }} />
@@ -85,12 +111,16 @@ export const Flow = ({width, height}) => {
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onNodeClick={(event, node) => onNodeClickEvent(event, node)}
           fitView
         >
           <Background />
           <Controls />
         </ReactFlow>
       </div>
+      {/* Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()? */}
+      <FlowSideinfo ref={nodeInfoRef}
+      id='' type='' data='' position='' />
     </div>
   );
 }
