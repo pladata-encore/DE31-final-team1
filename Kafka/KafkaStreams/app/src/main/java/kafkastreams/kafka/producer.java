@@ -13,7 +13,7 @@ public class producer {
     public static void main(String[] args) {
         Properties props = new Properties();
 
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "MSK-IP:PORT");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "b-2-public.dp.27tn16.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.27tn16.c3.kafka.ap-northeast-2.amazonaws.com:9198");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Serdes.String().serializer().getClass());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Serdes.String().serializer().getClass());
         props.put(ProducerConfig.ACKS_CONFIG, "all");
@@ -26,7 +26,7 @@ public class producer {
 
         try {
             for(int i=0; i<100; i++) {
-                ProducerRecord<String, String> record = new ProducerRecord<String,String>("Topic_Name", "Key"+i, "Value"+i);
+                ProducerRecord<String, String> record = new ProducerRecord<String,String>("test", "Key"+i, "Value"+i);
                 producer.send(record);
                 System.out.println("Message Send: " + record.key() + ":" + record.value());
             }

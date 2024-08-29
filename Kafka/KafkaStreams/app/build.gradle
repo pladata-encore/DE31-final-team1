@@ -24,6 +24,8 @@ dependencies {
     // This dependency is used by the application.
     implementation libs.guava
 
+    implementation 'org.slf4j:slf4j-simple:2.0.0'
+
     // https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients
     implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.7.0'
 
@@ -31,7 +33,10 @@ dependencies {
     implementation group: 'org.apache.kafka', name: 'kafka-streams', version: '3.7.0'
 
     // 로컬 JAR 파일을 의존성으로 추가
-    implementation files('./app/src/main/resources/aws-msk-iam-auth-1.1.1-all.jar')
+    implementation files('/home/kkh/workspace/DE31-final-team1/Kafka/KafkaStreams/app/src/main/resources/aws-msk-iam-auth-1.1.1-all.jar')
+
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation group: 'org.json', name: 'json', version: '20220320'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
