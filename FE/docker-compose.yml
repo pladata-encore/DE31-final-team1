@@ -1,0 +1,10 @@
+version: '3'
+services:
+  react-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: DE31-final-team1/fe
+    container_name: DE31-final-team1_fe
+    ports:
+      - "9090:9090"

@@ -5,7 +5,7 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React from "react";
 import axios from "axios";
 
@@ -17,6 +17,7 @@ axios.defaults.headers.post["Content-Type"] = "application/json";
 
 
 export function SignUp() {
+  const navigate = useNavigate();
   const [regForm, setRegForm] = React.useState({
     email: "",
     name: "",
@@ -62,11 +63,12 @@ export function SignUp() {
     axios.post("http://192.168.1.230:19020/v1/users/createUser/", regUserInfo)
     .then((res) => {
       console.log(res);
-      if(res.data.status === "success"){
-        // redirect to main page
-        
-        // setIsSuccess(true);
-        console.log("Register success");
+      // if res status is 201(created) save user info to cookie and redirect to main page
+      if(res.status === 201){
+        document.cookie = `userEmail=${res.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
+        document.cookie = `userName=${res.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+        document.cookie = `userAuth=${res.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+        navigate("/dashboard/home");
       } else {
         // show error modal
         // setIsError(true);

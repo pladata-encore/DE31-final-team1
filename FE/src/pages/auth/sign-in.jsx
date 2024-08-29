@@ -34,7 +34,7 @@ export function SignIn() {
         email: loginForm.email,
         password: btoa(loginForm.password),
       }).then((res) => {
-        if(res.access_token){
+        if(res.status === 200 || res.status === 201){
           console.log(res);
           document.cookie = `userEmail=${res.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
           document.cookie = `userName=${res.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;

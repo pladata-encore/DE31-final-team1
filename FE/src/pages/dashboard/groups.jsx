@@ -12,7 +12,7 @@ import {
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { farmTableData } from "@/data";
 
-export function Farms() {
+export function Groups() {
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
@@ -237,4 +237,4 @@ export function Farms() {
   );
 }
 
-export default Farms;
+export default Groups;

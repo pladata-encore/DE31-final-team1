@@ -6,7 +6,7 @@ import {
   ServerStackIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications, Rules, Farms, Boards } from "@/pages/dashboard";
+import { Home, Profile, Integrations, Notifications, Rules, Groups, Boards } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 const icon = {
@@ -25,15 +25,15 @@ export const routes = [
       },
       {
         icon: <TableCellsIcon {...icon} />,
-        name: "tables",
-        path: "/tables",
-        element: <Tables />,
+        name: "데이터 통합",
+        path: "/integrations",
+        element: <Integrations />,
       },
       {
         icon: <TableCellsIcon {...icon} />,
-        name: "농장 그룹",
-        path: "/farms",
-        element: <Farms />,
+        name: "데이터 그룹",
+        path: "/Groups",
+        element: <Groups />,
       },
       {
         icon: <TableCellsIcon {...icon} />,
@@ -53,17 +53,12 @@ export const routes = [
         path: "/notifications",
         element: <Notifications />,
       },
-      {
-        icon: <UserCircleIcon {...icon} />,
-        name: "유저 정보",
-        path: "/profile",
-        element: <Profile />,
-      },
     ],
   },
   {
     title: "auth pages",
     layout: "auth",
+    isAuth: false,
     pages: [
       {
         icon: <ServerStackIcon {...icon} />,
@@ -76,6 +71,19 @@ export const routes = [
         name: "sign up",
         path: "/sign-up",
         element: <SignUp />,
+      },
+    ],
+  },
+  {
+    title: "user pages",
+    layout: "dashboard",
+    isAuth: true,
+    pages: [
+      {
+        icon: <UserCircleIcon {...icon} />,
+        name: "유저 정보",
+        path: "/profile",
+        element: <Profile />,
       },
     ],
   },
