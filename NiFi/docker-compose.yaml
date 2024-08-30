@@ -13,7 +13,7 @@ services:
       - NIFI_WEB_HTTPS_HOST=0.0.0.0
       - SINGLE_USER_CREDENTIALS_USERNAME=admin
       - SINGLE_USER_CREDENTIALS_PASSWORD=admin_password
-      - NIFI_WEB_PROXY_HOST=192.168.56.200:8443
+      - NIFI_WEB_PROXY_HOST=192.168.1.234:8443
     volumes:
       - ./nifi_project/data/flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
       - ./nifi_project/data/content_repository:/opt/nifi/nifi-current/content_repository
