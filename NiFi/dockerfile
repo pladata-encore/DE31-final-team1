@@ -4,9 +4,8 @@ USER root
 
 RUN apt-get update && apt-get install -y vim uuid-runtime
 
-COPY ./nifi/conf/authorizations.xml /opt/nifi/nifi-current/conf/authorizations.xml
+COPY ./nifi_project/conf/authorizations.xml /opt/nifi/nifi-current/conf/authorizations.xml
 
-COPY ./nifi/conf/update-authorizations.sh /opt/nifi/nifi-current/conf/update-authorizations.sh
-
+COPY ./nifi_project/conf/update-authorizations.sh /opt/nifi/nifi-current/conf/update-authorizations.sh
 
 EXPOSE 8443
