@@ -18,10 +18,18 @@ public class util {
         }
     }
 
+    public String[] getVarName(String user_Role) {
+        return user_Role.split("=")[0].strip().split("\\.");
+    }
+
+    public String getVarExpresstion(String user_Role) {
+        return user_Role.split("=")[1].strip();
+    }
+
     public ArrayList<String> parseUserRole(String user_Role, String input_Data) {
         // var_Name => 유저가 저장하고 싶은 변수명, var_Expresstion => 유저가 입력한 변환 수식
-        String[] var_Name = user_Role.split("=")[0].strip().split("\\.");
-        String var_Expresstion = user_Role.split("=")[1].strip();
+        String[] var_Name = getVarName(user_Role);
+        String var_Expresstion = getVarExpresstion(user_Role);
 
         // 입력 데이터 => json 타입 데이터 변환, data json 추출
         JSONObject input_Json = new JSONObject(input_Data);

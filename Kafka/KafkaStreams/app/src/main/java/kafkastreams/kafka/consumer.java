@@ -28,7 +28,7 @@ public class consumer {
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
 
-        consumer.subscribe(Arrays.asList("test"));
+        consumer.subscribe(Arrays.asList("receive_test_topic"));
 
         try {
             while(true) {

@@ -7,6 +7,8 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.Serdes;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 public class producer {
@@ -23,13 +25,18 @@ public class producer {
         props.put(SaslConfigs.SASL_CLIENT_CALLBACK_HANDLER_CLASS, "software.amazon.msk.auth.iam.IAMClientCallbackHandler");
         
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
+        
+        String data_Generator_Path = "/home/kkh/workspace/DE31-final-team1/TEST_FUNC/data_generator.py";
+        ProcessBuilder processBuilder = new ProcessBuilder("python3", data_Generator_Path);
 
         try {
-            for(int i=0; i<100; i++) {
-                ProducerRecord<String, String> record = new ProducerRecord<String,String>("test", "Key"+i, "Value"+i);
-                producer.send(record);
-                System.out.println("Message Send: " + record.key() + ":" + record.value());
-            }
+            Process process = processBuilder.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            ProducerRecord<String, String> record = new ProducerRecord<String,String>("receive_test_topic", reader.readLine());
+            producer.send(record);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
