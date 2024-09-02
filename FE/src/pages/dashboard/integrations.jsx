@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   CardHeader,
   CardBody,
@@ -7,36 +8,45 @@ import {
   Chip,
   Tooltip,
   Progress,
-  Button,
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { farmTableData } from "@/data";
+import { DsSelModal } from "@/widgets/layout/ds-select-modal";
 
 export function Integrations() {
+
+  function dataPopup() {
+    document.getElementById("dataPopup").classList.toggle("hidden");
+  }
+
+
+
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
+      {/* make data popup covering full page */}
+      <DsSelModal />
       <Card>
-        <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+        <CardHeader variant="gradient" color="gray" className="mb-6 p-6">
           <Typography variant="h6" color="white">
-            Farm List Table
+            Data Source List
           </Typography>
         </CardHeader>
         <Button
           variant="text"
           color="blue-gray"
-          className="flex items-center gap-2"
-          // positon to right
+          className="flex items-center border border-blue-gray-200 p-2 rounded-lg mr-4 mb-2"
           style={{ marginLeft: "auto" }}
+          onClick={dataPopup}
         >
-          <Typography variant="button" color="gray">
-            Add Farm
+          <Typography variant="h6" color="black" className="font-semibold">
+            Add Data Source
           </Typography>
         </Button>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <table className="w-full min-w-[640px] table-auto">
             <thead>
               <tr>
-                {["num", "name", "location", "type", "online", "date", ""].map((el) => (
+                {["num", "name", "location", "type", "status", "date", ""].map((el) => (
                   <th
                     key={el}
                     className="border-b border-blue-gray-50 py-3  px-5 text-left"
