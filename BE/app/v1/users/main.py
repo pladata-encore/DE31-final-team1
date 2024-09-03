@@ -2,16 +2,15 @@ from quart import Blueprint
 from .components.common import *
 from .components.functions import *
 
-main_bp = Blueprint('main',__name__)
+users_bp = Blueprint('users',__name__)
 
-@main_bp.route('/createUser/', methods=['POST', 'OPTIONS'])
+@users_bp.route('/createUser/', methods=['POST', 'OPTIONS'])
 async def createUser():
 
         pr = await preflight_request()
         if(pr):
             return pr
 
-        
         # 정합성 체크
         success, req = await json_validation(require_name=True)
 
@@ -27,7 +26,7 @@ async def createUser():
         return created, status_code
     
 
-@main_bp.route('/login/', methods=['POST', 'OPTIONS'])
+@users_bp.route('/login/', methods=['POST', 'OPTIONS'])
 async def login():
 
         pr = await preflight_request()

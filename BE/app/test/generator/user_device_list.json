@@ -1,0 +1,48 @@
+[
+    {
+      "user":"user1",
+      "devices": [
+        "device1",
+        "device2",
+        "device3",
+        "device4",
+        "device5"
+      ]
+    },
+    {
+      "user":"user2",
+      "devices": [
+        "device1",
+        "device2",
+        "device3"
+      ]
+    },
+    {
+      "user":"user3",
+      "devices": [
+        "device1"
+      ]
+    },
+    {
+      "user":"user4",
+      "devices": [
+        "device1",
+        "device2",
+        "device3",
+        "device4",
+        "device5",
+        "device6",
+        "device7"
+      ]
+    },
+    {
+      "user":"user5",
+      "devices": [
+        "device1",
+        "device2",
+        "device3",
+        "device4"
+      ]
+    }
+  
+  ]
