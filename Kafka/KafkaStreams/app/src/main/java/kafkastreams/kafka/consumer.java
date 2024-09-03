@@ -16,7 +16,7 @@ public class consumer {
     public static void main(String[] args) {
         Properties props = new Properties();
         
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "b-2-public.dp.27tn16.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.27tn16.c3.kafka.ap-northeast-2.amazonaws.com:9198");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "b-2-public.dp.cw2bwr.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.cw2bwr.c3.kafka.ap-northeast-2.amazonaws.com:9198");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "test_group_id");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Serdes.String().deserializer().getClass());
@@ -28,7 +28,7 @@ public class consumer {
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
 
-        consumer.subscribe(Arrays.asList("receive_test_topic"));
+        consumer.subscribe(Arrays.asList("user1_device1_T"));
 
         try {
             while(true) {
