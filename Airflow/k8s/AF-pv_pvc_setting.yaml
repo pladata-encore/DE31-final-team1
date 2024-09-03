@@ -1,0 +1,135 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql-pv
+spec:
+  storageClassName: "airflow-sc"
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/dp/workspace/DE31-final-team1/Airflow/airflow/postgresql-persistence"
+    server: 192.168.1.230
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pvc
+spec:
+  storageClassName: "airflow-sc"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: postgresql-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-pv
+spec:
+  storageClassName: "airflow-sc"
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/dp/workspace/DE31-final-team1/Airflow/airflow/redis-persistence"
+    server: 192.168.1.230
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+spec:
+  storageClassName: "airflow-sc"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: redis-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: airflow-dags-pv
+spec:
+  storageClassName: "airflow-sc"
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/dp/workspace/DE31-final-team1/Airflow/airflow/airflow-dags"
+    server: 192.168.1.230
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: airflow-dags-pvc
+spec:
+  storageClassName: "airflow-sc"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: airflow-dags-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: airflow-logs-pv
+spec:
+  storageClassName: "airflow-sc"
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/dp/workspace/DE31-final-team1/Airflow/airflow/logs"
+    server: 192.168.1.230
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: airflow-logs-pvc
+spec:
+  storageClassName: "airflow-sc"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: airflow-logs-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: airflow-plugins-pv
+spec:
+  storageClassName: "airflow-sc"
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/dp/workspace/DE31-final-team1/Airflow/airflow/plugins"
+    server: 192.168.1.230
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: airflow-plugins-pvc
+spec:
+  storageClassName: "airflow-sc"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: airflow-plugins-pv
