@@ -11,7 +11,7 @@ import {
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { farmTableData } from "@/data";
-import { DsSelModal } from "@/widgets/layout/ds-select-modal";
+import { DsSelModal } from "@/widgets/layout";
 
 export function Integrations() {
 

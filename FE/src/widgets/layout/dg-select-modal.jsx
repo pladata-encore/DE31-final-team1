@@ -8,7 +8,7 @@ import {
 } from "@material-tailwind/react";
 import axios from 'axios';
 
-export function DsSelModal() {
+export function DgSelModal() {
   // ref for modal
   const modalRef = React.useRef(null);
   const [radioValue, setRadioValue] = React.useState("");
@@ -159,4 +159,4 @@ export function DsSelModal() {
   );
 }
 
-export default DsSelModal;
+export default DgSelModal;

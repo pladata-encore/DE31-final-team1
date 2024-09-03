@@ -11,24 +11,25 @@ import {
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { farmTableData } from "@/data";
+import { DgSelModal } from "@/widgets/layout";
 
 export function Groups() {
+  function dataPopup() {
+    document.getElementById("dataPopup").classList.toggle("hidden");
+  }
+
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
+      {/* make data popup covering full page */}
+      <DgSelModal />
       <Card>
         <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
           <Typography variant="h6" color="white">
             Farm List Table
           </Typography>
         </CardHeader>
-        <Button
-          variant="text"
-          color="blue-gray"
-          className="flex items-center gap-2"
-          // positon to right
-          style={{ marginLeft: "auto" }}
-        >
-          <Typography variant="button" color="gray">
+        <Button variant="text" color="blue-gray" className="flex items-center gap-2" style={{ marginLeft: "auto" }} onClick={dataPopup}>
+          <Typography variant="h6" color="gray">
             Add Farm
           </Typography>
         </Button>
