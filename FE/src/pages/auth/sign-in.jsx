@@ -36,9 +36,9 @@ export function SignIn() {
       }).then((res) => {
         if(res.status === 200 || res.status === 201){
           console.log(res);
-          document.cookie = `userEmail=${res.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
-          document.cookie = `userName=${res.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
-          document.cookie = `userAuth=${res.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+          document.cookie = `userEmail=${res.data.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
+          document.cookie = `userName=${res.data.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+          document.cookie = `userAuth=${res.data.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
           navigate("/dashboard/home");
         } else { // if failed show error modal
           // show modal

@@ -65,9 +65,9 @@ export function SignUp() {
       console.log(res);
       // if res status is 201(created) save user info to cookie and redirect to main page
       if(res.status === 201){
-        document.cookie = `userEmail=${res.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
-        document.cookie = `userName=${res.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
-        document.cookie = `userAuth=${res.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+        document.cookie = `userEmail=${res.data.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
+        document.cookie = `userName=${res.data.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+        document.cookie = `userAuth=${res.data.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
         navigate("/dashboard/home");
       } else {
         // show error modal
