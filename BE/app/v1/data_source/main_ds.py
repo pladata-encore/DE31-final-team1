@@ -2,14 +2,9 @@ from quart import Blueprint
 from .components.database import * 
 from .components.authorization import *
 
-main_ds = Blueprint('data_source',__name__)
+data_source_bp = Blueprint('data-source',__name__)
 
-# API LIST
-# 1. get data source list (GET)
-# 2. create data source (POST)
-# 3. get data source info (GET)
-
-@main_ds.route('/getdslist/', methods=['GET', 'OPTIONS'])
+@data_source_bp.route('/getlist/', methods=['GET', 'OPTIONS'])
 async def getlist():
     # check token
     status_message = await check_token(req.email, req.token)
@@ -55,7 +50,7 @@ async def createds():
     
     
 
-@main_ds.route('/getdsinfo/', methods=['GET', 'OPTIONS'])
+@data_source_bp.route('/getdsinfo/', methods=['GET', 'OPTIONS'])
 async def getinfo():
     # check token
     status_message = await check_token(req.email, req.token)

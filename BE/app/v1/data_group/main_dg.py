@@ -3,14 +3,9 @@ from .components.database import *
 from .components.authorization import *
 from app.v1.nifi.components.nifi_default import *
 
-main_dg = Blueprint('data_group',__name__)
+data_group_bp = Blueprint('data-group',__name__)
 
-# API LIST
-# 1. get data group list (GET)
-# 2. create data group (POST)
-# 3. get data group info (GET)
-
-@main_dg.route('/getdglist/', methods=['GET', 'OPTIONS'])
+@data_group_bp.route('/getlist/', methods=['GET', 'OPTIONS'])
 async def getlist():
     # check token
     status_message = await check_token(req.email, req.token)
@@ -51,7 +46,7 @@ async def createdg():
     
     
 
-@main_dg.route('/getdginfo/', methods=['GET', 'OPTIONS'])
+@data_group_bp.route('/getdginfo/', methods=['GET', 'OPTIONS'])
 async def getinfo():
     # check token
     status_message = await check_token(req.email, req.token)
