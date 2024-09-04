@@ -121,6 +121,50 @@ async def create_user_process_group(): # email로 중복체크를 하기에
 async def get_processor_group_id(): # email로 중복체크를 하기에
     if request.method == 'OPTIONS':
         return jsonify({'message': 'CORS preflight response'}), 200
+
+
+
+# user마다 추가의 user_process_group 생성 쉽게말해 작업폴더 http://localhost:19020/v1/users/createUser/
+@nifi_default_bp.route('/add_user_process_group/', methods=['GET', 'OPTIONS'])
+async def add_user_process_group(): # email로 중복체크를 하기에
+    if request.method == 'OPTIONS':
+        return jsonify({'message': 'CORS preflight response'}), 200
+    token = await get_token()
+    client_id = await get_client_id()
+    if not token:
+        return jsonify({"error": "Failed to retrieve token"}), 500
+    if not token:
+        return jsonify({"error": "Failed to retrieve client_id"}), 500
+    url = f"{NIFI_URL}process-groups/root/process-groups"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    body = {
+        "revision": {
+            "clientId": client_id,
+            "version": 0,
+            "lastModifier": "admin"
+        },
+        "component": {
+            "name": "default",
+            "position": {
+                "x": 500.0,
+                "y": 300.0
+            }
+        }
+    }
+    try:
+        async with httpx.AsyncClient(verify=False) as client:
+            response = await client.post(url, headers=headers,json=body)
+            print(f"Response Body: {response.text}")  
+            process_group_id = response.json().get("id")  # 'id' 필드 추출 # USER_PGID    
+        
+            return process_group_id 
+    except httpx.HTTPStatusError as e:
+        return jsonify({"error": str(e)}), e.response.status_code
+    except httpx.RequestError as e:
+        return jsonify({"error": "Request error occurred"}), 500        
     
 
    

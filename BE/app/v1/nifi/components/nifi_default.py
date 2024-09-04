@@ -72,3 +72,4 @@ async def get_client_id():
         return jsonify({"error": str(e)}), e.response.status_code
     except httpx.RequestError as e:
         return jsonify({"error": "Request error occurred"}), 500
+        
