@@ -7,12 +7,10 @@ import org.apache.kafka.common.serialization.Serdes;
 import java.util.Properties;
 
 public class properties {
-    private static final String bootstrap_Servers = "b-2-public.dp.0v6cij.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.0v6cij.c3.kafka.ap-northeast-2.amazonaws.com:9198";
-    
-    public Properties properties(String application_Id) {
+    public Properties properties(String bootstrap_servers, String application_Id) {
         Properties props = new Properties();
 
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_Servers);
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, application_Id);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());

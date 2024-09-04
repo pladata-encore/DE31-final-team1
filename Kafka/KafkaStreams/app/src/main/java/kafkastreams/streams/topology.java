@@ -21,7 +21,7 @@ public class topology {
     static properties props = new properties();
 
     // 변환 수식을 이용하여 value 값 변환
-    public KafkaStreams mathExpression(String user_Role, String var_Name, String topic_Name) {
+    public KafkaStreams mathExpression(String bootstrap_servers, String user_Role, String var_Name, String topic_Name) {
         StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, String> topic_Data = builder.stream(topic_Name);
@@ -47,18 +47,18 @@ public class topology {
             } 
         );
         
-        Properties topic_Props = topic.topicProperties();
+        Properties topic_Props = topic.topicProperties(bootstrap_servers);
         topic.createTopic(topic_Props, topic_Name+"_Math");
         calculate.to(topic_Name+"_Math", Produced.with(Serdes.String(), Serdes.String()));
 
         Topology topology = builder.build();
-        KafkaStreams streams = new KafkaStreams(topology, props.properties("MathExpression-Application"));
+        KafkaStreams streams = new KafkaStreams(topology, props.properties(bootstrap_servers, "MathExpression-Application"));
 
         return streams;
     }
 
     // value가 pivot를 넘는 값만 전송
-    public KafkaStreams recordFilter(double pivot, String var_Name, String topic_Name) {
+    public KafkaStreams recordFilter(String bootstrap_servers, double pivot, String var_Name, String topic_Name) {
         StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, String> topic_Data = builder.stream(topic_Name);
@@ -67,12 +67,12 @@ public class topology {
             (key, value) -> new JSONObject(value).getJSONObject("data").getDouble(var_Name) > pivot
         );
 
-        Properties topicProps = topic.topicProperties();
+        Properties topicProps = topic.topicProperties(bootstrap_servers);
         topic.createTopic(topicProps, topic_Name+"_Filter");
         record_Filter.to(topic_Name+"_Filter", Produced.with(Serdes.String(), Serdes.String()));
 
         Topology topology = builder.build();
-        KafkaStreams streams = new KafkaStreams(topology, props.properties("RecordFilter-Application"));
+        KafkaStreams streams = new KafkaStreams(topology, props.properties(bootstrap_servers, "RecordFilter-Application"));
 
         return streams;
     }

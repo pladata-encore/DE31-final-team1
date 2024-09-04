@@ -16,9 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class topic {
-    static final String bootstrap_servers = "b-2-public.dp.ugprbm.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.ugprbm.c3.kafka.ap-northeast-2.amazonaws.com:9198";
-
-    public static Properties topicProperties() {
+    public Properties topicProperties(String bootstrap_servers) {
         Properties props = new Properties();
 
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
@@ -30,7 +28,7 @@ public class topic {
         return props;
     }
 
-    public static void createTopic(Properties props, String topic_Name) {
+    public void createTopic(Properties props, String topic_Name) {
         AdminClient admin_Client = AdminClient.create(props);
 
         NewTopic new_Topic = new NewTopic(topic_Name, 3, (short) 1);
@@ -79,7 +77,7 @@ public class topic {
         }
     }
 
-    public static void listTopics(Properties props) {
+    public void listTopics(Properties props) {
         AdminClient admin_Client = AdminClient.create(props);
 
         try {
@@ -96,11 +94,5 @@ public class topic {
         } finally {
             admin_Client.close();
         }
-    }
-
-    public static void main(String[] args) {
-        Properties props = topicProperties();
-        //createTopic(props, "user1_device3");
-        listTopics(props);
     }
 }
