@@ -4,7 +4,12 @@ from .components.authorization import *
 
 data_source_bp = Blueprint('data-source',__name__)
 
-@data_source_bp.route('/getlist/', methods=['GET', 'OPTIONS'])
+# API LIST
+# 1. get data source list (GET)
+# 2. create data source (POST)
+# 3. get data source info (GET)
+
+@main_ds.route('/getdslist/', methods=['GET', 'OPTIONS'])
 async def getlist():
     # check token
     status_message = await check_token(req.email, req.token)
