@@ -46,7 +46,7 @@ async def get_token():
     try:
         async with httpx.AsyncClient(verify=False) as client:
             response = await client.post(url, headers=headers,data=data)
-            print(f"Response Body: {response.text}")
+            # print(f"Response Body: {response.text}")
             return response.text.strip()
     except httpx.HTTPStatusError as e:
         return jsonify({"error": str(e)}), e.response.status_code
@@ -66,10 +66,9 @@ async def get_client_id():
     try:
         async with httpx.AsyncClient(verify=False) as client:
             response = await client.get(url, headers=headers)
-            print(f"Response Body: {response.text}")  
+            # print(f"Response Body: {response.text}")  
             return response.text.strip()
     except httpx.HTTPStatusError as e:
         return jsonify({"error": str(e)}), e.response.status_code
     except httpx.RequestError as e:
         return jsonify({"error": "Request error occurred"}), 500
-        
