@@ -4,7 +4,12 @@ from .components.authorization import *
 
 main_ds = Blueprint('data_source',__name__)
 
-@main_ds.route('/getlist/', methods=['GET', 'OPTIONS'])
+# API LIST
+# 1. get data source list (GET)
+# 2. create data source (POST)
+# 3. get data source info (GET)
+
+@main_ds.route('/getdslist/', methods=['GET', 'OPTIONS'])
 async def getlist():
     # check token
     status_message = await check_token(req.email, req.token)
@@ -19,6 +24,34 @@ async def getlist():
     ds_list_data = get_ds_list(req.email)
 
     return ds_list_data, 200
+
+@main_ds.route('/createds/', methods=['POST', 'OPTIONS'])
+async def createds():
+    # check token
+    status_message = await check_token(req.email, req.token)
+    # split status message, first part is status code, else is message
+    code, message = status_message.split('_', 1)
+
+    # if code is "ERR" then return error message
+    if code == "ERR":
+        return message, 401
+
+    # create data source
+    ds_to_create = {
+        "ds_id": req.ds_id,
+        "ds_name": req.ds_name,
+        "ds_type": req.ds_type,
+        "ds_colnm": req.ds_colnm,
+        "ds_data": req.ds_data
+    }
+    # split status message, first part is status code, else is message
+    code, message = create_ds(req.email, req.ds_id, req.ds_name, req.ds_type, req.ds_colnm, req.ds_data).split('_', 1)
+
+    # if code is "ERR" then return error message
+    if code == "ERR":
+        return message, 400
+
+    return message, 200
     
     
 
