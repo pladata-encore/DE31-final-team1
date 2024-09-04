@@ -20,7 +20,7 @@ async def createUser():
         
         # 유저 생성
         success, created, status_code = await create_user(req.email, req.name, req.pwd)
-
+        print(success, created, status_code)
         if not success:
             return created, status_code
         

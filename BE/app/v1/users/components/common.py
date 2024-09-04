@@ -67,7 +67,18 @@ async def get_email(email):
     async with get_session() as session:
         search = await session.execute(select(UserInfo).where(UserInfo.UserEmail == email))
         return search.scalar()
-    
+
+
+# UserID로 user_process_group_id 가져오기
+async def get_user_process_group_id(UserID):
+    async with get_session() as session:
+        search = await session.execute(select(UserPGInfo.PgID).where(UserPGInfo.UserID == UserID))
+        # 일단은 1개 반환 
+        # pg_ids = search.scalars().all()
+        return search.scalar()  
+
+
+
 
 # 비밀번호 해시화 및 문자열 변환
 async def hashed_password(pwd):
