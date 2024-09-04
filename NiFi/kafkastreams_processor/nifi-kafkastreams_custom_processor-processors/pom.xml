@@ -56,5 +56,12 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>aws-msk-iam-auth</artifactId>
+            <version>1.1.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/aws-msk-iam-auth-1.1.1-all.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>

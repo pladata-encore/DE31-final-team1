@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.processors.;
-
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.annotation.behavior.ReadsAttribute;
@@ -47,17 +45,42 @@ import java.util.Set;
 @WritesAttributes({@WritesAttribute(attribute="", description="")})
 public class MyProcessor extends AbstractProcessor {
 
-    public static final PropertyDescriptor MY_PROPERTY = new PropertyDescriptor
-            .Builder().name("MY_PROPERTY")
-            .displayName("My property")
-            .description("Example Property")
+    public static final PropertyDescriptor KAFKA_BROKERS = new PropertyDescriptor
+            .Builder().name("Kafka Brokers")
+            .required(true)
+            .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
+            .build();
+        
+    public static final PropertyDescriptor SECURITY_PROTOCOL = new PropertyDescriptor
+            .Builder().name("Security Protocol")
             .required(true)
             .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
             .build();
 
-    public static final Relationship MY_RELATIONSHIP = new Relationship.Builder()
-            .name("MY_RELATIONSHIP")
-            .description("Example relationship")
+    public static final PropertyDescriptor SASL_MECHANISM = new PropertyDescriptor
+            .Builder().name("Sasl Mechanism")
+            .required(true)
+            .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
+            .build();
+
+    public static final PropertyDescriptor SASL_JAAS_CONFIG = new PropertyDescriptor
+            .Builder().name("Sasl Jaas Config")
+            .required(true)
+            .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
+            .build();
+
+    public static final PropertyDescriptor SASL_CLIENT_CALLBACK_HANDLER_CLASS = new PropertyDescriptor
+            .Builder().name("Sasl Client Callback Handler Class")
+            .required(true)
+            .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
+            .build();
+
+    public static final Relationship REL_SUCCESS = new Relationship.Builder()
+            .name("Success")
+            .build();
+
+    public static final Relationship REL_FAILURE = new Relationship.Builder()
+            .name("Failure")
             .build();
 
     private List<PropertyDescriptor> descriptors;
