@@ -40,20 +40,21 @@ export function SignIn() {
           document.cookie = `userName=${res.data.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
           document.cookie = `userAuth=${res.data.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
           navigate("/dashboard/home");
-        } else { // if failed show error modal
+        } else if(res.status === 401){
+          alert("Invalid email or password");
           // show modal
-          setIsError(true);
+          // setIsError(true);
         }
       }).catch((err) => {
         console.log(err);
         // show modal
-        setIsError(true);
+        // setIsError(true);
       });
   };
 
   return (
     <section className="m-8 flex gap-4">
-      <Dialog open={isError} onClose={() => setIsError(false)}>
+      {/* <Dialog open={isError} onClose={() => setIsError(false)}>
         <DialogHeader color="red" onClose={() => setIsError(false)}>
           Error
         </DialogHeader>
@@ -67,7 +68,7 @@ export function SignIn() {
             Close
           </Button>
         </DialogFooter>
-      </Dialog>
+      </Dialog> */}
       <div className="w-full lg:w-3/5 mt-24">
         <div className="text-center">
           <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>
