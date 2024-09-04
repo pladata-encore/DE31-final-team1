@@ -11,7 +11,9 @@ nifi_api_bp = Blueprint('nifi_api', __name__)
 load_dotenv()
 
 NIFI_URL = os.getenv("NIFI_URL") #https://192.168.1.234:8443/nifi-api/ 
-
+Mongo_URI = os.getenv("Mongo_URI")
+Mongo_Database_Name = os.getenv("Mongo_Database_Name")
+Mongo_Collection_Name = os.getenv("Mongo_Collection_Name")
 
 # consumkafka 생성 http://localhost:19020/v1/nifi_api/make_consumekafka/
 @nifi_api_bp.route('/make_consumekafka/', methods=['GET', 'OPTIONS'])
@@ -94,9 +96,9 @@ async def create_putmongo_processor():
             },
             "config": {
                 "properties": {
-                    "Mongo URI": "mongodb://root:enCore1289%40@140.238.153.4:22000", 
-                    "Mongo Database Name": "testdb", # 이름
-                    "Mongo Collection Name": "TEST_NIFI", # 컬렉션
+                    "Mongo URI": Mongo_URI, 
+                    "Mongo Database Name": Mongo_Database_Name, # 이름
+                    "Mongo Collection Name": Mongo_Collection_Name, # 컬렉션
                     "ssl-client-auth": "REQUIRED",
                     "Mode": "insert",
                     "Upsert": "false",
