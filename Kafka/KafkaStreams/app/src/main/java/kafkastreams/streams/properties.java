@@ -7,7 +7,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import java.util.Properties;
 
 public class properties {
-    private static final String bootstrap_Servers = "b-2-public.dp.cw2bwr.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.cw2bwr.c3.kafka.ap-northeast-2.amazonaws.com:9198";
+    private static final String bootstrap_Servers = "b-2-public.dp.0v6cij.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.0v6cij.c3.kafka.ap-northeast-2.amazonaws.com:9198";
     
     public Properties properties(String application_Id) {
         Properties props = new Properties();

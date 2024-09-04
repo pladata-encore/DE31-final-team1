@@ -6,15 +6,19 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.DeleteTopicsResult;
+import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.kafka.common.errors.UnknownTopicIdException;
 
 import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class topic {
-    public Properties propertire(String bootstrap_servers) {
+    static final String bootstrap_servers = "b-2-public.dp.ugprbm.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.ugprbm.c3.kafka.ap-northeast-2.amazonaws.com:9198";
+
+    public static Properties topicProperties() {
         Properties props = new Properties();
 
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
@@ -26,17 +30,17 @@ public class topic {
         return props;
     }
 
-    public void createTopic(Properties props, String topicName) {
-        AdminClient adminClient = AdminClient.create(props);
+    public static void createTopic(Properties props, String topic_Name) {
+        AdminClient admin_Client = AdminClient.create(props);
 
-        NewTopic newTopic = new NewTopic(topicName, 3, (short) 1);
+        NewTopic new_Topic = new NewTopic(topic_Name, 3, (short) 1);
 
         try {
-            CreateTopicsResult result = adminClient.createTopics(Collections.singleton(newTopic));
+            CreateTopicsResult result = admin_Client.createTopics(Collections.singleton(new_Topic));
 
             result.all().get();
             
-            System.out.println("토픽 생성 완료");
+            System.out.println("토픽 생성 완료 : " + topic_Name);
         } catch (ExecutionException e) {
             if (e.getCause() instanceof TopicExistsException) {
                 System.out.println("토픽 중복 에러");
@@ -48,18 +52,18 @@ public class topic {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
-            adminClient.close();
+            admin_Client.close();
         }
     }
 
-    public void deleteTopic(Properties props, String topicName) {
-        AdminClient adminClient = AdminClient.create(props);
+    public void deleteTopic(Properties props, String topic_Name) {
+        AdminClient admin_Client = AdminClient.create(props);
         try {
-            DeleteTopicsResult result = adminClient.deleteTopics(Collections.singleton(topicName));
+            DeleteTopicsResult result = admin_Client.deleteTopics(Collections.singleton(topic_Name));
                 
             result.all().get();
             
-            System.err.println("토픽 삭제 완료");
+            System.err.println("토픽 삭제 완료 : " + topic_Name);
         } catch (ExecutionException e) {
             if (e.getCause() instanceof UnknownTopicIdException) {
                 System.out.println("토픽 검색 실패");
@@ -71,7 +75,32 @@ public class topic {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
-            adminClient.close();
+            admin_Client.close();
         }
+    }
+
+    public static void listTopics(Properties props) {
+        AdminClient admin_Client = AdminClient.create(props);
+
+        try {
+            ListTopicsResult list_Topics = admin_Client.listTopics();
+
+            Set<String> topics = list_Topics.names().get();
+
+            for (String e : topics) {
+                System.out.println("ListTopics : " + e);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("토픽 리스트 조회 실패");
+        } finally {
+            admin_Client.close();
+        }
+    }
+
+    public static void main(String[] args) {
+        Properties props = topicProperties();
+        //createTopic(props, "user1_device3");
+        listTopics(props);
     }
 }

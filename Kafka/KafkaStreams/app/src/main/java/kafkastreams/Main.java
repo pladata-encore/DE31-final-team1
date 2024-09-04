@@ -14,7 +14,10 @@ public class Main {
         String[] var_Name = ut.getVarName(user_Role);
         
         // kafka topic value 값 변환 kafkastreams 기능 선언
-        KafkaStreams streams = topo.mathExpression(user_Role, var_Name[1], "user1_device1");
+        // KafkaStreams streams = topo.mathExpression(user_Role, var_Name[1], "user1_device1");
+
+        // kafka filter
+        KafkaStreams streams = topo.recordFilter(35, "temp2", "user1_device1");
 
         // 자원, 상태 청소 및 데이터 처리 시작
         streams.cleanUp();
