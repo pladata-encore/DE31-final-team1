@@ -9,7 +9,7 @@ async def create_user(email, name, pwd):
         # 이메일로 사용자 정보 가져오기
         user_info = await get_email(email)
         if user_info is not None:
-            return False, jsonify({"error": "중복된 이메일입니다."}), 400
+            return False, jsonify({"error": "중복된 이메일입니다."}), 409
         
         # 비밀번호 해시화
         _, serializable_pwd = await hashed_password(pwd)
@@ -20,7 +20,6 @@ async def create_user(email, name, pwd):
         try:
             # 회원 정보 DB 삽입
             session.add(new_user)
-            await session.commit()
 
             # 신규 토큰 생성
             token = await create_token(email)
@@ -39,7 +38,7 @@ async def create_user(email, name, pwd):
                 "email" : new_user.UserEmail,
                 "name" : new_user.UserNm,
                 "access_token" : token
-            }), 200
+            }), 201
         
         except Exception as e:
             await session.rollback()  # 트랜잭션 롤백
@@ -50,7 +49,7 @@ async def login_validation(email, pwd):
 
         user_info = await get_email(email)
         if user_info is None:
-            return False, jsonify({"error": "존재하지 않는 이메일입니다."}), 400
+            return False, jsonify({"error": "존재하지 않는 이메일입니다."}), 401
 
         # 패스워드 검증
         success, response, status_code = await verify_password(user_info, pwd)
@@ -63,7 +62,7 @@ async def login_validation(email, pwd):
         
             # 발행된 토큰이 없을 경우 신규 토큰 생성
             if not token_info:
-
+            
                 token = await create_token(email)
 
                 # 신규 토큰 DB 삽입
@@ -76,7 +75,7 @@ async def login_validation(email, pwd):
                     "email" : email,
                     "name" : user_info.UserNm,
                     "access_token" : token
-                }), 200
+                }), 201
 
             issued_time = datetime.now() + timedelta(hours=9)
 
