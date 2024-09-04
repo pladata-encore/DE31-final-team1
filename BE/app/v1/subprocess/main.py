@@ -27,9 +27,10 @@ async def start_collection():
 async def stop_collection():
     req = await request.get_json()
     email = req.get("email")
+    topic = req.get("topic")
     token = req.get("access_token")
 
-    token_status = await check_token(email, token)
+    token_status = await check_token(email, token, topic)
     if token_status.startswith("ERR"):
         return jsonify({"error": token_status}), 400
 
