@@ -62,9 +62,8 @@ export function SignUp() {
     // call register api
     axios.post("http://192.168.1.230:19020/v1/users/createUser/", regUserInfo)
     .then((res) => {
-      console.log(res);
-      // if res status is 201(created) save user info to cookie and redirect to main page
-      if(res.status === 201){
+      // if res status is 200, save user info to cookie and redirect to main page
+      if(res.status === 200){
         document.cookie = `userEmail=${res.data.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
         document.cookie = `userName=${res.data.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
         document.cookie = `userAuth=${res.data.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
