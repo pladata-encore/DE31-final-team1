@@ -13,9 +13,9 @@ public class Main {
         // args[1] --> topic_Name
         // args[2] --> user_Role
 
-        String bootstrap_servers = "b-2-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198";
-        String topic_Name = "user1_device4";
-        String user_Role = "voc > 40";
+        String bootstrap_servers = "";
+        String topic_Name = "";
+        String user_Role = "";
 
         String[] patterns = {">", ">=", "<", "<=", "!=", "=="};
 
