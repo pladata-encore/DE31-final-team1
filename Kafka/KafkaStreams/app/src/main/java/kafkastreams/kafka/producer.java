@@ -79,16 +79,16 @@ public class producer {
                 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-                String r = reader.readLine();
-                JSONObject json_Object  = new JSONObject(r);
+                // String r = reader.readLine();
+                // JSONObject json_Object  = new JSONObject(r);
                 
-                String topic_Name = json_Object.getString("user") + "_" + json_Object.getString("device");
-
+                // String topic_Name = json_Object.getString("user") + "_" + json_Object.getString("device");
+ 
                 Properties topic_Props = topic.topicProperties(bootstrap_servers);
-                topic.createTopic(topic_Props, topic_Name);
+                topic.createTopic(topic_Props, "user1_device1");
 
                 while(true) {
-                    ProducerRecord<String, String> record = new ProducerRecord<String,String>(topic_Name, reader.readLine());
+                    ProducerRecord<String, String> record = new ProducerRecord<String,String>("user1_device1", reader.readLine());
                     System.out.println("Send Massage <Key, Value> : " + record.key() + ", " + record.value());
                     
                     // 내부 버퍼에 record 적재
@@ -105,5 +105,13 @@ public class producer {
         } finally {
             producer.close();
         }
-    }        
+    }
+
+    public static void main(String[] args) {
+        // String bootstrap_servers = "b-2-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198";        
+        // Properties props = producerProperties(bootstrap_servers);
+ 
+        // String file_Path = "/home/kkh/workspace/DE31-final-team1/TEST_FUNC/data_generator.py";
+        // kafkaProducer(bootstrap_servers, props, file_Path);
+    }
 }

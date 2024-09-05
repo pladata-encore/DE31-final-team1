@@ -95,7 +95,56 @@ public class util {
                 stack2.push(calculate(e, x, y));
             }
         }
-
         return stack2.pop();
+    }
+
+    public int getComparsion(String user_Role) {
+        if (user_Role.contains(">")) {
+            return 1;
+        } else if (user_Role.contains(">=")) {
+            return 2;
+        } else if (user_Role.contains("<")) {
+            return 3;
+        } else if (user_Role.contains("<=")) {
+            return 4;
+        } else if (user_Role.contains("!=")) {
+            return 5;
+        } else if (user_Role.contains("==")) {
+            return 6;
+        } else {
+            return 0;
+        }
+    }
+
+    public double getPivot(String user_Role) {
+        String[] split_String = user_Role.split(" ");
+
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(user_Role);
+
+        String pivot = "";
+
+        if (matcher.find()) {
+            pivot = matcher.group();
+        } else {
+            System.out.println("Not Found...");
+        }
+
+        return Double.parseDouble(pivot);
+    }
+
+    public String getVarName2(String user_Role) {
+        String regex = "\\.(\\w+)";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(user_Role);
+
+        String result = "";
+
+        while (matcher.find()) {
+            result = matcher.group(1);
+        }
+
+        return result;
     }
 }

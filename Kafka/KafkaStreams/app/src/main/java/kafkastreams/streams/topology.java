@@ -8,6 +8,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.json.JSONObject;
 
+import aws_msk_iam_auth_shadow.com.fasterxml.jackson.databind.util.JSONPObject;
 import kafkastreams.utils.util;
 import kafkastreams.kafka.topic;
 
@@ -21,7 +22,7 @@ public class topology {
     static properties props = new properties();
 
     // 변환 수식을 이용하여 value 값 변환
-    public KafkaStreams mathExpression(String bootstrap_servers, String user_Role, String var_Name, String topic_Name) {
+    public KafkaStreams mathExpression(String bootstrap_servers, String topic_Name, String user_Role, String var_Name) {
         StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, String> topic_Data = builder.stream(topic_Name);
@@ -58,13 +59,41 @@ public class topology {
     }
 
     // value가 pivot를 넘는 값만 전송
-    public KafkaStreams recordFilter(String bootstrap_servers, double pivot, String var_Name, String topic_Name) {
+    public KafkaStreams recordFilter(String bootstrap_servers, String topic_Name, String user_Role, String var_Name) {
         StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, String> topic_Data = builder.stream(topic_Name);
 
+        int comparsion = ut.getComparsion(user_Role);
+        double pivot = ut.getPivot(user_Role);
+        
         KStream<String, String> record_Filter = topic_Data.filter(
-            (key, value) -> new JSONObject(value).getJSONObject("data").getDouble(var_Name) > pivot
+            (key, value) -> {
+                try {
+                    JSONObject value_Json = new JSONObject(value);
+                    double var = value_Json.getJSONObject("data").getDouble(var_Name);
+
+                    switch (comparsion) {
+                        case 1:
+                            return var > pivot;
+                        case 2:
+                            return var >= pivot;
+                        case 3:
+                            return var < pivot;
+                        case 4:
+                            return var <= pivot;
+                        case 5:
+                            return var != pivot;
+                        case 6:
+                            return var == pivot;
+                        default:
+                            throw new IllegalArgumentException("Invalid comparison operator: " + comparsion);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
         );
 
         Properties topicProps = topic.topicProperties(bootstrap_servers);

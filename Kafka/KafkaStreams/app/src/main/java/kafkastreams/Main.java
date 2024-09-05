@@ -10,8 +10,8 @@ public class Main {
     static topology topo = new topology();
     public static void main(String[] args) {
         // args[0] --> bootstrap_Servers
-        // args[1] --> user_Role
-        // args[2] --> 
+        // args[1] --> topic_Name
+        // args[2] --> user_Role
 
         String[] pattern = {">", ">=", "<", "<=", "!=", "=="};
 
@@ -27,12 +27,27 @@ public class Main {
         if (pattern_Found == false) {
             if (args[1].contains("=")) {
                 // KafkaStreams Experssion
+                String[] var_Name = ut.getVarName(args[2]);
 
+                KafkaStreams streams = topo.mathExpression(args[0], args[1], args[2], var_Name[1]);
+
+                streams.cleanUp();
+                streams.start();
+
+                Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             } else {
                 System.out.println("KafkaStreams 기능 없음");
             }
         } else {
             // KafkaStreams Filter
+            String var_Name = ut.getVarName2(args[2]);
+
+            KafkaStreams streams = topo.recordFilter(args[0], args[1], args[2], var_Name);
+
+            streams.cleanUp();
+            streams.start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         }
 
 
