@@ -30,7 +30,8 @@ def threading_data_transfer(endpoint):
   # Generate random data
   data = generate_random_data()
   # response = requests.post(endpoint['url'], json=data)
-  print(f"Send data to {endpoint['url']}, data: {data}")
+  # print(f"Send data to {endpoint['url']}, data: {data}")
+  print(f"{data}")
 
 #################### FUNCTIONS ####################
 

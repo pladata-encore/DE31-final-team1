@@ -20,7 +20,7 @@ public class producer {
     static topic topic = new topic();
 
     // Producer Properties 설정
-    public Properties producerProperties(String bootstrap_servers) {
+    public static Properties producerProperties(String bootstrap_servers) {
         Properties props = new Properties();
 
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
@@ -35,7 +35,7 @@ public class producer {
         return props;
     }
 
-    public void kafkaProducer(String bootstrap_servers, Properties props, String file_Path) {
+    public static void kafkaProducer(String bootstrap_servers, Properties props, String file_Path) {
         // Properties 적용한 KafkaProducer 객체 생성
         // <String, String> --> <Key type, Value type>
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
@@ -85,10 +85,10 @@ public class producer {
                 // String topic_Name = json_Object.getString("user") + "_" + json_Object.getString("device");
  
                 Properties topic_Props = topic.topicProperties(bootstrap_servers);
-                topic.createTopic(topic_Props, "user1_device1");
+                topic.createTopic(topic_Props, "user1_device4");
 
                 while(true) {
-                    ProducerRecord<String, String> record = new ProducerRecord<String,String>("user1_device1", reader.readLine());
+                    ProducerRecord<String, String> record = new ProducerRecord<String,String>("user1_device4", reader.readLine());
                     System.out.println("Send Massage <Key, Value> : " + record.key() + ", " + record.value());
                     
                     // 내부 버퍼에 record 적재
@@ -108,10 +108,9 @@ public class producer {
     }
 
     public static void main(String[] args) {
-        // String bootstrap_servers = "b-2-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198";        
-        // Properties props = producerProperties(bootstrap_servers);
- 
-        // String file_Path = "/home/kkh/workspace/DE31-final-team1/TEST_FUNC/data_generator.py";
-        // kafkaProducer(bootstrap_servers, props, file_Path);
+        String bootstrap_servers = "b-2-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198";        
+        Properties props = producerProperties(bootstrap_servers);
+        String file_Path = "/home/kkh/workspace/DE31-final-team1/TEST_FUNC/data_generator.py";
+        kafkaProducer(bootstrap_servers, props, file_Path);
     }
 }

@@ -48,7 +48,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'kafkastreams.App'
+    mainClass = 'kafkastreams'   
 }
 
 tasks.named('test') {

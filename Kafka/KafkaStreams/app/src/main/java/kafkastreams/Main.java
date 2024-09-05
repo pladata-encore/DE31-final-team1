@@ -13,12 +13,16 @@ public class Main {
         // args[1] --> topic_Name
         // args[2] --> user_Role
 
-        String[] pattern = {">", ">=", "<", "<=", "!=", "=="};
+        String bootstrap_servers = "b-2-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198";
+        String topic_Name = "user1_device4";
+        String user_Role = "voc > 40";
+
+        String[] patterns = {">", ">=", "<", "<=", "!=", "=="};
 
         boolean pattern_Found = false;
 
-        for (String e : pattern) {
-            if (args[1].contains(e)) {
+        for (String e : patterns) {
+            if (user_Role.contains(e)) {
                 pattern_Found = true;
                 break;
             }
@@ -40,9 +44,9 @@ public class Main {
             }
         } else {
             // KafkaStreams Filter
-            String var_Name = ut.getVarName2(args[2]);
+            String var_Name = ut.getVarName2(user_Role);
 
-            KafkaStreams streams = topo.recordFilter(args[0], args[1], args[2], var_Name);
+            KafkaStreams streams = topo.recordFilter(bootstrap_servers, topic_Name, user_Role, var_Name);
 
             streams.cleanUp();
             streams.start();

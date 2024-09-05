@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class util {
+    // 사칙계산
     public double calculate(String operator, double x, double y) {
         switch (operator) {
             case "+": return x + y;
@@ -18,14 +19,17 @@ public class util {
         }
     }
 
+    // user_Role 파싱하여 목적 변수 return
     public String[] getVarName(String user_Role) {
         return user_Role.split("=")[0].strip().split("\\.");
     }
 
+    // user_Role 파싱하여 변환 수식 return
     public String getVarExpresstion(String user_Role) {
         return user_Role.split("=")[1].strip();
     }
 
+    // user_Role 파싱하고 변수 치환
     public ArrayList<String> parseUserRole(String user_Role, String input_Data) {
         // var_Name => 유저가 저장하고 싶은 변수명, var_Expresstion => 유저가 입력한 변환 수식
         String[] var_Name = getVarName(user_Role);
@@ -51,6 +55,7 @@ public class util {
         return regex_ArrayList;
     }
 
+    // 파싱된 수식 계산
     public double parseCalculate(ArrayList<String> regex_ArrayList) {
         Stack<String> stack = new Stack<>();
         ArrayList<String> arrayList = new ArrayList<>();
@@ -98,6 +103,7 @@ public class util {
         return stack2.pop();
     }
 
+    // 비교연산자 치환
     public int getComparsion(String user_Role) {
         if (user_Role.contains(">")) {
             return 1;
@@ -116,6 +122,7 @@ public class util {
         }
     }
 
+    // pivot 값 파싱
     public double getPivot(String user_Role) {
         String[] split_String = user_Role.split(" ");
 
@@ -133,6 +140,7 @@ public class util {
         return Double.parseDouble(pivot);
     }
 
+    // filter 전용 
     public String getVarName2(String user_Role) {
         String regex = "\\.(\\w+)";
 
