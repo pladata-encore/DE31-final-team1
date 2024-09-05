@@ -10,7 +10,7 @@ async def create_user(email, name, pwd):
         # 이메일로 사용자 정보 가져오기
         user_info = await get_email(email)
         if user_info is not None:
-            return False, jsonify({"error": "중복된 이메일입니다."}), 400
+            return False, jsonify({"error": "중복된 이메일입니다."}), 409
         # 비밀번호 해시화
         _, serializable_pwd = await hashed_password(pwd)
 
@@ -51,10 +51,10 @@ async def create_user(email, name, pwd):
 
             #고객 정보 및 생성된 토큰 반환
             return True, jsonify({
-                "email": new_user.UserEmail,
-                "name": new_user.UserNm,
-                "access_token": "3333"
-            }), 200
+                "email" : new_user.UserEmail,
+                "name" : new_user.UserNm,
+                "access_token" : token
+            }), 201
         
         except Exception as e:
             await session.rollback()  # 트랜잭션 롤백
@@ -62,34 +62,35 @@ async def create_user(email, name, pwd):
     
 async def login_validation(email, pwd):
 
-    user_info = await get_email(email)
-    if user_info is None:
-        return False, jsonify({"error": "존재하지 않는 이메일입니다."}), 400
+        user_info = await get_email(email)
+        if user_info is None:
+            return False, jsonify({"error": "존재하지 않는 이메일입니다."}), 401
 
     # 패스워드 검증
     success, response, status_code = await verify_password(user_info, pwd)
 
-    if not success:
-        return success, response, status_code
+        if not success:
+            return success, response, status_code
 
-    try:
-        token_info = await get_token_info(email)
-    
-        # 발행된 토큰이 없을 경우 신규 토큰 생성
-        if not token_info:
-            token = await create_token(email)
+        try:
+            token_info = await get_token_info(email)
+        
+            # 발행된 토큰이 없을 경우 신규 토큰 생성
+            if not token_info:
+            
+                token = await create_token(email)
 
-            # 신규 토큰 DB 삽입
-            success, created, status_code = await new_insert_token(user_info.UserID, token)
-            
-            if not success:
-                return success, created, status_code
-            
-            return True, jsonify({
-                "email": email,
-                "name": user_info.UserNm,
-                "access_token": token
-            }), 200
+                # 신규 토큰 DB 삽입
+                success, created, status_code = await new_insert_token(token_info.UserID, token)
+                
+                if not success:
+                    return success, created, status_code
+                
+                return True, jsonify({
+                    "email" : email,
+                    "name" : user_info.UserNm,
+                    "access_token" : token
+                }), 201
 
         issued_time = datetime.now() + timedelta(hours=9)
 
