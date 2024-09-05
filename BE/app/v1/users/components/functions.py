@@ -26,6 +26,7 @@ async def create_user(email, name, pwd):
         try:
             # 회원 정보 DB 삽입
             session.add(new_user)
+            await session.commit() 
 
             # 신규 토큰 생성
             token = await create_token(email)

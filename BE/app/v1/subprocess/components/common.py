@@ -9,7 +9,7 @@ async def check_token(email, token):
     # function to check if the token is valid
     # get token from db by email
 
-    async with get_session(email) as session:
+    async with get_session() as session:
         stmt = get_token_info(email) # CODE_TO_GET_TOKEN_FROM_DB
         result = await session.execute(stmt)
 
