@@ -51,13 +51,18 @@ class SubprocessManager:
         self.processes[email] = process
         return True
 
-    def stop_process(self, email):
-        if email not in self.processes:
+    def stop_process(self, email, topic):
+        if email not in self.processes or topic not in self.processes[email]:
             return False
         
-        self.processes[email].terminate()
-        self.processes[email].join()
-        del self.processes[email]
+        self.processes[email][topic].terminate()
+        self.processes[email][topic].join()
+        del self.processes[email][topic]
+        
+        # 해당 이메일에 대한 모든 토픽이 삭제되었다면, 이메일 키도 삭제
+        if not self.processes[email]:
+            del self.processes[email]
+        
         return True
 
 subprocess_manager = SubprocessManager()
