@@ -49,7 +49,7 @@ async def login():
         
         return login_token, status_code
         
-@main_bp.route('/rule_set_default/',methods=['GET','OPTIONS'])
+@users_bp.route('/rule_set_default/',methods=['GET','OPTIONS'])
 async def rule_set_default():
     # test용으로 152번째 userid -> pgid -> processor id -> 추가적으로 connection까지
 
@@ -74,7 +74,7 @@ async def rule_set_default():
     return jsonify(result_dict)
 
 # consemkafka 수정하기
-@main_bp.route('/update_consumekafka/', methods=['GET', 'OPTIONS'])
+@users_bp.route('/update_consumekafka/', methods=['GET', 'OPTIONS'])
 async def update_consumekafka():
     UserId = 152
     user_processor_list = await get_processors_list(UserId)
@@ -96,7 +96,7 @@ async def update_consumekafka():
     return response
 
 # putmongo 수정하기
-@main_bp.route('/update_putmongo/', methods=['GET', 'OPTIONS'])
+@users_bp.route('/update_putmongo/', methods=['GET', 'OPTIONS'])
 async def update_putmongo():
     UserId = 152
     user_processor_list = await get_processors_list(UserId)
@@ -118,7 +118,7 @@ async def update_putmongo():
     return response
 
 # processor 삭제하기
-@main_bp.route('/delete_processors/', methods=['GET', 'OPTIONS'])
+@users_bp.route('/delete_processors/', methods=['GET', 'OPTIONS'])
 async def delete_processors():
     UserId = 152
     token = await get_token()
@@ -185,7 +185,7 @@ async def delete_processors():
 
 
 # connection 삭제하기
-@main_bp.route('/delete_connections/', methods=['GET', 'OPTIONS'])
+@users_bp.route('/delete_connections/', methods=['GET', 'OPTIONS'])
 async def delete_connections(connection_id,version):
     UserId = 152
     token = await get_token()
