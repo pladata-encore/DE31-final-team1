@@ -27,7 +27,13 @@ async def create_user(email, name, pwd):
         try:
             # 회원 정보 DB 삽입
             session.add(new_user)
-            await session.commit() 
+            await session.flush()  
+
+            # 새로운 프로세서 그룹 정보 생성
+            new_group = UserPGInfo(PgID=pgid, UserID=new_user.UserID, PgName="default")
+            session.add(new_group)
+
+            await session.commit()
 
             # 신규 토큰 생성
             token = await create_token(email)
@@ -87,23 +93,6 @@ async def login_validation(email, pwd):
                 "name" : user_info.UserNm,
                 "access_token" : token
             }), 201
-
-            issued_time = datetime.now() + timedelta(hours=9)
-
-            # 토큰 갱신 (만료 시간이 30분 이하로 남은 경우)
-            if token_info.ExpiryAt - issued_time <= timedelta(minutes=30):
-                token = await verify_token(email)
-                return  True, jsonify({
-                    "email" : email, 
-                    "name" : user_info.UserNm,
-                    "access_token" : token
-                }), 200
-            
-            return True, jsonify({
-                "email": email,
-                "name": user_info.UserNm,
-                "access_token": token
-            }), 200
 
         issued_time = datetime.now() + timedelta(hours=9)
 

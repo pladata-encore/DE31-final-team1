@@ -32,18 +32,126 @@ resource "aws_vpc" "main" {
   }
 }
 
-# Public Subnet 생성
-resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.main.id # VPC ID 참조
-  cidr_block = "10.0.1.0/24" # 서브넷 CIDR 블록
-  availability_zone = "ap-northeast-2a" # 가용 영역 지정
+
+# 서브넷 생성 (각 서비스별로 하나씩)
+resource "aws_subnet" "msk1" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.10.0/24"
+  availability_zone = "ap-northeast-2a"
 
   tags = {
-    Name = "public-subnet"
+    Name = "msk1-subnet"
   }
 }
 
-# ... (생략) 다른 서브넷 생성 (Private Subnet 등) - 필요에 따라 추가
+resource "aws_subnet" "msk2" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.11.0/24"
+  availability_zone = "ap-northeast-2b"
+
+  tags = {
+    Name = "msk2-subnet"
+  }
+}
+
+resource "aws_subnet" "msk3" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.12.0/24"
+  availability_zone = "ap-northeast-2c"
+
+  tags = {
+    Name = "msk3-subnet"
+  }
+}
+
+resource "aws_subnet" "airflow" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+  availability_zone = "ap-northeast-2a"
+
+  tags = {
+    Name = "airflow-subnet"
+  }
+}
+
+resource "aws_subnet" "nifi" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.2.0/24"
+  availability_zone = "ap-northeast-2a"
+
+  tags = {
+    Name = "nifi-subnet"
+  }
+}
+
+resource "aws_subnet" "fe" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.3.0/24"
+  availability_zone = "ap-northeast-2a"
+
+  tags = {
+    Name = "fe-subnet"
+  }
+}
+
+resource "aws_subnet" "be" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.4.0/24"
+  availability_zone = "ap-northeast-2b"
+
+  tags = {
+    Name = "be-subnet"
+  }
+}
+
+resource "aws_subnet" "mongodb" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.5.0/24"
+  availability_zone = "ap-northeast-2c"
+
+  tags = {
+    Name = "mongodb-subnet"
+  }
+}
+
+##########################################################################
+
+# Security Groups
+# 모든 입출력을 허용하는 보안 그룹 생성 (VPC 내부 IP만 허용)
+resource "aws_security_group" "allow_all_internal" {
+  name = "allow_all_internal"
+  description = "Allow all traffic from internal IPs"
+  vpc_id = aws_vpc.main.id
+
+  # 인바운드 규칙: VPC 내부 IP에서 모든 포트 허용
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]  # VPC CIDR 블록으로 변경
+  }
+
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    cidr_blocks = ["10.0.0.0/16"]  # VPC CIDR 블록으로 변경
+  }
+
+  # 아웃바운드 규칙: 모든 곳으로 모든 트래픽 허용
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_all_internal"
+  }
+}
+
+###########################################################################
 
 # Internet Gateway 생성
 resource "aws_internet_gateway" "gw" {
@@ -54,27 +162,65 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
-# Public Route Table 생성
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id # VPC ID 참조
+
+##############################################################################
+
+# 서브넷 라우팅 테이블 설정 (모든 서브넷에 대해 VPC 라우팅 설정)
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "0.0.0.0/0" # 모든 트래픽을 인터넷 게이트웨이로 라우팅
-    gateway_id = aws_internet_gateway.gw.id # 인터넷 게이트웨이 ID 참조
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id # 인터넷 게이트웨이 연결 (필요한 경우)
   }
 
   tags = {
-    Name = "public-route-table"
+    Name = "main-route-table"
   }
 }
 
-# Public Subnet Association 생성
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id # Public Subnet ID 참조
-  route_table_id = aws_route_table.public.id # Public Route Table ID 참조
+# 서브넷 연결
+resource "aws_route_table_association" "msk1" {
+  subnet_id      = aws_subnet.msk1.id
+  route_table_id = aws_route_table.main.id
 }
 
-# ... (생략) 다른 서브넷에 대한 Route Table Association 생성 - 필요에 따라 추가
+resource "aws_route_table_association" "msk2" {
+  subnet_id      = aws_subnet.msk2.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "msk3" {
+  subnet_id      = aws_subnet.msk3.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "airflow" {
+  subnet_id      = aws_subnet.airflow.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "nifi" {
+  subnet_id      = aws_subnet.nifi.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "fe" {
+  subnet_id      = aws_subnet.fe.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "be" {
+  subnet_id      = aws_subnet.be.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "mongodb" {
+  subnet_id      = aws_subnet.mongodb.id
+  route_table_id = aws_route_table.main.id
+}
+
+##################################################################3
 
 # MSK Cluster 생성
 resource "aws_msk_cluster" "example" {
@@ -86,17 +232,17 @@ resource "aws_msk_cluster" "example" {
     instance_type = "kafka.m5.large"
     storage_info {
       ebs_storage_info {
-        volume_size = 1000
+        volume_size = 10
       }
     }
     # Security Group 설정 (필요에 따라 추가)
-    security_groups = [aws_security_group.msk.id]
+    security_groups = [aws_security_group.allow_all_internal.id]
 
     # Subnet 설정
     client_subnets = [
-      aws_subnet.public.id,
-      aws_subnet.public.id,
-      aws_subnet.public.id,
+      aws_subnet.msk1.id,
+      aws_subnet.msk2.id,
+      aws_subnet.msk3.id
     ]
   }
 
@@ -108,12 +254,12 @@ resource "aws_msk_cluster" "example" {
 # EC2 Instance 생성 (Airflow)
 resource "aws_instance" "airflow" {
   ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
-  instance_type = "m5.large"
-  subnet_id     = aws_subnet.public.id # Public Subnet ID 참조
+  instance_type = "m5.xlarge"
+  subnet_id     = aws_subnet.airflow.id # airflow Subnet ID 참조
   key_name      = "your-key-pair-name" # Key Pair 이름
 
   # 보안 그룹 설정
-  vpc_security_group_ids = [aws_security_group.airflow.id] 
+  vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
   user_data = <<EOF
 #!/bin/bash
@@ -136,12 +282,12 @@ EOF
 # EC2 Instance 생성 (NiFi)
 resource "aws_instance" "nifi" {
   ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
-  instance_type = "m5.large"
-  subnet_id     = aws_subnet.public.id # Public Subnet ID 참조
+  instance_type = "m5.xlarge"
+  subnet_id     = aws_subnet.nifi.id # nifi Subnet ID 참조
   key_name      = "your-key-pair-name" # Key Pair 이름
 
   # 보안 그룹 설정
-  vpc_security_group_ids = [aws_security_group.nifi.id] 
+  vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
   user_data = <<EOF
 #!/bin/bash
@@ -165,11 +311,11 @@ EOF
 resource "aws_instance" "frontend" {
   ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
-  subnet_id     = aws_subnet.public.id # Public Subnet ID 참조
+  subnet_id     = aws_subnet.fe.id # Frontend Subnet ID 참조
   key_name      = "your-key-pair-name" # Key Pair 이름
 
   # 보안 그룹 설정
-  vpc_security_group_ids = [aws_security_group.frontend.id] 
+  vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
   user_data = <<EOF
 #!/bin/bash
@@ -193,11 +339,11 @@ EOF
 resource "aws_instance" "backend" {
   ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
-  subnet_id     = aws_subnet.public.id # Public Subnet ID 참조
+  subnet_id     = aws_subnet.be.id # Backend Subnet ID 참조
   key_name      = "your-key-pair-name" # Key Pair 이름
 
   # 보안 그룹 설정
-  vpc_security_group_ids = [aws_security_group.backend.id] 
+  vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
   user_data = <<EOF
 #!/bin/bash
@@ -220,12 +366,12 @@ EOF
 # EC2 Instance 생성 (MongoDB)
 resource "aws_instance" "mongo" {
   ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
-  instance_type = "m5.large"
-  subnet_id     = aws_subnet.public.id # Public Subnet ID 참조
+  instance_type = "m5.xlarge"
+  subnet_id     = aws_subnet.mongodb.id # MongoDB Subnet ID 참조
   key_name      = "your-key-pair-name" # Key Pair 이름
 
   # 보안 그룹 설정
-  vpc_security_group_ids = [aws_security_group.mongo.id] 
+  vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
   user_data = <<EOF
 #!/bin/bash
@@ -245,8 +391,7 @@ EOF
   }
 }
 
-# Security Groups
-# ... (생략) 각 인스턴스에 대한 보안 그룹 규칙 정의 - 필요에 따라 추가
+#####################################################################
 
 # CloudWatch Alarms
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization_airflow" {
@@ -263,7 +408,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization_airflow" {
     InstanceId = aws_instance.airflow.id
   }
 
-  alarm_actions = ["arn:aws:sns:ap-northeast-2:your-account-id:your-sns-topic"] # 알림을 받을 SNS 토픽 ARN
+  alarm_actions = ["arn:aws:sns:ap-northeast-2:your-account-id:your-sns-topic"] # 알림을 받을 SNS 토픽  ########### 추후 변경해야함
 }
 
 # ... (생략) 다른 CloudWatch 알람 생성 (메모리 사용량 등) - 필요에 따라 추가
