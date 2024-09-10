@@ -15,8 +15,9 @@ class MSKTokenProvider:
         return token
 
 class KafkaPublisher:
-    def __init__(self, email, ds_id, bootstrap_servers, region_name):
+    def __init__(self, email, name, ds_id, bootstrap_servers, region_name):
         self.email = email
+        self.name = name
         self.ds_id = ds_id
         self.region_name = region_name
 
