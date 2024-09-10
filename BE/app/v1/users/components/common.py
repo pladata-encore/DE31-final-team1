@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from quart import jsonify, request, Response
 from app.models.model import *
-from sqlalchemy.future import select
+from sqlalchemy.future import select, desc
 import bcrypt # type: ignore 
 import jwt
 import json
@@ -111,7 +111,10 @@ async def verify_password(user_info, pwd):
 async def get_token_info(email):
     async with get_session() as session:
         result = await get_email(email)
-        search_token = await session.execute(select(JwtInfo).where(JwtInfo.UserID == result.UserID))
+        search_token = await session.execute(select(JwtInfo)
+                                             .where(JwtInfo.UserID == result.UserID)
+                                             .order_by(desc(JwtInfo.IssuedAt)) 
+                                             .limit(1))
         return search_token.scalar()
 
 
