@@ -44,14 +44,14 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        if: github.ref == 'refs/heads/develop'  # develop 브랜치에서만 plan 실행
+        if: github.ref == 'refs/*/merge'  # merge시에만 plan 실행
         run: terraform plan -no-color -input=false
         continue-on-error: true
 
       - name: Terraform Apply
         id: apply
         # develop 브랜치 pull request merge 시 apply 실행
-        if: github.event_name == 'pull_request' && github.ref == 'refs/heads/develop'
+        if: github.event_name == 'pull_request' && github.ref == 'refs/*/merge'
         run: terraform apply -auto-approve -input=false
 
       - name: Terraform Destroy
