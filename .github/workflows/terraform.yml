@@ -50,10 +50,11 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'pull_request'  # develop 브랜치 pull request merge 시 apply 실행
+        # develop 브랜치 pull request merge 시 apply 실행
+        if: github.event_name == 'pull_request' && github.ref == 'refs/heads/develop'
         run: terraform apply -auto-approve -input=false
 
       - name: Terraform Destroy
         id: destroy
-        if: github.ref == 'refs/heads/feature/destroy' && github.event_name == 'push'  # feature/destroy 브랜치 push 시 destroy 실행
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/destroy'
         run: terraform destroy -auto-approve -input=false
