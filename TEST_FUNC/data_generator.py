@@ -31,7 +31,7 @@ def threading_data_transfer(endpoint):
   data = generate_random_data()
   # response = requests.post(endpoint['url'], json=data)
   # print(f"Send data to {endpoint['url']}, data: {data}")
-  print(f"{data}")
+  print(f"{{'user':'user1', 'device':'device1', 'data':{data}}}")
 
 #################### FUNCTIONS ####################
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
   endpoint_list = read_json_file(JSON_FILE_PATH)
 
   # do forever
-  while True:
+  for i in range(2):
     # Read JSON file, if time_cursor is greater than 1min, read JSON file again
     if time.time() - time_cursor > 60:
       endpoint_list = read_json_file(JSON_FILE_PATH)

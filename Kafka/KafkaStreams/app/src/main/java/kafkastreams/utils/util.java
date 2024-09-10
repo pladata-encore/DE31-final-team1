@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class util {
+    // --------------------> KafkaStreams.Math_Expresstion <-------------------------- \\
     // 사칙계산
     public double calculate(String operator, double x, double y) {
         switch (operator) {
@@ -20,36 +21,54 @@ public class util {
     }
 
     // user_Role 파싱하여 목적 변수 return
-    public String[] getVarName(String user_Role) {
-        return user_Role.split("=")[0].strip().split("\\.");
+    public String getVarName(String user_Rule) {
+        String var = user_Rule.split("=")[0].strip();
+
+        if (var.contains(".") || var.contains("_")) {
+            String[] split_String = var.split("[._]");
+            var = split_String[split_String.length - 1];
+            return var;
+        }
+
+        return var;
     }
 
     // user_Role 파싱하여 변환 수식 return
-    public String getVarExpresstion(String user_Role) {
-        return user_Role.split("=")[1].strip();
+    public String getVarExpresstion(String user_Rule) {
+        return user_Rule.split("=")[1].strip();
     }
 
-    // user_Role 파싱하고 변수 치환
-    public ArrayList<String> parseUserRole(String user_Role, String input_Data) {
-        // var_Name => 유저가 저장하고 싶은 변수명, var_Expresstion => 유저가 입력한 변환 수식
-        String[] var_Name = getVarName(user_Role);
-        String var_Expresstion = getVarExpresstion(user_Role);
+    // user_Rule 파싱하고 변수 치환
+    public ArrayList<String> parseUserRule(String user_Rule, String input_Data) {
+        // var_Expresstion => 유저가 입력한 변환 수식
+        String var_Expresstion = getVarExpresstion(user_Rule);
 
-        // 입력 데이터 => json 타입 데이터 변환, data json 추출
+        // 입력 데이터 => json 타입 데이터형 변환, data json 추출
         JSONObject input_Json = new JSONObject(input_Data);
         JSONObject data_Json = input_Json.getJSONObject("data");
 
-        // 데이터 변수를 숫자로 변환
-        var_Expresstion = var_Expresstion.replace(user_Role.split("=")[0].strip(), String.valueOf(data_Json.getDouble(var_Name[1])));
-
         // 문자열 수식을 정규표현식을 사용하여 ArrayList에 적재
-        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()]");
+        Pattern pattern = Pattern.compile("([a-zA-Z][a-zA-Z0-9_\\.]*|\\+|\\-|\\*|\\/|\\=|\\(|\\))");
         Matcher matcher = pattern.matcher(var_Expresstion);
 
         ArrayList<String> regex_ArrayList = new ArrayList<>();
 
         while (matcher.find()) {
             regex_ArrayList.add(matcher.group());
+        }
+
+        // 변수를 value 값으로 치환
+        for (int i=0; i<regex_ArrayList.size(); i++) {
+            String token = regex_ArrayList.get(i);
+
+            if (token.contains(".") || token.contains("_")) {
+                String[] split_String = token.split("[._]");
+                token = split_String[split_String.length - 1];
+            }
+
+            if (token.matches("[a-zA-Z][a-zA-Z0-9]+")) {
+                regex_ArrayList.set(i, String.valueOf(data_Json.getDouble(token)));
+            }
         }
 
         return regex_ArrayList;
@@ -102,7 +121,9 @@ public class util {
         }
         return stack2.pop();
     }
+    // --------------------> KafkaStreams.Math_Expresstion <-------------------------- \\
 
+    // --------------------> KafkaStreams.filter <------------------------------------ \\
     // 비교연산자 치환
     public int getComparsion(String user_Role) {
         if (user_Role.contains(">")) {
@@ -124,8 +145,6 @@ public class util {
 
     // pivot 값 파싱
     public double getPivot(String user_Role) {
-        String[] split_String = user_Role.split(" ");
-
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(user_Role);
 
@@ -133,19 +152,16 @@ public class util {
 
         if (matcher.find()) {
             pivot = matcher.group();
-        } else {
-            System.out.println("Not Found...");
         }
 
         return Double.parseDouble(pivot);
     }
 
-    // filter 전용 
-    public String getVarName2(String user_Role) {
+    public String getVarName2(String user_Rule) {
         String regex = "\\.(\\w+)";
 
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(user_Role);
+        Matcher matcher = pattern.matcher(user_Rule);
 
         String result = "";
 
@@ -155,4 +171,5 @@ public class util {
 
         return result;
     }
+    // --------------------> KafkaStreams.filter <------------------------------------ \\
 }

@@ -12,6 +12,9 @@ import org.json.JSONArray;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Properties;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -20,7 +23,7 @@ public class producer {
     static topic topic = new topic();
 
     // Producer Properties 설정
-    public static Properties producerProperties(String bootstrap_servers) {
+    public Properties producerProperties(String bootstrap_servers) {
         Properties props = new Properties();
 
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
@@ -35,16 +38,16 @@ public class producer {
         return props;
     }
 
-    public static void kafkaProducer(String bootstrap_servers, Properties props, String file_Path) {
+    public void kafkaProducer(String bootstrap_servers, Properties props, String file_Path) {
         // Properties 적용한 KafkaProducer 객체 생성
         // <String, String> --> <Key type, Value type>
-        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
+        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
 
         // 파일 확장자 추출
         String[] split_String = file_Path.split("/");
         String last = split_String[split_String.length - 1];
         String type = last.split("\\.")[1];
-        
+
         try {
             if (type.equals("json")) {
                 // json 배열 파일 읽기
@@ -61,11 +64,17 @@ public class producer {
 
                 // json array의 레코드 한 줄씩 적재
                 for (Object obj : json_Array) {
+                    // value
                     JSONObject d = (JSONObject) obj;
                     String reco = d.toString();
-                    ProducerRecord<String, String> record = new ProducerRecord<String,String>(topic_Name, reco);
-                    System.out.println("Send Massage <Key, Value> : " + record.key() + ", " + record.value());
 
+                    // key
+                    LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
+                    String now_String = now.format(formatter);
+
+                    ProducerRecord<String, String> record = new ProducerRecord<>(topic_Name, now_String, reco);
+                    System.out.println("Send Massage <Key, Value> : " + record.key() + ", " + record.value());
                     // 내부 버퍼에 record 적재
                     producer.send(record);
 
@@ -79,16 +88,26 @@ public class producer {
                 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-                // String r = reader.readLine();
-                // JSONObject json_Object  = new JSONObject(r);
+                String r = reader.readLine();
+                JSONObject json_Object  = new JSONObject(r);
                 
-                // String topic_Name = json_Object.getString("user") + "_" + json_Object.getString("device");
+                String topic_Name = json_Object.getString("user") + "_" + json_Object.getString("device");
  
                 Properties topic_Props = topic.topicProperties(bootstrap_servers);
-                topic.createTopic(topic_Props, "user1_device4");
+                topic.createTopic(topic_Props, topic_Name);
 
                 while(true) {
-                    ProducerRecord<String, String> record = new ProducerRecord<String,String>("user1_device4", reader.readLine());
+                    // key
+                    LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
+                    String now_String = now.format(formatter);
+
+                    ProducerRecord<String, String> record = new ProducerRecord<>(topic_Name, now_String, reader.readLine());
+
+                    if (record.value() == null) {
+                        break;
+                    }
+
                     System.out.println("Send Massage <Key, Value> : " + record.key() + ", " + record.value());
                     
                     // 내부 버퍼에 record 적재
@@ -105,12 +124,5 @@ public class producer {
         } finally {
             producer.close();
         }
-    }
-
-    public static void main(String[] args) {
-        String bootstrap_servers = "b-2-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198,b-1-public.dp.qp8s9a.c3.kafka.ap-northeast-2.amazonaws.com:9198";        
-        Properties props = producerProperties(bootstrap_servers);
-        String file_Path = "/home/kkh/workspace/DE31-final-team1/TEST_FUNC/data_generator.py";
-        kafkaProducer(bootstrap_servers, props, file_Path);
     }
 }

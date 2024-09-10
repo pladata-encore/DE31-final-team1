@@ -8,7 +8,6 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.json.JSONObject;
 
-import aws_msk_iam_auth_shadow.com.fasterxml.jackson.databind.util.JSONPObject;
 import kafkastreams.utils.util;
 import kafkastreams.kafka.topic;
 
@@ -22,7 +21,7 @@ public class topology {
     static properties props = new properties();
 
     // 변환 수식을 이용하여 value 값 변환
-    public KafkaStreams mathExpression(String bootstrap_servers, String topic_Name, String user_Role, String var_Name) {
+    public KafkaStreams mathExpression(String bootstrap_servers, String topic_Name, String user_Rule, String var_Name) {
         StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, String> topic_Data = builder.stream(topic_Name);
@@ -31,7 +30,7 @@ public class topology {
             value -> {
                 try {
                     // user_Role에 맞게 결과 도출
-                    ArrayList<String> regex_ArrayList = ut.parseUserRole(user_Role, value);
+                    ArrayList<String> regex_ArrayList = ut.parseUserRule(user_Rule, value);
                     double result = ut.parseCalculate(regex_ArrayList);
 
                     // 결과값 value_Json에 삽입
@@ -59,13 +58,13 @@ public class topology {
     }
 
     // value가 pivot를 넘는 값만 전송
-    public KafkaStreams recordFilter(String bootstrap_servers, String topic_Name, String user_Role, String var_Name) {
+    public KafkaStreams recordFilter(String bootstrap_servers, String topic_Name, String user_Rule, String var_Name) {
         StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, String> topic_Data = builder.stream(topic_Name);
 
-        int comparsion = ut.getComparsion(user_Role);
-        double pivot = ut.getPivot(user_Role);
+        int comparsion = ut.getComparsion(user_Rule);
+        double pivot = ut.getPivot(user_Rule);
         
         KStream<String, String> record_Filter = topic_Data.filter(
             (key, value) -> {

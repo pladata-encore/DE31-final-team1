@@ -15,7 +15,7 @@ public class consumer {
     // 클래스 객체 생성
     static topic topic = new topic();
 
-    public Properties properties(String bootstrap_servers) {
+    public Properties consumerProperties(String bootstrap_servers) {
         Properties props = new Properties();
         
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
@@ -31,9 +31,9 @@ public class consumer {
         return props;
     }
 
-    public static void kafkaCosumer(Properties props, String topic_Name) {
+    public void kafkaCosumer(Properties props, String topic_Name) {
         // <String, String> --> <Key type, Value type>
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
         consumer.subscribe(Arrays.asList(topic_Name));
 

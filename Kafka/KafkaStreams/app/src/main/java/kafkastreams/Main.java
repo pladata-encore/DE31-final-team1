@@ -9,31 +9,31 @@ public class Main {
     static util ut = new util();
     static topology topo = new topology();
     public static void main(String[] args) {
-        // args[0] --> bootstrap_Servers
-        // args[1] --> topic_Name
-        // args[2] --> user_Role
+        
+        // ArrayList<String> x = ut.parseUserRule("pm1 = (pm1 + pm2) * pm3", "{'user':'user1', 'device':'device1', 'data':{'pm1':1, 'pm2':2, 'pm3':3}}");
+        // ArrayList<String> y = ut.parseUserRule("data.pm1 = (data.pm1 + data.pm2) * data.pm3", "{'user':'user1', 'device':'device1', 'data':{'pm1':1, 'pm2':2, 'pm3':3}}");
 
         String bootstrap_servers = "";
         String topic_Name = "";
-        String user_Role = "";
+        String user_Rule = "";
 
         String[] patterns = {">", ">=", "<", "<=", "!=", "=="};
 
         boolean pattern_Found = false;
 
         for (String e : patterns) {
-            if (user_Role.contains(e)) {
+            if (user_Rule.contains(e)) {
                 pattern_Found = true;
                 break;
             }
         }
 
         if (pattern_Found == false) {
-            if (args[1].contains("=")) {
+            if (user_Rule.contains("=")) {
                 // KafkaStreams Experssion
-                String[] var_Name = ut.getVarName(args[2]);
+                String var_Name = ut.getVarName(user_Rule);
 
-                KafkaStreams streams = topo.mathExpression(args[0], args[1], args[2], var_Name[1]);
+                KafkaStreams streams = topo.mathExpression(bootstrap_servers, topic_Name, user_Rule, var_Name);
 
                 streams.cleanUp();
                 streams.start();
@@ -44,9 +44,9 @@ public class Main {
             }
         } else {
             // KafkaStreams Filter
-            String var_Name = ut.getVarName2(user_Role);
+            String var_Name = ut.getVarName2(user_Rule);
 
-            KafkaStreams streams = topo.recordFilter(bootstrap_servers, topic_Name, user_Role, var_Name);
+            KafkaStreams streams = topo.recordFilter(bootstrap_servers, topic_Name, user_Rule, var_Name);
 
             streams.cleanUp();
             streams.start();
