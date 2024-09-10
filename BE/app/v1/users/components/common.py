@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
 from quart import jsonify, request, Response
 from app.models.model import *
-from sqlalchemy.future import select, desc
+from sqlalchemy.future import select
+from sqlalchemy import desc
 import bcrypt # type: ignore 
 import jwt
 import json
