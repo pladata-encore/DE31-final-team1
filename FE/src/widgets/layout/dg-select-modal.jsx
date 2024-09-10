@@ -9,11 +9,19 @@ import {
 import axios from 'axios';
 
 export function DgSelModal() {
+  // get cookie
+  const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+    const [key, value] = cookie.split("=").map(part => part.trim());
+    acc[key] = value;
+    return acc;
+  }, {});
   // ref for modal
   const modalRef = React.useRef(null);
   const [radioValue, setRadioValue] = React.useState("");
   const [randomID, setRandomID] = React.useState(makeRandomID());
   const [name, setName] = React.useState("");
+  const [dsList, setDsList] = React.useState([]);
+  const [selectedDs, setSelectedDs] = React.useState([]);
   const [databaseInfo, setDatabaseInfo] = React.useState({
     type: "default",
     host: "",
@@ -36,7 +44,22 @@ export function DgSelModal() {
       setName("");
       setRandomID(makeRandomID());
     }
+    getdslist();
   }, []);
+
+  function getdslist() {
+    axios.get("http://192.168.1.230:19020/v1/data-source/getdslist", {
+      params: {
+        email: cookies.userEmail,
+        token: cookies.userAuth,
+      },
+    }).then((res) => {
+      console.log(res);
+      setDsList(res.data);
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
 
   function dataPopupClose() {
     document.getElementById("dataPopup").classList.toggle("hidden");
@@ -70,8 +93,13 @@ export function DgSelModal() {
   }
 
   function doApiCall() {
-    const url = "http://localhost:5000/api/data";
-    const data = {};
+    const url = "http://192.168.1.230:19020/v1/data-group/createdg";
+    let data = {
+      email: cookies.userEmail,
+      token: cookies.userAuth,
+      id: randomID,
+      type: radioValue,
+    };
     // make api call to get data
     const res = axios.post(url, data);
     // if success, close modal
@@ -83,7 +111,15 @@ export function DgSelModal() {
     if (res.status !== 200) {
       alert("Error: " + res.data);
     }
+  }
 
+  function handleMultiSelect(e) {
+    // if already selected, remove from selected list
+    if (selectedDs.includes(e.target.value)) { 
+      setSelectedDs(selectedDs.filter((el) => el !== e.target.value));
+    } else {
+      setSelectedDs(selectedDs.concat(e.target.value));
+    }
   }
 
   return (
@@ -97,57 +133,32 @@ export function DgSelModal() {
           </svg>
         </button>
         <Typography variant="h6" color="white">
-          Add Data Source
+          Add Data Group
         </Typography>
-        {/* radio button to select type */}
-        <div className="flex items-stretch items-center justify-center mb-4">
-          {/* radio button check state base on radioValue */}
-          <input type="radio" id="type1" name="type" value="type1" className="mr-2" onChange={(e) => setRadioValue(e.target.value)} />
-          <label htmlFor="type1">Streaming</label>
-          <input type="radio" id="type2" name="type" value="type2" className="ml-4 mr-2" onChange={(e) => setRadioValue(e.target.value)}/>
-          <label htmlFor="type2">Database</label>
-        </div>
         <div className='flex flex-row gap-4'>
         <ul className="flex flex-col gap-4">
           <li>
-            <p>ID(Auto Generated)</p><Input label="Data Source Name" className='disabled:opacity-50' disabled id='id' value={randomID} />
+            <p>ID(Auto Generated)</p><Input label="Data Group ID" className='disabled:opacity-50' disabled id='id' value={randomID} />
           </li>
           <li>
-            <p>Name(Optional)</p><Input label="Data Source Name" id='name' value={name} onChange={(e) => setName(e.target.value)} />
+            <p>Name(Optional)</p><Input label="Data Group Name" id='name' value={name} onChange={(e) => setName(e.target.value)} />
           </li>
-          {/* if radio value */}
-          {radioValue === "type2" && (
-            <li>
-              {/* make dropdown selector */}
-              <p>Database</p>
-              <select className="w-full border border-blue-gray-200 rounded-lg p-2" value={databaseInfo.type} onChange={(e) => setDatabaseInfo({...databaseInfo, type: e.target.value})}>
-                <option value="default">Select Database</option>
-                <option value="mysql">MySQL</option>
-                <option value="postgresql">PostgreSQL</option>
-              </select>
-            </li>
-          )}
+          {/* scroll list to select data source(multiple at once) */}
+          <li>
+            <p>Data Source</p>
+            {/* <select multiple className="w-full h-32 border border-blue-gray-200 rounded-lg p-2">
+              {dsList.map((el) => (
+                <option value={el.id}>{el.name}</option>
+              ))}
+            </select> */}
+            <select multiple className="w-full h-32 border border-blue-gray-200 rounded-lg p-2" onChange={(e) => handleMultiSelect(e)} value={selectedDs}>
+              <option value="ds1">Data Source 1</option>
+              <option value="ds2">Data Source 2</option>
+              <option value="ds3">Data Source 3</option>
+              <option value="ds4">Data Source 4</option>
+            </select>
+          </li>
         </ul>
-        {/* if database type is not default */}
-        {(databaseInfo.type !== "default" && radioValue === "type2") && (
-          <ul className="flex flex-col gap-4">
-            <li>
-              <p>Host</p><Input id='host' value={databaseInfo.host} onChange={(e) => setDatabaseInfo({...databaseInfo, host: e.target.value})} placeholder="127.0.0.1:3306" />
-            </li>
-            <li>
-              <p>User</p><Input label="User" id='user' value={databaseInfo.user} onChange={(e) => setDatabaseInfo({...databaseInfo, user: e.target.value})} />
-            </li>
-            <li>
-              <p>Password</p><Input label="Password" id='password' value={databaseInfo.password} onChange={(e) => setDatabaseInfo({...databaseInfo, password: e.target.value})} />
-            </li>
-            <li>
-              <p>Database</p><Input label="Database" id='database' value={databaseInfo.database} onChange={(e) => setDatabaseInfo({...databaseInfo, database: e.target.value})} />
-            </li>
-            <li>
-              <p>Table</p><Input label="Table" id='table' value={databaseInfo.table} onChange={(e) => setDatabaseInfo({...databaseInfo, table: e.target.value})} />
-            </li>
-          </ul>
-        )}
         </div>
 
         {/* button for submit, align center */}

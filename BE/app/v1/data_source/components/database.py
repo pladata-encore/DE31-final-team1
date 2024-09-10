@@ -14,10 +14,11 @@ async def get_ds_list(email): # already checked token
         ds_list = result.scalars().all()
         return ds_list
 
-async def create_ds(email, ds_id, ds_name, ds_type, ds_colnm, ds_data): # already checked token
+async def create_ds(email, ds_id, ds_name, ds_type): # already checked token
     async with get_session() as session:
         uid = await session.execute(select(UserInfo.UserID).where(UserInfo.UserEmail == email))
-        stmt = DsInfo.insert().values(UserID=uid, DsId=ds_id, DsNm=ds_name, IsObdc=ds_type, DsColNm=ds_colnm, CreatedAt=datetime.now(), UpdatedAt=datetime.now(), UseYn='Y', DelYn='N')
+        colnm = uid+ds_name
+        stmt = DsInfo.insert().values(UserID=uid, DsId=ds_id, DsNm=ds_name, IsObdc=ds_type, DsColNm=colnm, CreatedAt=datetime.now(), UpdatedAt=datetime.now(), UseYn='Y', DelYn='N')
         await session.execute(stmt)
         if(ds_type == 'obdc'):
             create_ds_obdc()
@@ -28,10 +29,12 @@ async def create_ds(email, ds_id, ds_name, ds_type, ds_colnm, ds_data): # alread
 # sub function for createds
 async def create_ds_ep():
     # CODE_TO_CREATE_DS
+    # MAKE SUBPROCESS FOR COLLECT STREAM DATA
     return "OK_CREATED_DS"
 
 async def create_ds_obdc():
     # CODE_TO_CREATE_DS
+    # CALL AIRFLOW API TO MAKE DAG
     return "OK_CREATED_DS"
 # end of sub function for createds
 

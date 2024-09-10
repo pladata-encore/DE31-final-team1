@@ -9,17 +9,37 @@ import {
   Tooltip,
   Progress,
 } from "@material-tailwind/react";
+import axios from "axios";
+import React from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { farmTableData } from "@/data";
 import { DsSelModal } from "@/widgets/layout";
 
 export function Integrations() {
+  const [dsList, setDsList] = React.useState([]);
+  const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+    const [key, value] = cookie.split("=").map(part => part.trim());
+    acc[key] = value;
+    return acc;
+  }, {});
 
   function dataPopup() {
     document.getElementById("dataPopup").classList.toggle("hidden");
   }
 
-
+  React.useEffect(() => {
+    axios.get("http://192.168.1.230:19020/v1/data-source/getdslist", {
+      params: {
+        email: cookies.userEmail,
+        token: cookies.userAuth,
+      },
+    }).then((res) => {
+      console.log(res);
+      setDsList(res.data);
+    }).catch((err) => {
+      console.log(err);
+    });
+  }, []);
 
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">

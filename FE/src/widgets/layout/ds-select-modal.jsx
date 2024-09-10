@@ -9,6 +9,12 @@ import {
 import axios from 'axios';
 
 export function DsSelModal() {
+  // get cookie
+  const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+    const [key, value] = cookie.split("=").map(part => part.trim());
+    acc[key] = value;
+    return acc;
+  }, {});
   // ref for modal
   const modalRef = React.useRef(null);
   const [radioValue, setRadioValue] = React.useState("");
@@ -70,8 +76,24 @@ export function DsSelModal() {
   }
 
   function doApiCall() {
-    const url = "http://localhost:5000/api/data";
-    const data = {};
+    const url = "http://192.168.1.230:19020/v1/data-source/createds";
+    let data = {
+      email: cookies.userEmail,
+      token: cookies.userAuth,
+      id: randomID,
+      type: radioValue,
+    };
+    if(name === "") {
+      data = {
+        ...data,
+        name: randomID,
+      };
+    } else {
+      data = {
+        ...data,
+        name: name,
+      };
+    }
     // make api call to get data
     const res = axios.post(url, data);
     // if success, close modal
@@ -110,7 +132,7 @@ export function DsSelModal() {
         <div className='flex flex-row gap-4'>
         <ul className="flex flex-col gap-4">
           <li>
-            <p>ID(Auto Generated)</p><Input label="Data Source Name" className='disabled:opacity-50' disabled id='id' value={randomID} />
+            <p>ID(Auto Generated)</p><Input label="Data Source ID" className='disabled:opacity-50' disabled id='id' value={randomID} />
           </li>
           <li>
             <p>Name(Optional)</p><Input label="Data Source Name" id='name' value={name} onChange={(e) => setName(e.target.value)} />
