@@ -73,11 +73,14 @@ async def login_validation(email, pwd):
     if not success:
         return success, response, status_code
 
+
     try:
         token_info = await get_token_info(email)
+        issued_time = datetime.now() + timedelta(hours=9)
+        
     
-        # 발행된 토큰이 없을 경우 신규 토큰 생성
-        if not token_info:
+        # 발행된 토큰이 없거나 만료 되었을 경우 신규 토큰 생성
+        if not token_info or token_info.ExpiryAt < issued_time:
         
             token = await create_token(email)
 
@@ -92,8 +95,6 @@ async def login_validation(email, pwd):
                 "name" : user_info.UserNm,
                 "access_token" : token
             }), 201
-
-        issued_time = datetime.now() + timedelta(hours=9)
 
         # 토큰 갱신 (만료 시간이 30분 이하로 남은 경우)
         if token_info.ExpiryAt - issued_time <= timedelta(minutes=30):
