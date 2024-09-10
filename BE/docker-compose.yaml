@@ -13,3 +13,5 @@ services:
       FLASK_ENV: development
     volumes:
       - /home/dp/workspace/DE31-final-team1/BE:/home/mydir/api-server
+    env_file:
+      - .env
