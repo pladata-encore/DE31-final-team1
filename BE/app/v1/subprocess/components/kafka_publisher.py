@@ -10,8 +10,9 @@ class MSKTokenProvider:
         self.region_name = region_name
 
     def token(self):
-        # token, _ = MSKAuthTokenProvider.generate_auth_token(self.region_name)
-        token, _ = MSKAuthTokenProvider.generate_auth_token(self.region_name, aws_debug_creds = True)
+        token, _ = MSKAuthTokenProvider.generate_auth_token(
+            self.region_name
+            )
         return token
 
 class KafkaPublisher:
@@ -20,6 +21,7 @@ class KafkaPublisher:
         self.name = name
         self.ds_id = ds_id
         self.region_name = region_name
+        self.bootstrap_servers = bootstrap_servers
 
         
         # SASL/IAM을 위한 Kafka 클라이언트 설정
@@ -30,8 +32,7 @@ class KafkaPublisher:
             security_protocol='SASL_SSL',
             sasl_mechanism='OAUTHBEARER',
             sasl_oauth_token_provider=self.token_provider,
-            client_id=socket.gethostname(),
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            client_id=socket.gethostname()
         )
 
     def publish_data(self, topic, data):
@@ -44,6 +45,3 @@ class KafkaPublisher:
 
     def close(self):
         self.producer.close()
-
-
-

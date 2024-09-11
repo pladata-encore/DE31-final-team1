@@ -5,21 +5,33 @@ import os
 from datetime import time, datetime, timedelta
 from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import TopicAlreadyExistsError
+from .kafka_publisher import MSKTokenProvider
+import socket
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
+logging.getLogger('kafka').setLevel(logging.DEBUG)
 
 def run_kafka_publisher(email, name, ds_id, bootstrap_servers, region_name):
     publisher = KafkaPublisher(email, name, ds_id, bootstrap_servers, region_name)
     topic = f'{email.split("@")[0]}_{name}_{ds_id}'
+    token_provider = MSKTokenProvider(region_name)
 
     try:
-        admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
-        topic_list = [NewTopic(name=topic, num_partitions=3, replication_factor=3)]
+        admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers,
+                                        security_protocol='SASL_SSL',
+                                        sasl_mechanism='OAUTHBEARER',
+                                        sasl_oauth_token_provider=token_provider,
+                                        client_id=socket.gethostname(),
+                                        )
+        topic_list = [NewTopic(name=topic, num_partitions=2, replication_factor=1)]
         admin_client.create_topics(new_topics=topic_list, validate_only=False)
 
     except TopicAlreadyExistsError:
         print(f"{topic} 토픽이 이미 존재합니다. 토픽 생성이 중지됩니다.")  
 
-    # 테스트 데이터 생성
+    # 테스트 데이터 생성앷
     data_generator = TestDataGenerator()
 
     try:
