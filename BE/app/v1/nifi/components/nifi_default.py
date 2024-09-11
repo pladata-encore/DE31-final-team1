@@ -72,3 +72,39 @@ async def get_client_id():
         return jsonify({"error": str(e)}), e.response.status_code
     except httpx.RequestError as e:
         return jsonify({"error": "Request error occurred"}), 500
+
+# 생성되어있는 default process group 삭제 http://localhost:19020/v1/nifi_default/delete_all_pg/
+@nifi_default_bp.route('/delete_all_pg/', methods=['GET', 'OPTIONS'])
+async def delete_all_pg():
+    url = f"{NIFI_URL}process-groups/root/process-groups"
+    token = await get_token()
+    if not token:
+        return jsonify({"error": "Failed to retrieve token"}), 500
+    headers = {"Authorization": f"Bearer {token}"}
+    if request.method == 'OPTIONS':
+        return jsonify({'message': 'CORS preflight response'}), 200
+    try:
+        async with httpx.AsyncClient(verify=False) as client:
+            response = await client.get(url, headers=headers)
+            # print(f"Response Body: {response.text}")  
+            response_data = json.loads(response.text)
+            process_groups = response_data.get('processGroups', [])
+            for process_group in process_groups:
+                process_group_id = process_group.get('id')
+                process_group_name = process_group.get('component').get('name')
+                process_group_version = process_group.get('revision').get('version')
+                # print(f"Process Group ID: {process_group.get('id')}, name: {process_group.get('component').get('name')}")
+                client_id = await get_client_id()
+                delete_url = f"{NIFI_URL}process-groups/{process_group_id}?version={process_group_version}&clientId={client_id}"
+                delete_response = await client.delete(delete_url, headers=headers)
+                if delete_response.status_code == 200:
+                    print(f"Successfully deleted Process Group ID: {process_group_id}, Name: {process_group_name}")
+                else:
+                    print(f"Failed to delete Process Group ID: {process_group_id}, Name: {process_group_name}")
+                    return jsonify({"error": f"Failed to delete process group {process_group_name}"}), delete_response.status_code
+
+            return jsonify({"message": "All process groups deleted successfully"}), 200
+    except httpx.HTTPStatusError as e:
+        return jsonify({"error": str(e)}), e.response.status_code
+    except httpx.RequestError as e:
+        return jsonify({"error": "Request error occurred"}), 500

@@ -466,7 +466,59 @@ async def get_all_connection(UserId):
     except Exception as e:
         return jsonify({"error": "Failed to get processor list", "details": str(e)}), 500
 
-
+# consumkafka 생성 http://localhost:19020/v1/nifi_api/make_custom_consumekafka/
+@nifi_api_bp.route('/make_custom_consumekafka/', methods=['GET', 'OPTIONS'])
+async def create_custom_consumekafka_processor():
+    # token, user_process_group_id
+    token = await get_token()
+    # user_process_group_id = await get_user_process_group_id(152)
+    # test용
+    user_process_group_id = "3165600b-0191-1000-53ce-3b268028503c"
+    print(user_process_group_id)   
+    url = f"{NIFI_URL}process-groups/{user_process_group_id}/processors"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    body = {
+    "revision": {
+        "version": 0
+    },
+    "component": {
+        "name": "My Custom Kafka Processor",
+        "type": "com.example.nifi.MyProcessor",
+        "config": {
+            "properties": {
+                "Topic Name": "user3_device1",
+                "Group ID": "nifi1",
+                "Auto Offset Reset": "earliest"
+            },
+            "schedulingPeriod": "1 sec",
+            "autoTerminatedRelationships": ["FAILURE","SUCCESS"],
+            "schedulingStrategy": "TIMER_DRIVEN",
+            "penaltyDuration": "30 sec",
+            "yieldDuration": "1 sec",
+            "bulletinLevel": "WARN",
+            "runDurationMillis": 0,
+        },
+        "position": {
+            "x": 500,
+            "y": 500
+        }
+    }
+}
+    
+    try:
+        async with httpx.AsyncClient(verify=False) as client:
+            response = await client.post(url, headers=headers, json=body)
+            response_text = response.text
+            if response.status_code == 200:  # 성공적으로 생성되었을 경우
+                return jsonify({"message": "Processor created successfully", "response": response_text}), 200
+            else:
+                return jsonify({"error": "Failed to create processor", "details": response_text}), response.status_code
+    except Exception as e:
+        print(f"An error occurred while creating the processor: {e}")
+        return jsonify({"error": "An error occurred while creating the processor", "details": str(e)}), 500
 
 
 # kafka streaming
