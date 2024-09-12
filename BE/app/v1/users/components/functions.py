@@ -52,6 +52,7 @@ async def create_user(email, name, pwd):
 
             #고객 정보 및 생성된 토큰 반환
             return True, jsonify({
+
                 "email" : new_user.UserEmail,
                 "name" : new_user.UserNm,
                 "access_token" : token

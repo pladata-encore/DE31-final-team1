@@ -9,26 +9,51 @@ import {
   Progress,
   Button,
 } from "@material-tailwind/react";
+import React from "react";
+import axios from "axios";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { farmTableData } from "@/data";
+import { DgSelModal } from "@/widgets/layout";
 
 export function Groups() {
+  const [dgList, setDgList] = React.useState([]);
+  const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+    const [key, value] = cookie.split("=").map(part => part.trim());
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  function dataPopup() {
+    document.getElementById("dataPopup").classList.toggle("hidden");
+  }
+
+  React.useEffect(() => {
+    axios.get("http://192.168.1.230:19020/v1/data-group/getdglist", {
+      params: {
+        email: cookies.userEmail,
+        token: cookies.userAuth,
+      },
+    }).then((res) => {
+      console.log(res);
+      setDgList(res.data);
+    }
+    ).catch((err) => {
+      console.log(err);
+    });
+  }, []);
+
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
+      {/* make data popup covering full page */}
+      <DgSelModal />
       <Card>
         <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
           <Typography variant="h6" color="white">
             Farm List Table
           </Typography>
         </CardHeader>
-        <Button
-          variant="text"
-          color="blue-gray"
-          className="flex items-center gap-2"
-          // positon to right
-          style={{ marginLeft: "auto" }}
-        >
-          <Typography variant="button" color="gray">
+        <Button variant="text" color="blue-gray" className="flex items-center gap-2" style={{ marginLeft: "auto" }} onClick={dataPopup}>
+          <Typography variant="h6" color="gray">
             Add Farm
           </Typography>
         </Button>
