@@ -10,7 +10,7 @@ terraform {
   # Terraform 상태 파일을 S3에 저장하도록 설정
   # S3 버킷 이름 및 경로를 적절히 수정
   backend "s3" {
-    bucket = "your-terraform-state-bucket" 
+    bucket = "your-terraform-state-bucket"
     key    = "terraform.tfstate"
     region = "ap-northeast-2"
   }
@@ -252,10 +252,10 @@ resource "aws_msk_cluster" "example" {
 
 # EC2 Instance 생성 (Airflow)
 resource "aws_instance" "airflow" {
-  ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.airflow.id # airflow Subnet ID 참조
-  key_name      = "your-key-pair-name" # Key Pair 이름
+  key_name      = "test_key_pair" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -280,10 +280,10 @@ EOF
 
 # EC2 Instance 생성 (NiFi)
 resource "aws_instance" "nifi" {
-  ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.nifi.id # nifi Subnet ID 참조
-  key_name      = "your-key-pair-name" # Key Pair 이름
+  key_name      = "test_key_pair" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -308,10 +308,10 @@ EOF
 
 # EC2 Instance 생성 (FE)
 resource "aws_instance" "frontend" {
-  ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
   subnet_id     = aws_subnet.fe.id # Frontend Subnet ID 참조
-  key_name      = "your-key-pair-name" # Key Pair 이름
+  key_name      = "test_key_pair" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -336,10 +336,10 @@ EOF
 
 # EC2 Instance 생성 (BE)
 resource "aws_instance" "backend" {
-  ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
   subnet_id     = aws_subnet.be.id # Backend Subnet ID 참조
-  key_name      = "your-key-pair-name" # Key Pair 이름
+  key_name      = "test_key_pair" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -364,10 +364,10 @@ EOF
 
 # EC2 Instance 생성 (MongoDB)
 resource "aws_instance" "mongo" {
-  ami           = "ami-09e67e426f25ce0d7" # Ubuntu 22.04 LTS AMI (서울 리전)
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.mongodb.id # MongoDB Subnet ID 참조
-  key_name      = "your-key-pair-name" # Key Pair 이름
+  key_name      = "test_key_pair" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -397,22 +397,22 @@ EOF
 
 
 
-# CloudWatch Alarms
-resource "aws_cloudwatch_metric_alarm" "cpu_utilization_airflow" {
-  alarm_name                = "Airflow-CPU-Utilization-High"
-  comparison_operator       = "GreaterThanThreshold"
-  evaluation_periods        = 2
-  metric_name               = "CPUUtilization"
-  namespace                 = "AWS/EC2"
-  period                    = 60
-  statistic                 = "Average"
-  threshold                 = 80
-  alarm_description          = "Airflow EC2 instance CPU utilization is high."
-  dimensions = {
-    InstanceId = aws_instance.airflow.id
-  }
+# # CloudWatch Alarms
+# resource "aws_cloudwatch_metric_alarm" "cpu_utilization_airflow" {
+#   alarm_name                = "Airflow-CPU-Utilization-High"
+#   comparison_operator       = "GreaterThanThreshold"
+#   evaluation_periods        = 2
+#   metric_name               = "CPUUtilization"
+#   namespace                 = "AWS/EC2"
+#   period                    = 60
+#   statistic                 = "Average"
+#   threshold                 = 80
+#   alarm_description          = "Airflow EC2 instance CPU utilization is high."
+#   dimensions = {
+#     InstanceId = aws_instance.airflow.id
+#   }
 
-  alarm_actions = ["arn:aws:sns:ap-northeast-2:your-account-id:your-sns-topic"] # 알림을 받을 SNS 토픽  ########### 추후 변경해야함
-}
+#   alarm_actions = ["arn:aws:sns:ap-northeast-2:your-account-id:your-sns-topic"] # 알림을 받을 SNS 토픽  ########### 추후 변경해야함
+# }
 
 # ... (생략) 다른 CloudWatch 알람 생성 (메모리 사용량 등) - 필요에 따라 추가
