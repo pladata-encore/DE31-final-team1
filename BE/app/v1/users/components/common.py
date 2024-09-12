@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
-from quart import current_app, jsonify, request, Response
+from quart import jsonify, request, Response
 from app.models.model import *
 from sqlalchemy.future import select
-import base64
+from sqlalchemy import desc
 import bcrypt # type: ignore 
 import jwt
 import json
+import secrets
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 
@@ -111,7 +112,10 @@ async def verify_password(user_info, pwd):
 async def get_token_info(email):
     async with get_session() as session:
         result = await get_email(email)
-        search_token = await session.execute(select(JwtInfo).where(JwtInfo.UserID == result.UserID))
+        search_token = await session.execute(select(JwtInfo)
+                                             .where(JwtInfo.UserID == result.UserID)
+                                             .order_by(desc(JwtInfo.IssuedAt)) 
+                                             .limit(1))
         return search_token.scalar()
 
 
@@ -134,8 +138,9 @@ async def create_token(email):
         "issuedAt" : issued_time.isoformat(),
         "expiryAt" : expiry_time.isoformat()
     }
+    JWT_SECRET_KEY = secrets.token_urlsafe(32)
     # 토큰 생성
-    token = jwt.encode(payload, current_app.config["JWT_SECRET_KEY"], "HS256")
+    token = jwt.encode(payload, JWT_SECRET_KEY, "HS256")
     return token
             
 

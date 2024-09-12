@@ -25,11 +25,11 @@ class UserInfo(Base):
 
 class JwtInfo(Base):
     __tablename__ = 'JwtInfo'
-    UserID = Column(Integer, ForeignKey('UserInfo.UserID'), primary_key=True, nullable=False)
+    ID = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    UserID = Column(Integer, ForeignKey('UserInfo.UserID'), nullable=True)
     AccessToken = Column(String(1024), nullable=True)
     IssuedAt = Column(DateTime, nullable=True)
     ExpiryAt = Column(DateTime, nullable=True)
-
 
 class UserPGInfo(Base):
     __tablename__ = 'UserPGInfo'

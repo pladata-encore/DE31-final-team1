@@ -23,14 +23,15 @@ provider "aws" {
 
 # VPC 생성
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  enable_dns_support   = true
+  cidr_block = "10.0.0.0/16" # VPC CIDR 블록
+  enable_dns_hostnames = true # DNS 호스트 이름 활성화
+  enable_dns_support   = true # DNS 지원 활성화
 
   tags = {
     Name = "main-vpc"
   }
 }
+
 
 # 서브넷 생성 (각 서비스별로 하나씩)
 resource "aws_subnet" "msk1" {
@@ -390,11 +391,7 @@ EOF
   }
 }
 
-
-
 #####################################################################
-
-
 
 
 # # CloudWatch Alarms
