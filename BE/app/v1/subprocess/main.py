@@ -10,13 +10,14 @@ async def start_collection():
     req = await request.get_json()
     email = req.get("email")
     ds_id = req.get("ds_id")
+    name = req.get("name")
     token = req.get("access_token")
 
     token_status = await check_token(email, token)
     if token_status.startswith("ERR"):
         return jsonify({"error": token_status}), 400
 
-    if subprocess_manager.start_process(email, ds_id):
+    if subprocess_manager.start_process(email, name, ds_id):
         return jsonify({"message": "Data collection started"}), 200
     
     else:
