@@ -255,7 +255,7 @@ resource "aws_instance" "airflow" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.airflow.id # airflow Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
+  key_name      = "encore_ksk" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -318,7 +318,7 @@ resource "aws_instance" "nifi" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.nifi.id # nifi Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
+  key_name      = "encore_ksk" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -346,7 +346,7 @@ resource "aws_instance" "frontend" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
   subnet_id     = aws_subnet.fe.id # Frontend Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
+  key_name      = "encore_ksk" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -374,7 +374,7 @@ resource "aws_instance" "backend" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
   subnet_id     = aws_subnet.be.id # Backend Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
+  key_name      = "encore_ksk" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -402,7 +402,7 @@ resource "aws_instance" "mongo" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.mongodb.id # MongoDB Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
+  key_name      = "encore_ksk" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
