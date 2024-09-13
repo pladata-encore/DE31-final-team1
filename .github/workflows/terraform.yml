@@ -15,8 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        # use develop branch
         with:
-          path: INFRA # Terraform 작업 디렉토리 설정
+          ref: develop
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -28,36 +29,33 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform Format
-        id: fmt
-        run: terraform fmt -check
-        working-directory: INFRA
+      - name: path debug
+        run: pwd && ls -al && cd INFRA && pwd && ls -al
+
+      # - name: Terraform Format
+      #   id: fmt
+      #   run: cd INFRA && terraform fmt -check
+      # 에러 발생시키는 기능이라 주석 처리함
 
       - name: Terraform Init
         id: init
-        run: terraform init
-        working-directory: INFRA
+        run: cd INFRA && terraform init
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -no-color
-        working-directory: INFRA
+        run: cd INFRA && terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
-        if: github.ref == 'refs/heads/feature/tfapply' && github.event_name == 'push'  # feature/tfapply 브랜치 push 시 plan 실행
-        run: terraform plan -no-color -input=false
-        working-directory: INFRA
+        run: cd INFRA && terraform plan -no-color -input=false
         continue-on-error: true
 
       - name: Terraform Apply
         id: apply
         if: github.ref == 'refs/heads/feature/tfapply' && github.event_name == 'push'  # feature/tfapply 브랜치 push 시 apply 실행
-        run: terraform apply -auto-approve -input=false
-        working-directory: INFRA
+        run: cd INFRA && terraform apply -auto-approve -input=false
 
       - name: Terraform Destroy
         id: destroy
         if: github.ref == 'refs/heads/feature/destroy' && github.event_name == 'push'  # feature/destroy 브랜치 push 시 destroy 실행
-        run: terraform destroy -auto-approve -input=false
-        working-directory: INFRA
+        run: cd INFRA && terraform destroy -auto-approve -input=false

@@ -9,11 +9,11 @@ terraform {
 
   # Terraform 상태 파일을 S3에 저장하도록 설정
   # S3 버킷 이름 및 경로를 적절히 수정
-  backend "s3" {
-    bucket = "your-terraform-state-bucket"
-    key    = "terraform.tfstate"
-    region = "ap-northeast-2"
-  }
+  # backend "s3" {
+  #   bucket = "your-terraform-state-bucket"
+  #   key    = "terraform.tfstate"
+  #   region = "ap-northeast-2"
+  # }
 }
 
 # AWS Provider 설정
