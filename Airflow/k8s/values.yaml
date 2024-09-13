@@ -1,0 +1,2021 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+## @section 글로벌 매개변수
+## 글로벌 Docker 이미지 매개변수
+## 참고: 이 설정은 글로벌 값을 사용하도록 구성된 이미지 매개변수(종속성 포함)를 덮어씁니다.
+## 현재 사용 가능한 글로벌 Docker 이미지 매개변수: imageRegistry, imagePullSecrets 및 storageClass
+
+## @param global.imageRegistry 글로벌 Docker 이미지 레지스트리
+## @param global.imagePullSecrets 글로벌 Docker 레지스트리 시크릿 이름(배열로 입력)
+## @param global.defaultStorageClass 영구 볼륨에 대한 글로벌 기본 StorageClass
+## @param global.storageClass 폐기됨: 대신 global.defaultStorageClass를 사용하십시오.
+##
+global:
+  imageRegistry: ""
+  ## 예시:
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  defaultStorageClass: ""
+  storageClass: ""
+  ## Kubernetes 플랫폼에 대한 호환성 적응
+  ##
+  compatibility:
+    ## Openshift에 대한 호환성 적응
+    ##
+    openshift:
+      ## @param global.compatibility.openshift.adaptSecurityContext 배포의 securityContext 섹션을 Openshift restricted-v2 SCC와 호환되도록 조정: runAsUser, runAsGroup 및 fsGroup을 제거하고 플랫폼에서 허용된 기본 ID를 사용하도록 설정. 가능한 값: auto (실행 중인 클러스터가 Openshift로 감지되면 적용), force (항상 조정 수행), disabled (조정 수행하지 않음)
+      ##
+      adaptSecurityContext: auto
+## @section 공통 매개변수
+
+## @param kubeVersion Kubernetes 버전 재정의
+##
+kubeVersion: ""
+## @param nameOverride common.names.fullname 템플릿을 부분적으로 재정의하는 문자열 (릴리스 이름은 유지됩니다.)
+##
+nameOverride: ""
+## @param fullnameOverride common.names.fullname 템플릿을 완전히 재정의하는 문자열
+##
+fullnameOverride: ""
+## @param clusterDomain Kubernetes 클러스터 도메인
+##
+clusterDomain: cluster.local
+## @param extraDeploy 추가로 배포할 객체 (템플릿으로 평가됨)
+##
+extraDeploy: []
+## @param commonLabels 모든 배포된 리소스에 라벨 추가
+##
+commonLabels: {}
+## @param commonAnnotations 모든 배포된 리소스에 주석 추가
+##
+commonAnnotations: {}
+## 배포/상태세트에서 진단 모드를 활성화합니다.
+##
+diagnosticMode:
+  ## @param diagnosticMode.enabled 진단 모드 활성화 (모든 프로브가 비활성화되고 명령이 재정의됨)
+  ##
+  enabled: false
+  ## @param diagnosticMode.command 배포/상태세트의 모든 컨테이너를 재정의할 명령
+  ##
+  command:
+    - sleep
+  ## @param diagnosticMode.args 배포/상태세트의 모든 컨테이너를 재정의할 인수
+  ##
+  args:
+    - infinity
+## @section Airflow 공통 매개변수
+
+## 인증 매개변수
+## 참조: https://github.com/bitnami/containers/tree/main/bitnami/airflow#environment-variables
+##
+auth:
+  ## @param auth.username 웹 UI에 액세스하기 위한 사용자 이름
+  ##
+  username: user
+  ## @param auth.password 웹 UI에 액세스하기 위한 비밀번호
+  ##
+  password: "airflow-passward"
+  ## @param auth.fernetKey 연결을 보호하기 위한 Fernet 키
+  ## 참조: https://airflow.readthedocs.io/en/stable/howto/secure-connections.html
+  ## 참조: https://bcb.github.io/airflow/fernet-key
+  ##
+  fernetKey: "airflow-fernet-key"
+  ## @param auth.secretKey Flask 앱을 실행하기 위한 비밀 키
+  ## 참조: https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html#secret-key
+  ##
+  secretKey: "airflow-secret-key"
+  ## @param auth.existingSecret Airflow 자격 증명에 사용할 기존 시크릿의 이름
+  ## `auth.password`, `auth.fernetKey`, 및 `auth.secretKey`는 무시되고 이 시크릿에서 가져옵니다.
+  ## 시크릿에는 `airflow-password`, `airflow-fernet-key` 및 `airflow-secret-key' 키가 포함되어야 합니다.
+  ## 값은 템플릿으로 평가됩니다.
+  ##
+  existingSecret: "airflow-secrets"
+## @param executor Airflow 실행기. 허용 값: `SequentialExecutor`, `LocalExecutor`, `CeleryExecutor`, `KubernetesExecutor`, `CeleryKubernetesExecutor` 및 `LocalKubernetesExecutor`
+## 참조: http://airflow.apache.org/docs/stable/executor/index.html
+##
+executor: KubernetesExecutor
+## @param loadExamples 일부 Airflow 예제를 로드할지 여부를 설정합니다.
+##
+loadExamples: false
+## @param configuration Airflow 설정 파일의 내용을 지정 (기타 환경 변수에 따라 자동 생성됨)
+## 예시:
+## configuration: |-
+##   [core]
+##   dags_folder=/opt/bitnami/airflow/dags
+##   ...
+##
+configuration: ""
+## @param existingConfigmap Airflow 설정 파일이 포함된 기존 ConfigMap의 이름
+##
+existingConfigmap: ""
+## ConfigMap에서 사용자 지정 DAG를 로드합니다.
+## 참고: Airflow 컨테이너에서 사용할 수 있도록 DAG를 준비하기 위해 초기화 컨테이너가 사용됩니다.
+##
+dags:
+  ## @param dags.existingConfigmap 로드할 모든 DAG 파일이 포함된 기존 ConfigMap의 이름
+  ##
+  existingConfigmap: ""
+  ## OS 쉘 + 유틸리티 이미지
+  ## 참조: https://hub.docker.com/r/bitnami/os-shell/tags/
+  ## @param dags.image.registry [기본값: REGISTRY_NAME] 초기화 컨테이너 load-dags 이미지 레지스트리
+  ## @param dags.image.repository [기본값: REPOSITORY_NAME/os-shell] 초기화 컨테이너 load-dags 이미지 저장소
+  ## @skip dags.image.tag 초기화 컨테이너 load-dags 이미지 태그 (불변 태그를 권장함)
+  ## @param dags.image.digest 초기화 컨테이너 load-dags 이미지 해시 (sha256:aa... 형식). 이 매개변수가 설정된 경우 태그는 무시됩니다.
+  ## @param dags.image.pullPolicy 초기화 컨테이너 load-dags 이미지 풀 정책
+  ## @param dags.image.pullSecrets 초기화 컨테이너 load-dags 이미지 풀 시크릿
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/os-shell
+    tag: 12-debian-12-r27
+    digest: ""
+    pullPolicy: IfNotPresent
+    ## 이미지 풀 시크릿 배열을 선택적으로 지정합니다.
+    ## 시크릿은 네임스페이스에 수동으로 생성되어야 합니다.
+    ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## 예시:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+## @param extraEnvVars 모든 Airflow pod에 대한 추가 환경 변수를 추가합니다.
+##
+extraEnvVars: 
+  - name: TZ
+    value: "Asia/Seoul"
+## @param extraEnvVarsCM 모든 Airflow pod에 대한 추가 환경 변수가 포함된 ConfigMap
+##
+extraEnvVarsCM: ""
+## @param extraEnvVarsSecret 모든 Airflow pod에 대한 추가 환경 변수가 포함된 시크릿
+##
+extraEnvVarsSecret: ""
+## @param extraEnvVarsSecrets 모든 Airflow pod에 대한 추가 환경 변수가 포함된 시크릿 목록
+##
+extraEnvVarsSecrets: []
+## @param sidecars 모든 Airflow pod에 추가 사이드카 컨테이너를 추가합니다.
+## 예시:
+## sidecars:
+##   - name: your-image-name
+##     image: your-image
+##     imagePullPolicy: Always
+##     ports:
+##       - name: portname
+##         containerPort: 1234
+##
+sidecars: []
+## @param initContainers 모든 Airflow pod에 추가 초기화 컨테이너를 추가합니다.
+## 예시:
+## initContainers:
+##   - name: your-image-name
+##     image: your-image
+##     imagePullPolicy: Always
+##     ports:
+##       - name: portname
+##         containerPort: 1234`
+##
+initContainers: []
+## @param extraVolumeMounts 모든 Airflow pod에 추가 volumeMount 목록을 선택적으로 지정합니다.
+##
+extraVolumeMounts: []
+
+## @param extraVolumes 모든 Airflow pod에 추가 볼륨 목록을 선택적으로 지정합니다.
+##
+extraVolumes: []
+## @section Airflow 웹 매개변수
+web:
+  ## Bitnami Airflow 이미지 버전
+  ## 참조: https://hub.docker.com/r/bitnami/airflow/tags/
+  ## @param web.image.registry [기본값: REGISTRY_NAME] Airflow 이미지 레지스트리
+  ## @param web.image.repository [기본값: REPOSITORY_NAME/airflow] Airflow 이미지 저장소
+  ## @skip web.image.tag Airflow 이미지 태그 (불변 태그를 권장함)
+  ## @param web.image.digest Airflow 이미지 해시 (sha256:aa... 형식). 이 매개변수가 설정된 경우 태그는 무시됩니다.
+  ## @param web.image.pullPolicy Airflow 이미지 풀 정책
+  ## @param web.image.pullSecrets Airflow 이미지 풀 시크릿
+  ## @param web.image.debug 이미지 디버그 모드 활성화
+  image:
+    registry: docker.io
+    repository: bitnami/airflow
+    tag: 2.10.0-debian-12-r1
+    digest: ""
+    ## 이미지 풀 정책을 지정합니다.
+    ## 이미지 태그가 'latest'일 경우 기본값은 'Always'이고, 그렇지 않으면 'IfNotPresent'로 설정됩니다.
+    ## 참조: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    ##
+    pullPolicy: IfNotPresent
+    ## 이미지 풀 시크릿 배열을 선택적으로 지정합니다.
+    ## 시크릿은 네임스페이스에 수동으로 생성되어야 합니다.
+    ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## 예시:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## 로그에서 추가 정보를 보고 싶다면 true로 설정합니다.
+    ##
+    debug: false
+  ## @param web.baseUrl Airflow 웹 UI에 액세스하는 데 사용되는 URL
+  ##
+  baseUrl: ""
+  ## @param web.existingConfigmap Airflow 웹 설정 파일이 포함된 기존 ConfigMap의 이름
+  ##
+  existingConfigmap: ""
+  ## @param web.command 기본 컨테이너 명령 재정의 (사용자 정의 이미지를 사용할 때 유용)
+  ##
+  command: []
+  ## @param web.args 기본 컨테이너 인수 재정의 (사용자 정의 이미지를 사용할 때 유용)
+  ##
+  args: []
+  ## @param web.extraEnvVars Airflow 웹 pod에 추가할 추가 환경 변수 배열
+  ##
+  extraEnvVars:
+    - name: AIRFLOW__API__AUTH_BACKEND
+      value: airflow.api.auth.backend.basic_auth  # API 기본 인증 활성화
+    - name: AIRFLOW__WEBSERVER__RBAC
+      value: "True"  # RBAC(Role-Based Access Control) 활성화
+    - name: AIRFLOW__WEBSERVER__AUTHENTICATE
+      value: "True"  # 웹 서버 인증 활성화 (API 포함)
+    - name: AIRFLOW__WEBSERVER__AUTH_BACKEND
+      value: airflow.contrib.auth.backends.password_auth  # 웹 서버와 API에 대한 인증 백엔드 설정
+  ## @param web.extraEnvVarsCM Airflow 웹 pod에 대한 추가 환경 변수가 포함된 ConfigMap
+  ##
+  extraEnvVarsCM: ""
+  ## @param web.extraEnvVarsSecret Airflow 웹 pod에 대한 추가 환경 변수가 포함된 시크릿(민감한 데이터인 경우)
+  ##
+  extraEnvVarsSecret: ""
+  ## @param web.extraEnvVarsSecrets Airflow 웹 pod에 대한 추가 환경 변수가 포함된 시크릿 목록
+  ##
+  extraEnvVarsSecrets: []
+  ## @param web.containerPorts.http Airflow 웹 HTTP 컨테이너 포트
+  ##
+  containerPorts:
+    http: 8080
+  ## @param web.replicaCount Airflow 웹 복제본 수
+  ##
+  replicaCount: 1
+  ## Airflow 웹 컨테이너의 생존, 준비 및 시작 프로브에 대한 추가 옵션 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  ## @param web.livenessProbe.enabled Airflow 웹 컨테이너에서 생존 프로브를 활성화합니다.
+  ## @param web.livenessProbe.initialDelaySeconds 생존 프로브의 초기 지연 시간(초)
+  ## @param web.livenessProbe.periodSeconds 생존 프로브의 주기 시간(초)
+  ## @param web.livenessProbe.timeoutSeconds 생존 프로브의 타임아웃 시간(초)
+  ## @param web.livenessProbe.failureThreshold 생존 프로브의 실패 임계값
+  ## @param web.livenessProbe.successThreshold 생존 프로브의 성공 임계값
+  ##
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 180
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param web.readinessProbe.enabled Airflow 웹 컨테이너에서 준비 프로브를 활성화합니다.
+  ## @param web.readinessProbe.initialDelaySeconds 준비 프로브의 초기 지연 시간(초)
+  ## @param web.readinessProbe.periodSeconds 준비 프로브의 주기 시간(초)
+  ## @param web.readinessProbe.timeoutSeconds 준비 프로브의 타임아웃 시간(초)
+  ## @param web.readinessProbe.failureThreshold 준비 프로브의 실패 임계값
+  ## @param web.readinessProbe.successThreshold 준비 프로브의 성공 임계값
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param web.startupProbe.enabled Airflow 웹 컨테이너에서 시작 프로브를 활성화합니다.
+  ## @param web.startupProbe.initialDelaySeconds 시작 프로브의 초기 지연 시간(초)
+  ## @param web.startupProbe.periodSeconds 시작 프로브의 주기 시간(초)
+  ## @param web.startupProbe.timeoutSeconds 시작 프로브의 타임아웃 시간(초)
+  ## @param web.startupProbe.failureThreshold 시작 프로브의 실패 임계값
+  ## @param web.startupProbe.successThreshold 시작 프로브의 성공 임계값
+  ##
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 15
+    successThreshold: 1
+  ## @param web.customLivenessProbe 기본 생존 프로브를 재정의하는 사용자 정의 생존 프로브
+  ##
+  customLivenessProbe: {}
+  ## @param web.customReadinessProbe 기본 준비 프로브를 재정의하는 사용자 정의 준비 프로브
+  ##
+  customReadinessProbe: {}
+  ## @param web.customStartupProbe 기본 시작 프로브를 재정의하는 사용자 정의 시작 프로브
+  ##
+  customStartupProbe: {}
+  ## Airflow 웹 리소스 요청 및 제한
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## @param web.resourcesPreset 공통 사전 설정에 따라 컨테이너 리소스를 설정합니다 (허용 값: none, nano, micro, small, medium, large, xlarge, 2xlarge). web.resources가 설정된 경우 이 설정은 무시됩니다 (프로덕션 환경에서는 web.resources를 권장함).
+  ## 자세한 내용: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+  ##
+  resourcesPreset: "medium"
+  ## @param web.resources CPU 또는 메모리와 같은 다양한 리소스에 대한 컨테이너 요청 및 제한을 설정합니다 (프로덕션 워크로드에 필수적임).
+  ## 예시:
+  ## resources:
+  ##   requests:
+  ##     cpu: 2
+  ##     memory: 512Mi
+  ##   limits:
+  ##     cpu: 3
+  ##     memory: 1024Mi
+  ##
+  resources: {}
+  ## Airflow 웹 pod 보안 컨텍스트 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param web.podSecurityContext.enabled Airflow 웹 pod의 보안 컨텍스트 활성화
+  ## @param web.podSecurityContext.fsGroupChangePolicy 파일 시스템 그룹 변경 정책 설정
+  ## @param web.podSecurityContext.sysctls sysctl 인터페이스를 사용하여 커널 설정 설정
+  ## @param web.podSecurityContext.supplementalGroups 파일 시스템 추가 그룹 설정
+  ## @param web.podSecurityContext.fsGroup Airflow 웹 pod의 보안 컨텍스트 fsGroup 설정
+  ##
+  podSecurityContext:
+    enabled: true
+    fsGroupChangePolicy: Always
+    sysctls: []
+    supplementalGroups: []
+    fsGroup: 1001
+  ## Airflow 웹 컨테이너 (주요 컨테이너만) 보안 컨텍스트 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param web.containerSecurityContext.enabled Airflow 웹 컨테이너의 보안 컨텍스트 활성화
+  ## @param web.containerSecurityContext.seLinuxOptions [객체, nullable] 컨테이너에 SELinux 옵션 설정
+  ## @param web.containerSecurityContext.runAsUser Airflow 웹 컨테이너의 보안 컨텍스트 runAsUser 설정
+  ## @param web.containerSecurityContext.runAsGroup Airflow 웹 컨테이너의 보안 컨텍스트 runAsGroup 설정
+  ## @param web.containerSecurityContext.runAsNonRoot Airflow 웹 컨테이너의 보안 컨텍스트 runAsNonRoot 설정
+  ## @param web.containerSecurityContext.privileged 웹 컨테이너의 보안 컨텍스트 privileged 설정
+  ## @param web.containerSecurityContext.allowPrivilegeEscalation 웹 컨테이너의 보안 컨텍스트 allowPrivilegeEscalation 설정
+  ## @param web.containerSecurityContext.readOnlyRootFilesystem 웹 컨테이너의 보안 컨텍스트 readOnlyRootFilesystem 설정
+  ## @param web.containerSecurityContext.capabilities.drop 삭제할 권한 목록
+  ## @param web.containerSecurityContext.seccompProfile.type 컨테이너의 보안 컨텍스트 seccomp 프로파일 설정
+  ##
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## @param web.lifecycleHooks Airflow 웹 컨테이너에 대한 수명 주기 후크
+  ##
+  lifecycleHooks: {}
+  ## @param web.automountServiceAccountToken pod에서 서비스 계정 토큰을 자동으로 마운트
+  ##
+  automountServiceAccountToken: true
+  ## @param web.hostAliases 배포된 pod의 호스트 별칭
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param web.podLabels Airflow 웹 pod에 추가 라벨 추가
+  ##
+  podLabels: {}
+  ## @param web.podAnnotations Airflow 웹 pod에 추가 주석 추가
+  ##
+  podAnnotations: {}
+  ## @param web.affinity Airflow 웹 pod 할당에 대한 affinity (템플릿으로 평가됨)
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## 참고: web.podAffinityPreset, web.podAntiAffinityPreset 및 web.nodeAffinityPreset이 설정되면 이 설정은 무시됩니다.
+  ##
+  affinity: {}
+  ## 노드 affinity 사전 설정
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ## @param web.nodeAffinityPreset.key 노드 레이블 키를 매치하도록 설정. web.affinity가 설정된 경우 무시됨.
+  ## @param web.nodeAffinityPreset.type 노드 affinity 사전 설정 유형. web.affinity가 설정된 경우 무시됨. 허용 값: soft 또는 hard
+  ## @param web.nodeAffinityPreset.values 노드 레이블 값을 매치하도록 설정. web.affinity가 설정된 경우 무시됨.
+  ##
+  nodeAffinityPreset:
+    ## 예시:
+    ## key: "kubernetes.io/e2e-az-name"
+    ##
+    key: ""
+    type: ""
+    ## 예시:
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param web.nodeSelector Airflow 웹 pod 할당을 위한 노드 레이블
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param web.podAffinityPreset pod affinity 사전 설정. web.affinity가 설정된 경우 무시됨. 허용 값: soft 또는 hard.
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param web.podAntiAffinityPreset pod anti-affinity 사전 설정. web.affinity가 설정된 경우 무시됨. 허용 값: soft 또는 hard.
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## @param web.tolerations Airflow 웹 pod 할당을 위한 tolerations
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param web.topologySpreadConstraints 클러스터 내에서 장애 도메인 간에 pod 할당을 분산시키기 위한 topology spread 제약. 템플릿으로 평가됨.
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
+  ##
+  topologySpreadConstraints: []
+  ## @param web.priorityClassName 우선 순위 클래스 이름
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  ##
+  priorityClassName: ""
+  ## @param web.schedulerName 대체 스케줄러 사용, 예: "stork".
+  ## 참조: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+  ## @param web.terminationGracePeriodSeconds Airflow 웹 pod가 우아하게 종료하는 데 필요한 시간 (초)
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+  ##
+  terminationGracePeriodSeconds: ""
+  ## @param web.updateStrategy.type Airflow 웹 배포 전략 유형
+  ## @param web.updateStrategy.rollingUpdate Airflow 웹 배포 롤링 업데이트 구성 매개변수
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  ##
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate: {}
+  ## @param web.sidecars Airflow 웹 pod에 추가 사이드카 컨테이너 추가
+  ## 예시:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: []
+  ## @param web.initContainers Airflow 웹 pod에 추가 초기화 컨테이너 추가
+  ## 예시:
+  ## initContainers:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  initContainers: []
+  ## @param web.extraVolumeMounts Airflow 웹 pod에 추가 volumeMount 목록을 선택적으로 지정합니다.
+  ##
+  extraVolumeMounts:
+    - name: airflow-dags-pv
+      mountPath: /opt/bitnami/airflow/dags
+    - name: airflow-logs-pv
+      mountPath: /opt/bitnami/airflow/logs/web
+    - name: airflow-plugins-pv
+      mountPath: /opt/bitnami/airflow/plugins
+  ## @param web.extraVolumes Airflow 웹 pod에 추가 볼륨 목록을 선택적으로 지정합니다.
+  ##
+  extraVolumes:
+    - name: airflow-dags-pv
+      persistentVolumeClaim:
+        claimName: airflow-dags-pvc
+    - name: airflow-logs-pv
+      persistentVolumeClaim:
+        claimName: airflow-logs-pvc
+    - name: airflow-plugins-pv
+      persistentVolumeClaim:
+        claimName: airflow-plugins-pvc
+  
+  ## Airflow 웹 Pod 중단 예산
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
+  ## @param web.pdb.create Airflow 웹 pod에 대해 pdb 객체 배포
+  ## @param web.pdb.minAvailable 최대 비가용 Airflow 웹 복제본 수/비율
+  ## @param web.pdb.maxUnavailable 최대 비가용 Airflow 웹 복제본 수/비율
+  ##
+  pdb:
+    create: true
+    minAvailable: ""
+    maxUnavailable: ""
+  ## 웹 네트워크 정책
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  ##
+  networkPolicy:
+    ## @param web.networkPolicy.enabled 네트워크 정책 생성 여부 지정
+    ##
+    enabled: true
+    ## @param web.networkPolicy.allowExternal 클라이언트 레이블 없이 연결 허용
+    ## 정책 모델을 적용합니다. false로 설정된 경우 올바른 클라이언트 레이블을 가진 pod만이 웹이 청취하는 포트에 대한 네트워크 액세스 권한을 갖습니다. true로 설정된 경우 웹은 모든 소스에서의 연결을 수락합니다 (올바른 대상 포트를 가진 경우).
+    ##
+    allowExternal: true
+    ## @param web.networkPolicy.allowExternalEgress pod가 모든 범위의 포트 및 모든 목적지에 접근할 수 있도록 허용합니다.
+    ##
+    allowExternalEgress: true
+    ## @param web.networkPolicy.extraIngress [배열] 네트워크 정책에 추가 인그레스 규칙 추가
+    ## 예시:
+    ## extraIngress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     from:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    extraIngress: []
+    ## @param web.networkPolicy.extraEgress [배열] 네트워크 정책에 추가 이그레스 규칙 추가
+    ## 예시:
+    ## extraEgress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     to:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    ##
+    extraEgress: []
+    ## @param web.networkPolicy.ingressNSMatchLabels [객체] 다른 네임스페이스에서의 트래픽을 허용하기 위해 일치시킬 레이블
+    ## @param web.networkPolicy.ingressNSPodMatchLabels [객체] 다른 네임스페이스에서의 트래픽을 허용하기 위해 일치시킬 pod 레이블
+    ##
+    ingressNSMatchLabels: {}
+    ingressNSPodMatchLabels: {}
+## @section Airflow 스케줄러 매개변수
+scheduler:
+  ## Bitnami Airflow 스케줄러 이미지 버전
+  ## 참조: https://hub.docker.com/r/bitnami/airflow-scheduler/tags/
+  ## @param scheduler.image.registry [기본값: REGISTRY_NAME] Airflow 스케줄러 이미지 레지스트리
+  ## @param scheduler.image.repository [기본값: REPOSITORY_NAME/airflow-scheduler] Airflow 스케줄러 이미지 저장소
+  ## @skip scheduler.image.tag Airflow 스케줄러 이미지 태그 (불변 태그를 권장함)
+  ## @param scheduler.image.digest Airflow 스케줄러 이미지 해시 (sha256:aa... 형식). 이 매개변수가 설정된 경우 태그는 무시됩니다.
+  ## @param scheduler.image.pullPolicy Airflow 스케줄러 이미지 풀 정책
+  ## @param scheduler.image.pullSecrets Airflow 스케줄러 이미지 풀 시크릿
+  ## @param scheduler.image.debug 이미지 디버그 모드 활성화
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/airflow-scheduler
+    tag: 2.10.0-debian-12-r0
+    digest: ""
+    ## 이미지 풀 정책을 지정합니다.
+    ## 이미지 태그가 'latest'일 경우 기본값은 'Always'이고, 그렇지 않으면 'IfNotPresent'로 설정됩니다.
+    ## 참조: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    ##
+    pullPolicy: IfNotPresent
+    ## 이미지 풀 시크릿 배열을 선택적으로 지정합니다.
+    ## 시크릿은 네임스페이스에 수동으로 생성되어야 합니다.
+    ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## 예시:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## 로그에서 추가 정보를 보고 싶다면 true로 설정합니다.
+    ##
+    debug: false
+  ## @param scheduler.replicaCount 스케줄러 복제본 수
+  ##
+  replicaCount: 1
+  ## @param scheduler.command cmd 재정의
+  ##
+  command: []
+  ## @param scheduler.args args 재정의
+  ##
+  args: []
+  ## @param scheduler.extraEnvVars 추가 환경 변수 추가
+  ##
+  extraEnvVars:
+  - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+    value: "10"
+  ## @param scheduler.extraEnvVarsCM 추가 환경 변수가 포함된 ConfigMap
+  ##
+  extraEnvVarsCM: ""
+  ## @param scheduler.extraEnvVarsSecret 추가 환경 변수가 포함된 시크릿
+  ##
+  extraEnvVarsSecret: ""
+  ## @param scheduler.extraEnvVarsSecrets Airflow 스케줄러 pod에 대한 추가 환경 변수가 포함된 시크릿 목록
+  ##
+  extraEnvVarsSecrets: []
+  ## Airflow 스케줄러 컨테이너의 생존, 준비 및 시작 프로브에 대한 추가 옵션 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  ## @param scheduler.livenessProbe.enabled Airflow 스케줄러 컨테이너에서 생존 프로브를 활성화합니다.
+  ## @param scheduler.livenessProbe.initialDelaySeconds 생존 프로브의 초기 지연 시간(초)
+  ## @param scheduler.livenessProbe.periodSeconds 생존 프로브의 주기 시간(초)
+  ## @param scheduler.livenessProbe.timeoutSeconds 생존 프로브의 타임아웃 시간(초)
+  ## @param scheduler.livenessProbe.failureThreshold 생존 프로브의 실패 임계값
+  ## @param scheduler.livenessProbe.successThreshold 생존 프로브의 성공 임계값
+  ##
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 180
+    periodSeconds: 20
+    timeoutSeconds: 15
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param scheduler.readinessProbe.enabled Airflow 스케줄러 컨테이너에서 준비 프로브를 활성화합니다.
+  ## @param scheduler.readinessProbe.initialDelaySeconds 준비 프로브의 초기 지연 시간(초)
+  ## @param scheduler.readinessProbe.periodSeconds 준비 프로브의 주기 시간(초)
+  ## @param scheduler.readinessProbe.timeoutSeconds 준비 프로브의 타임아웃 시간(초)
+  ## @param scheduler.readinessProbe.failureThreshold 준비 프로브의 실패 임계값
+  ## @param scheduler.readinessProbe.successThreshold 준비 프로브의 성공 임계값
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param scheduler.startupProbe.enabled Airflow 스케줄러 컨테이너에서 시작 프로브를 활성화합니다.
+  ## @param scheduler.startupProbe.initialDelaySeconds 시작 프로브의 초기 지연 시간(초)
+  ## @param scheduler.startupProbe.periodSeconds 시작 프로브의 주기 시간(초)
+  ## @param scheduler.startupProbe.timeoutSeconds 시작 프로브의 타임아웃 시간(초)
+  ## @param scheduler.startupProbe.failureThreshold 시작 프로브의 실패 임계값
+  ## @param scheduler.startupProbe.successThreshold 시작 프로브의 성공 임계값
+  ##
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 15
+    successThreshold: 1
+  ## @param scheduler.customLivenessProbe 기본 생존 프로브를 재정의하는 사용자 정의 생존 프로브
+  ##
+  customLivenessProbe: {}
+  ## @param scheduler.customReadinessProbe 기본 준비 프로브를 재정의하는 사용자 정의 준비 프로브
+  ##
+  customReadinessProbe: {}
+  ## @param scheduler.customStartupProbe 기본 시작 프로브를 재정의하는 사용자 정의 시작 프로브
+  ##
+  customStartupProbe: {}
+  ## Airflow 스케줄러 리소스 요청 및 제한
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## @param scheduler.resourcesPreset 공통 사전 설정에 따라 컨테이너 리소스를 설정합니다 (허용 값: none, nano, micro, small, medium, large, xlarge, 2xlarge). scheduler.resources가 설정된 경우 이 설정은 무시됩니다 (프로덕션 환경에서는 scheduler.resources를 권장함).
+  ## 자세한 내용: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+  ##
+  resourcesPreset: "small"
+  ## @param scheduler.resources CPU 또는 메모리와 같은 다양한 리소스에 대한 컨테이너 요청 및 제한을 설정합니다 (프로덕션 워크로드에 필수적임).
+  ## 예시:
+  ## resources:
+  ##   requests:
+  ##     cpu: 2
+  ##     memory: 512Mi
+  ##   limits:
+  ##     cpu: 3
+  ##     memory: 1024Mi
+  ##
+  resources: {}
+  ## Airflow 스케줄러 pod 보안 컨텍스트 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param scheduler.podSecurityContext.enabled Airflow 스케줄러 pod의 보안 컨텍스트 활성화
+  ## @param scheduler.podSecurityContext.fsGroupChangePolicy 파일 시스템 그룹 변경 정책 설정
+  ## @param scheduler.podSecurityContext.sysctls sysctl 인터페이스를 사용하여 커널 설정 설정
+  ## @param scheduler.podSecurityContext.supplementalGroups 파일 시스템 추가 그룹 설정
+  ## @param scheduler.podSecurityContext.fsGroup Airflow 스케줄러 pod의 보안 컨텍스트 fsGroup 설정
+  ##
+  podSecurityContext:
+    enabled: true
+    fsGroupChangePolicy: Always
+    sysctls: []
+    supplementalGroups: []
+    fsGroup: 1001
+  ## Airflow 스케줄러 컨테이너 (주요 컨테이너만) 보안 컨텍스트 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param scheduler.containerSecurityContext.enabled Airflow 스케줄러 컨테이너의 보안 컨텍스트 활성화
+  ## @param scheduler.containerSecurityContext.seLinuxOptions [객체, nullable] 컨테이너에 SELinux 옵션 설정
+  ## @param scheduler.containerSecurityContext.runAsUser Airflow 스케줄러 컨테이너의 보안 컨텍스트 runAsUser 설정
+  ## @param scheduler.containerSecurityContext.runAsGroup Airflow 스케줄러 컨테이너의 보안 컨텍스트 runAsGroup 설정
+  ## @param scheduler.containerSecurityContext.runAsNonRoot Airflow 스케줄러 컨테이너의 보안 컨텍스트 runAsNonRoot 설정
+  ## @param scheduler.containerSecurityContext.privileged 스케줄러 컨테이너의 보안 컨텍스트 privileged 설정
+  ## @param scheduler.containerSecurityContext.allowPrivilegeEscalation 스케줄러 컨테이너의 보안 컨텍스트 allowPrivilegeEscalation 설정
+  ## @param scheduler.containerSecurityContext.readOnlyRootFilesystem 스케줄러 컨테이너의 보안 컨텍스트 readOnlyRootFilesystem 설정
+  ## @param scheduler.containerSecurityContext.capabilities.drop 삭제할 권한 목록
+  ## @param scheduler.containerSecurityContext.seccompProfile.type 컨테이너의 보안 컨텍스트 seccomp 프로파일 설정
+  ##
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## @param scheduler.lifecycleHooks Airflow 스케줄러 컨테이너에 대한 수명 주기 후크
+  ##
+  lifecycleHooks: {}
+  ## @param scheduler.automountServiceAccountToken pod에서 서비스 계정 토큰을 자동으로 마운트
+  ##
+  automountServiceAccountToken: true
+  ## @param scheduler.hostAliases 배포된 pod의 호스트 별칭
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param scheduler.podLabels Airflow 스케줄러 pod에 추가 라벨 추가
+  ##
+  podLabels: {}
+  ## @param scheduler.podAnnotations Airflow 스케줄러 pod에 추가 주석 추가
+  ##
+  podAnnotations: {}
+  ## @param scheduler.affinity Airflow 스케줄러 pod 할당에 대한 affinity (템플릿으로 평가됨)
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## 참고: scheduler.podAffinityPreset, scheduler.podAntiAffinityPreset 및 scheduler.nodeAffinityPreset이 설정되면 이 설정은 무시됩니다.
+  ##
+  affinity: {}
+  ## 노드 affinity 사전 설정
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ## @param scheduler.nodeAffinityPreset.key 노드 레이블 키를 매치하도록 설정. scheduler.affinity가 설정된 경우 무시됨.
+  ## @param scheduler.nodeAffinityPreset.type 노드 affinity 사전 설정 유형. scheduler.affinity가 설정된 경우 무시됨. 허용 값: soft 또는 hard
+  ## @param scheduler.nodeAffinityPreset.values 노드 레이블 값을 매치하도록 설정. scheduler.affinity가 설정된 경우 무시됨.
+  ##
+  nodeAffinityPreset:
+    ## 예시:
+    ## key: "kubernetes.io/e2e-az-name"
+    ##
+    key: ""
+    type: ""
+    ## 예시:
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param scheduler.nodeSelector Airflow 스케줄러 pod 할당을 위한 노드 레이블
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param scheduler.podAffinityPreset pod affinity 사전 설정. scheduler.affinity가 설정된 경우 무시됨. 허용 값: soft 또는 hard.
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param scheduler.podAntiAffinityPreset pod anti-affinity 사전 설정. scheduler.affinity가 설정된 경우 무시됨. 허용 값: soft 또는 hard.
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## @param scheduler.tolerations Airflow 스케줄러 pod 할당을 위한 tolerations
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param scheduler.topologySpreadConstraints 클러스터 내에서 장애 도메인 간에 pod 할당을 분산시키기 위한 topology spread 제약. 템플릿으로 평가됨.
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
+  ##
+  topologySpreadConstraints: []
+  ## @param scheduler.priorityClassName 우선 순위 클래스 이름
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  ##
+  priorityClassName: ""
+  ## @param scheduler.schedulerName 대체 스케줄러 사용, 예: "stork".
+  ## 참조: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+  ## @param scheduler.terminationGracePeriodSeconds Airflow 스케줄러 pod가 우아하게 종료하는 데 필요한 시간 (초)
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+  ##
+  terminationGracePeriodSeconds: ""
+  ## @param scheduler.updateStrategy.type Airflow 스케줄러 배포 전략 유형
+  ## @param scheduler.updateStrategy.rollingUpdate Airflow 스케줄러 배포 롤링 업데이트 구성 매개변수
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  ##
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate: {}
+  ## @param scheduler.sidecars Airflow 스케줄러 pod에 추가 사이드카 컨테이너 추가
+  ## 예시:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: []
+  ## @param scheduler.initContainers Airflow 스케줄러 pod에 추가 초기화 컨테이너 추가
+  ## 예시:
+  ## initContainers:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  initContainers: []
+  ## @param scheduler.extraVolumeMounts Airflow 스케줄러 pod에 추가 volumeMount 목록을 선택적으로 지정합니다.
+  ##
+  extraVolumeMounts:
+    - name: airflow-dags-pv
+      mountPath: /opt/bitnami/airflow/dags
+    - name: airflow-logs-pv
+      mountPath: /opt/bitnami/airflow/logs/scheduler
+    - name: airflow-plugins-pv
+      mountPath: /opt/bitnami/airflow/plugins
+  ## @param scheduler.extraVolumes Airflow 스케줄러 pod에 추가 볼륨 목록을 선택적으로 지정합니다.
+  ##
+  extraVolumes:
+    - name: airflow-dags-pv
+      persistentVolumeClaim:
+        claimName: airflow-dags-pvc
+    - name: airflow-logs-pv
+      persistentVolumeClaim:
+        claimName: airflow-logs-pvc
+    - name: airflow-plugins-pv
+      persistentVolumeClaim:
+        claimName: airflow-plugins-pvc
+  ## Airflow 스케줄러 Pod 중단 예산
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
+  ## @param scheduler.pdb.create Airflow 스케줄러 pod에 대해 pdb 객체 배포
+  ## @param scheduler.pdb.minAvailable 최대 비가용 Airflow 스케줄러 복제본 수/비율
+  ## @param scheduler.pdb.maxUnavailable 최대 비가용 Airflow 스케줄러 복제본 수/비율
+  ##
+  pdb:
+    create: true
+    minAvailable: ""
+    maxUnavailable: ""
+  ## 스케줄러 네트워크 정책
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  ##
+  networkPolicy:
+    ## @param scheduler.networkPolicy.enabled 네트워크 정책 생성 여부 지정
+    ##
+    enabled: true
+    ## @param scheduler.networkPolicy.allowExternal 클라이언트 레이블 없이 연결 허용
+    ## 정책 모델을 적용합니다. false로 설정된 경우 올바른 클라이언트 레이블을 가진 pod만이 스케줄러가 청취하는 포트에 대한 네트워크 액세스 권한을 갖습니다. true로 설정된 경우 스케줄러는 모든 소스에서의 연결을 수락합니다 (올바른 대상 포트를 가진 경우).
+    ##
+    allowExternal: true
+    ## @param scheduler.networkPolicy.allowExternalEgress pod가 모든 범위의 포트 및 모든 목적지에 접근할 수 있도록 허용합니다.
+    ##
+    allowExternalEgress: true
+    ## @param scheduler.networkPolicy.extraIngress [배열] 네트워크 정책에 추가 인그레스 규칙 추가
+    ## 예시:
+    ## extraIngress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     from:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    extraIngress: []
+    ## @param scheduler.networkPolicy.extraEgress [배열] 네트워크 정책에 추가 이그레스 규칙 추가
+    ## 예시:
+    ## extraEgress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     to:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    ##
+    extraEgress: []
+    ## @param scheduler.networkPolicy.ingressNSMatchLabels [객체] 다른 네임스페이스에서의 트래픽을 허용하기 위해 일치시킬 레이블
+    ## @param scheduler.networkPolicy.ingressNSPodMatchLabels [객체] 다른 네임스페이스에서의 트래픽을 허용하기 위해 일치시킬 pod 레이블
+    ##
+    ingressNSMatchLabels: {}
+    ingressNSPodMatchLabels: {}
+## @section Airflow worker parameters
+worker:
+  ## Bitnami Airflow Worker 이미지 버전
+  ## 참조: https://hub.docker.com/r/bitnami/airflow-worker/tags/
+  ## @param worker.image.registry [기본값: REGISTRY_NAME] Airflow Worker 이미지 레지스트리
+  ## @param worker.image.repository [기본값: REPOSITORY_NAME/airflow-worker] Airflow Worker 이미지 저장소
+  ## @skip worker.image.tag Airflow Worker 이미지 태그 (불변 태그를 사용하는 것이 권장됨)
+  ## @param worker.image.digest Airflow Worker 이미지 다이제스트, 예: sha256:aa.... 이 매개변수를 설정하면 태그가 무시됩니다.
+  ## @param worker.image.pullPolicy Airflow Worker 이미지 풀 정책
+  ## @param worker.image.pullSecrets Airflow Worker 이미지 풀 시크릿
+  ## @param worker.image.debug 이미지 디버그 모드 활성화
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/airflow-worker
+    tag: 2.10.0-debian-12-r0
+    digest: ""
+    ## Specify a imagePullPolicy
+    ## 기본값은 'latest' 태그일 경우 'Always', 그렇지 않은 경우 'IfNotPresent'으로 설정됩니다.
+    ## 참조: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    ##
+    pullPolicy: IfNotPresent
+    ## 풀 시크릿 배열을 지정할 수 있습니다.
+    ## 시크릿은 네임스페이스에 수동으로 생성해야 합니다.
+    ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## 예:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## 로그에서 추가 정보를 확인하려면 true로 설정하십시오.
+    ##
+    debug: false
+  ## @param worker.command 기본 컨테이너 명령을 재정의 (사용자 정의 이미지 사용 시 유용)
+  ##
+  command: []
+  ## @param worker.args 기본 컨테이너 인수를 재정의 (사용자 정의 이미지 사용 시 유용)
+  ##
+  args: []
+  ## @param worker.extraEnvVars Airflow worker pod에 추가 환경 변수를 추가
+  ##
+  extraEnvVars: []
+  ## @param worker.extraEnvVarsCM Airflow worker pod용 추가 환경 변수를 포함하는 ConfigMap
+  ##
+  extraEnvVarsCM: ""
+  ## @param worker.extraEnvVarsSecret 민감한 데이터일 경우, Airflow worker pod용 추가 환경 변수를 포함하는 Secret
+  ##
+  extraEnvVarsSecret: ""
+  ## @param worker.extraEnvVarsSecrets Airflow worker pod용 추가 환경 변수가 포함된 시크릿 목록
+  ##
+  extraEnvVarsSecrets: []
+  ## @param worker.containerPorts.http Airflow worker HTTP 컨테이너 포트
+  ##
+  containerPorts:
+    http: 8793
+  ## @param worker.replicaCount Airflow worker 복제본 수
+  ##
+  replicaCount: 1
+  ## Airflow worker 컨테이너의 liveness, readiness 및 startup probes에 대한 추가 옵션 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  ## @param worker.livenessProbe.enabled Airflow worker 컨테이너에서 livenessProbe 활성화
+  ## @param worker.livenessProbe.initialDelaySeconds livenessProbe 초기 지연 시간(초)
+  ## @param worker.livenessProbe.periodSeconds livenessProbe 주기 시간(초)
+  ## @param worker.livenessProbe.timeoutSeconds livenessProbe 타임아웃 시간(초)
+  ## @param worker.livenessProbe.failureThreshold livenessProbe 실패 임계값
+  ## @param worker.livenessProbe.successThreshold livenessProbe 성공 임계값
+  ##
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 180
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param worker.readinessProbe.enabled Airflow worker 컨테이너에서 readinessProbe 활성화
+  ## @param worker.readinessProbe.initialDelaySeconds readinessProbe 초기 지연 시간(초)
+  ## @param worker.readinessProbe.periodSeconds readinessProbe 주기 시간(초)
+  ## @param worker.readinessProbe.timeoutSeconds readinessProbe 타임아웃 시간(초)
+  ## @param worker.readinessProbe.failureThreshold readinessProbe 실패 임계값
+  ## @param worker.readinessProbe.successThreshold readinessProbe 성공 임계값
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param worker.startupProbe.enabled Airflow worker 컨테이너에서 startupProbe 활성화
+  ## @param worker.startupProbe.initialDelaySeconds startupProbe 초기 지연 시간(초)
+  ## @param worker.startupProbe.periodSeconds startupProbe 주기 시간(초)
+  ## @param worker.startupProbe.timeoutSeconds startupProbe 타임아웃 시간(초)
+  ## @param worker.startupProbe.failureThreshold startupProbe 실패 임계값
+  ## @param worker.startupProbe.successThreshold startupProbe 성공 임계값
+  ##
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 15
+    successThreshold: 1
+  ## @param worker.customLivenessProbe 기본 livenessProbe를 재정의하는 사용자 정의 livenessProbe
+  ##
+  customLivenessProbe: {}
+  ## @param worker.customReadinessProbe 기본 readinessProbe를 재정의하는 사용자 정의 readinessProbe
+  ##
+  customReadinessProbe: {}
+  ## @param worker.customStartupProbe 기본 startupProbe를 재정의하는 사용자 정의 startupProbe
+  ##
+  customStartupProbe: {}
+  ## Airflow worker 리소스 요청 및 제한
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## @param worker.resourcesPreset 컨테이너 리소스를 공통 사전 설정에 따라 설정 (허용 값: none, nano, micro, small, medium, large, xlarge, 2xlarge). worker.resources가 설정된 경우 이 설정은 무시됩니다 (생산 환경에서는 worker.resources를 권장).
+  ## 더 많은 정보: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+  ##
+  resourcesPreset: "large"
+  ## @param worker.resources 다양한 리소스 (CPU 또는 메모리 등)에 대한 컨테이너 요청 및 제한 설정 (생산 환경에서는 필수)
+  ## 예시:
+  ## resources:
+  ##   requests:
+  ##     cpu: 2
+  ##     memory: 512Mi
+  ##   limits:
+  ##     cpu: 3
+  ##     memory: 1024Mi
+  ##
+  resources: {}
+  ## Airflow worker pod의 보안 컨텍스트 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param worker.podSecurityContext.enabled Airflow worker pod의 보안 컨텍스트 활성화
+  ## @param worker.podSecurityContext.fsGroupChangePolicy 파일 시스템 그룹 변경 정책 설정
+  ## @param worker.podSecurityContext.sysctls sysctl 인터페이스를 사용하여 커널 설정 구성
+  ## @param worker.podSecurityContext.supplementalGroups 파일 시스템 보조 그룹 설정
+  ## @param worker.podSecurityContext.fsGroup Airflow worker pod의 보안 컨텍스트 fsGroup 설정
+  ##
+  podSecurityContext:
+    enabled: true
+    fsGroupChangePolicy: Always
+    sysctls: []
+    supplementalGroups: []
+    fsGroup: 1001
+  ## Airflow worker 컨테이너의 보안 컨텍스트 구성
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param worker.containerSecurityContext.enabled Airflow worker 컨테이너의 보안 컨텍스트 활성화
+  ## @param worker.containerSecurityContext.seLinuxOptions [object,nullable] 컨테이너의 SELinux 옵션 설정
+  ## @param worker.containerSecurityContext.runAsUser Airflow worker 컨테이너의 보안 컨텍스트 runAsUser 설정
+  ## @param worker.containerSecurityContext.runAsGroup Airflow worker 컨테이너의 보안 컨텍스트 runAsGroup 설정
+  ## @param worker.containerSecurityContext.runAsNonRoot Airflow worker 컨테이너의 보안 컨텍스트 runAsNonRoot 설정
+  ## @param worker.containerSecurityContext.privileged worker 컨테이너의 보안 컨텍스트 privileged 설정
+  ## @param worker.containerSecurityContext.allowPrivilegeEscalation worker 컨테이너의 보안 컨텍스트 allowPrivilegeEscalation 설정
+  ## @param worker.containerSecurityContext.readOnlyRootFilesystem worker 컨테이너의 보안 컨텍스트 readOnlyRootFilesystem 설정
+  ## @param worker.containerSecurityContext.capabilities.drop 삭제할 기능 목록
+  ## @param worker.containerSecurityContext.seccompProfile.type 컨테이너의 보안 컨텍스트 seccomp 프로필 설정
+  ##
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## @param worker.lifecycleHooks Airflow worker 컨테이너의 시작 전 또는 시작 후 구성 자동화를 위한 lifecycleHooks
+  ##
+  lifecycleHooks: {}
+  ## @param worker.automountServiceAccountToken pod에 Service Account 토큰 자동 마운트
+  ##
+  automountServiceAccountToken: true
+  ## @param worker.hostAliases 배포 pod 호스트 별칭
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param worker.podLabels Airflow worker pod에 추가 레이블 추가
+  ##
+  podLabels: {}
+  ## @param worker.podAnnotations Airflow worker pod에 추가 주석 추가
+  ##
+  podAnnotations: {}
+  ## @param worker.affinity Airflow worker pod 할당을 위한 affinity 설정 (템플릿으로 평가됨)
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## 참고: worker.podAffinityPreset, worker.podAntiAffinityPreset 및 worker.nodeAffinityPreset이 설정되어 있을 때 이 설정은 무시됩니다.
+  ##
+  affinity: {}
+  ## 노드 affinity 사전 설정
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ## @param worker.nodeAffinityPreset.key 노드 레이블 키 일치. `worker.affinity`가 설정된 경우 무시됨.
+  ## @param worker.nodeAffinityPreset.type 노드 affinity 사전 설정 유형. `worker.affinity`가 설정된 경우 무시됨. 허용되는 값: `soft` 또는 `hard`
+  ## @param worker.nodeAffinityPreset.values 노드 레이블 값 일치. `worker.affinity`가 설정된 경우 무시됨.
+  ##
+  nodeAffinityPreset:
+    ## 예:
+    ## key: "kubernetes.io/e2e-az-name"
+    ##
+    key: ""
+    type: ""
+    ## 예:
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param worker.nodeSelector Airflow worker pod 할당을 위한 노드 레이블
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param worker.podAffinityPreset pod affinity 사전 설정. `worker.affinity`가 설정된 경우 무시됨. 허용되는 값: `soft` 또는 `hard`.
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param worker.podAntiAffinityPreset pod anti-affinity 사전 설정. `worker.affinity`가 설정된 경우 무시됨. 허용되는 값: `soft` 또는 `hard`.
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## @param worker.tolerations Airflow worker pod 할당을 위한 tolerations
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param worker.topologySpreadConstraints Airflow worker pod 할당을 위한 토폴로지 분산 제약 조건
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
+  ##
+  topologySpreadConstraints: []
+  ## @param worker.priorityClassName 우선 순위 클래스 이름
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  ##
+  priorityClassName: ""
+  ## @param worker.schedulerName Airflow worker에 대해 사용할 대체 스케줄러, 예: "stork".
+  ## 참조: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+  ## @param worker.terminationGracePeriodSeconds Airflow worker pod가 정상적으로 종료되는 데 필요한 초
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+  ##
+  terminationGracePeriodSeconds: ""
+  ## @param worker.updateStrategy.type Airflow worker 배포 전략 유형
+  ## @param worker.updateStrategy.rollingUpdate Airflow worker 배포 롤링 업데이트 구성 매개변수
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  ##
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate: {}
+  ## @param worker.sidecars Airflow worker pod에 추가적인 사이드카 컨테이너 추가
+  ## 예시:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: []
+  ## @param worker.initContainers Airflow worker pod에 추가적인 초기화 컨테이너 추가
+  ## 예시:
+  ## initContainers:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  initContainers: []
+  ## @param worker.extraVolumeMounts Airflow worker pod에 대한 추가 volumeMount 목록 지정 (선택 사항)
+  ##
+  extraVolumeMounts:
+    - name: airflow-dags-pv
+      mountPath: /opt/bitnami/airflow/dags
+    - name: airflow-logs-pv
+      mountPath: /opt/bitnami/airflow/logs/worker
+    - name: airflow-plugins-pv
+      mountPath: /opt/bitnami/airflow/plugins
+  ## @param worker.extraVolumes Airflow worker pod에 대한 추가 볼륨 목록 지정 (선택 사항)
+  ##
+  extraVolumes:
+    - name: airflow-dags-pv
+      persistentVolumeClaim:
+        claimName: airflow-dags-pvc
+    - name: airflow-logs-pv
+      persistentVolumeClaim:
+        claimName: airflow-logs-pvc
+    - name: airflow-plugins-pv
+      persistentVolumeClaim:
+        claimName: airflow-plugins-pvc
+  ## @param worker.extraVolumeClaimTemplates Airflow worker 상태 저장 세트에 대한 추가 volumeClaimTemplates 목록 지정 (선택 사항)
+  ##
+  extraVolumeClaimTemplates: []
+  ## @param worker.podTemplate `executor=KubernetesExecutor`를 사용할 때 Airflow worker pod를 생성하기 위한 기본 템플릿을 대체할 템플릿
+  ##
+  podTemplate: {}
+  ## Airflow worker Pod Disruption Budget
+  ## 참조: https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
+  ## @param worker.pdb.create Airflow worker pod용 pdb 객체 배포
+  ## @param worker.pdb.minAvailable 사용할 수 있는 Airflow worker 복제본의 최대 수/백분율
+  ## @param worker.pdb.maxUnavailable 사용할 수 없는 Airflow worker 복제본의 최대 수/백분율
+  ##
+  pdb:
+    create: true
+    minAvailable: ""
+    maxUnavailable: ""
+  ## 수평 pod 자동 확장기(HorizontalPodAutoscaler) 활성화
+  ## 참조: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## @param worker.autoscaling.enabled 수평 pod 자동 확장기 활성화 여부
+  ## @param worker.autoscaling.minReplicas 최소 pod 수 구성
+  ## @param worker.autoscaling.maxReplicas 최대 pod 수 구성
+  ## @param worker.autoscaling.targetCPU 확장 작업을 트리거하는 CPU 목표 설정 (사용률 백분율)
+  ## @param worker.autoscaling.targetMemory 확장 작업을 트리거하는 메모리 목표 설정 (사용률 백분율)
+  ##
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPU: 75
+    targetMemory: 75
+  ## Worker 네트워크 정책
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  ##
+  networkPolicy:
+    ## @param worker.networkPolicy.enabled 네트워크 정책 생성 여부
+    ##
+    enabled: true
+    ## @param worker.networkPolicy.allowExternal 클라이언트 레이블 없이도 연결 허용 여부
+    ## 허용되는 정책 모델. false로 설정하면 Worker가 수신하는 포트에 대해
+    ## 클라이언트 레이블이 있는 pod만 네트워크 액세스를 허용합니다.
+    ## true로 설정하면 Worker는 모든 소스의 연결을 허용합니다
+    ## (올바른 대상 포트로).
+    ##
+    allowExternal: true
+    ## @param worker.networkPolicy.allowExternalEgress pod가 포트 및 모든 대상 범위에 접근할 수 있도록 허용.
+    ##
+    allowExternalEgress: true
+    ## @param worker.networkPolicy.extraIngress [배열] 네트워크 정책에 추가 인그레스 규칙 추가
+    ## 예:
+    ## extraIngress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     from:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    extraIngress: []
+    ## @param worker.networkPolicy.extraEgress [배열] 네트워크 정책에 추가 인그레스 규칙 추가
+    ## 예:
+    ## extraEgress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     to:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    ##
+    extraEgress: []
+    ## @param worker.networkPolicy.ingressNSMatchLabels [object] 다른 네임스페이스에서 트래픽을 허용하기 위해 일치할 레이블
+    ## @param worker.networkPolicy.ingressNSPodMatchLabels [object] 다른 네임스페이스에서 트래픽을 허용하기 위해 일치할 pod 레이블
+    ##
+    ingressNSMatchLabels: {}
+    ingressNSPodMatchLabels: {}
+## @section Airflow git sync parameters
+## Airflow Git 동기화 매개변수
+
+## Git을 구성하여 DAG 및 플러그인을 가져오기
+##
+git:
+  ## Bitnami Git 이미지 버전
+  ## 참조: https://hub.docker.com/r/bitnami/git/tags/
+  ## @param git.image.registry [기본값: REGISTRY_NAME] Git 이미지 레지스트리
+  ## @param git.image.repository [기본값: REPOSITORY_NAME/git] Git 이미지 저장소
+  ## @skip git.image.tag Git 이미지 태그(변경할 수 없는 태그 권장)
+  ## @param git.image.digest Git 이미지 다이제스트 (예: sha256:aa....) 설정. 이 매개변수가 설정되면 태그가 덮어써집니다.
+  ## @param git.image.pullPolicy Git 이미지 풀 정책
+  ## @param git.image.pullSecrets Git 이미지 풀 비밀
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/git
+    tag: 2.46.0-debian-12-r0
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  ## DAG 파일을 git 저장소에서 가져오기
+  ## @param git.dags.enabled DAG 파일을 git 저장소에서 다운로드하려면 활성화
+  ## @param git.dags.repositories [배열] DAG 파일을 다운로드할 저장소 배열
+  ##
+  dags:
+    enabled: false
+    repositories:
+      - repository: ""
+        ## 가져올 브랜치
+        branch: ""
+        ## 저장소에 대한 고유 식별자, 각 저장소에 대해 고유해야 합니다.
+        name: ""
+        ## 저장소에서 DAG이 포함된 폴더 경로
+        path: ""
+  ## 플러그인 파일을 git 저장소에서 가져오기
+  ## @param git.plugins.enabled 플러그인 파일을 git 저장소에서 다운로드하려면 활성화
+  ## @param git.plugins.repositories [배열] 플러그인 파일을 다운로드할 저장소 배열
+  ##
+  plugins:
+    enabled: false
+    repositories:
+      - repository: ""
+        branch: ""
+        name: ""
+        path: ""
+  ## Clone init 컨테이너의 속성
+  ## @param git.clone.command 명령어 재정의
+  ## @param git.clone.args 인수 재정의
+  ## @param git.clone.extraVolumeMounts 추가 볼륨 마운트 추가
+  ## @param git.clone.extraEnvVars 추가 환경 변수 추가
+  ## @param git.clone.extraEnvVarsCM 환경 변수를 포함한 ConfigMap
+  ## @param git.clone.extraEnvVarsSecret 환경 변수를 포함한 비밀
+  ##
+  clone:
+    command: []
+    args: []
+    extraVolumeMounts: []
+    extraEnvVars: []
+    extraEnvVarsCM: ""
+    extraEnvVarsSecret: ""
+    ## Clone init 컨테이너 리소스 요청 및 제한
+    ## 참조: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+    ## @param git.clone.resources CPU 또는 메모리와 같은 다양한 리소스에 대한 컨테이너 요청 및 제한 설정(프로덕션 워크로드에 필수)
+    ## 예:
+    ## resources:
+    ##   requests:
+    ##     cpu: 2
+    ##     memory: 512Mi
+    ##   limits:
+    ##     cpu: 3
+    ##     memory: 1024Mi
+    ##
+    resources: {}
+    ## @param git.clone.resourcesPreset 하나의 일반적인 사전 설정에 따라 컨테이너 리소스 설정 (허용되는 값: none, nano, micro, small, medium, large, xlarge, 2xlarge). 이 설정은 git.clone.resources가 설정된 경우 무시됩니다 (git.clone.resources는 프로덕션에 권장됨).
+    resourcesPreset: "nano"
+  ## 동기화 사이드카 컨테이너의 속성
+  ## @param git.sync.interval 플러그인 및/또는 DAG 파일을 포함한 git 저장소를 가져오는 간격(초 단위)
+  ## @param git.sync.command 명령어 재정의
+  ## @param git.sync.args 인수 재정의
+  ## @param git.sync.extraVolumeMounts 추가 볼륨 마운트 추가
+  ## @param git.sync.extraEnvVars 추가 환경 변수 추가
+  ## @param git.sync.extraEnvVarsCM 환경 변수를 포함한 ConfigMap
+  ## @param git.sync.extraEnvVarsSecret 환경 변수를 포함한 비밀
+  ##
+  sync:
+    interval: 60
+    command: []
+    args: []
+    extraVolumeMounts: []
+    extraEnvVars: []
+    extraEnvVarsCM: ""
+    extraEnvVarsSecret: ""
+    ## @param git.sync.resourcesPreset 하나의 일반적인 사전 설정에 따라 컨테이너 리소스 설정 (허용되는 값: none, nano, micro, small, medium, large, xlarge, 2xlarge). 이 설정은 git.sync.resources가 설정된 경우 무시됩니다 (git.sync.resources는 프로덕션에 권장됨).
+    resourcesPreset: "nano"
+    ## @param git.sync.resources CPU 또는 메모리와 같은 다양한 리소스에 대한 컨테이너 요청 및 제한 설정(프로덕션 워크로드에 필수)
+    ## 예:
+    ## resources:
+    ##   requests:
+    ##     cpu: 2
+    ##     memory: 512Mi
+    ##   limits:
+    ##     cpu: 3
+    ##     memory: 1024Mi
+    ##
+    resources: {}
+## @section Airflow ldap parameters
+## Airflow LDAP 매개변수
+
+## LDAP 설정
+## @param ldap.enabled LDAP 인증 활성화
+## @param ldap.uri 서버 URI, 예: ldap://ldap_server:389
+## DEPRECATED ldap.base 향후 릴리스에서 제거될 예정이므로 'ldap.basedn'을 대신 사용하십시오.
+## @param ldap.basedn 검색 기준, 예: ou=example,o=org.
+## DEPRECATED ldap.uidField 향후 릴리스에서 제거될 예정이며, 대신 'ldap.searchAttribute'를 사용하십시오.
+## @param ldap.searchAttribute 간접 바인딩을 사용하는 경우, 계정을 검색할 때 사용자의 이름과 일치하는 필드
+## @param ldap.binddn LDAP 서버에서 검색에 사용할 계정의 DN
+## @param ldap.bindpw 바인딩 비밀번호
+## @param ldap.userRegistration 사용자 자체 등록 활성화
+## @param ldap.userRegistrationRole 사용자가 등록할 때 할당할 역할 이름을 설정합니다. 이 역할은 이미 존재해야 합니다. ldap.userRegistration을 사용하는 경우 필수입니다.
+## @param ldap.rolesMapping LDAP DN에서 역할 목록으로 매핑
+## @param ldap.rolesSyncAtLogin 각 로그인 시 모든 사용자의 역할을 대체할지, 아니면 등록 시에만 대체할지 결정
+##
+ldap:
+  enabled: false
+  uri: "ldap://ldap_server:389"
+  basedn: "dc=example,dc=org"
+  searchAttribute: "cn"
+  binddn: "cn=admin,dc=example,dc=org"
+  bindpw: ""
+  userRegistration: 'True'
+  userRegistrationRole: "Public"
+  rolesMapping: '{ "cn=All,ou=Groups,dc=example,dc=org": ["User"], "cn=Admins,ou=Groups,dc=example,dc=org": ["Admin"], }'
+  rolesSyncAtLogin: 'True'
+  ## SSL/TLS 매개변수 설정
+  ## @param ldap.tls.enabled LDAP에 대해 TLS/SSL 활성화, CA 파일을 포함해야 합니다.
+  ## @param ldap.tls.allowSelfSigned 자체 서명된 인증서 사용 허용
+  ## DEPRECATED ldap.tls.CAcertificateSecret 향후 릴리스에서 제거될 예정이며 ldap.tls.certificatesSecret을 대신 사용하십시오.
+  ## @param ldap.tls.certificatesSecret ldap 클라이언트가 사용할 CA 파일을 포함하는 기존 비밀의 이름
+  ## @param ldap.tls.certificatesMountPath LDAP 인증서가 마운트되는 경로
+  ## DEPRECATED ldap.tls.CAcertificateFilename 향후 릴리스에서 제거될 예정이며 ldap.tls.CAFilename을 대신 사용하십시오.
+  ## @param ldap.tls.CAFilename LDAP CA 인증서 파일 이름
+  ##
+  tls:
+    enabled: false
+    allowSelfSigned: true
+    certificatesSecret: ""
+    certificatesMountPath: /opt/bitnami/airflow/conf/certs
+    CAFilename: ""
+
+## @section Traffic Exposure Parameters
+## 트래픽 노출 매개변수
+
+## Airflow 서비스 매개변수
+##
+service:
+  ## @param service.type Airflow 서비스 유형
+  ##
+  type: NodePort
+  ## @param service.ports.http Airflow 서비스 HTTP 포트
+  ##
+  ports:
+    http: 8080
+  ## 노출할 노드 포트
+  ## @param service.nodePorts.http HTTP에 대한 노드 포트
+  ## 참고: <30000-32767> 사이의 포트를 선택하십시오.
+  ##
+  nodePorts:
+    http: 30101
+  ## @param service.sessionAffinity 클라이언트 요청을 동일한 포드로 보낼지 아니면 라운드로빈 할지 제어
+  ## 값: ClientIP 또는 None
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/service/
+  ##
+  sessionAffinity: None
+  ## @param service.sessionAffinityConfig sessionAffinity에 대한 추가 설정
+  ## sessionAffinityConfig:
+  ##   clientIP:
+  ##     timeoutSeconds: 300
+  ##
+  sessionAffinityConfig: {}
+  ## @param service.clusterIP Airflow 서비스 클러스터 IP
+  ## 예:
+  ## clusterIP: None
+  ##
+  clusterIP: ""
+  ## @param service.loadBalancerIP Airflow 서비스 로드 밸런서 IP
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
+  ##
+  loadBalancerIP: ""
+  ## @param service.loadBalancerSourceRanges Airflow 서비스 로드 밸런서 소스 범위
+  ## 참조: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## 예:
+  ## loadBalancerSourceRanges:
+  ##   - 10.10.10.0/24
+  ##
+  loadBalancerSourceRanges: []
+  ## @param service.externalTrafficPolicy Airflow 서비스 외부 트래픽 정책
+  ## 참조: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  ##
+  externalTrafficPolicy: Cluster
+  ## @param service.annotations Airflow 서비스에 대한 추가 사용자 지정 주석
+  ##
+  annotations: {}
+  ## @param service.extraPorts Airflow 서비스에서 노출할 추가 포트
+  ##
+  extraPorts: []
+
+## Airflow ingress 매개변수
+## 참조: https://kubernetes.io/docs/concepts/services-networking/ingress/
+##
+ingress:
+  ## @param ingress.enabled Airflow에 대한 Ingress 레코드 생성 활성화
+  ##
+  enabled: true
+  ## @param ingress.ingressClassName IngressClass를 사용하여 Ingress를 구현합니다 (Kubernetes 1.18+).
+  ## Kubernetes 1.18+에서 지원되며 클러스터의 기본값으로 표시된 IngressClass가 둘 이상인 경우 필수입니다.
+  ## 참조: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ##
+  ingressClassName: "nginx"
+  ## @param ingress.pathType Ingress 경로 유형
+  ##
+  pathType: Prefix
+  ## @param ingress.apiVersion Ingress API 버전 강제 설정 (설정되지 않으면 자동 감지됨)
+  ##
+  apiVersion: ""
+  ## @param ingress.hostname Ingress 레코드에 대한 기본 호스트
+  ##
+  hostname: test-airflow.com
+  ## @param ingress.path Ingress 레코드에 대한 기본 경로
+  ## 참고: ALB ingress 컨트롤러를 사용하려면 '/*'으로 설정해야 할 수 있습니다.
+  ##
+  path: /
+  ## @param ingress.annotations [객체] Ingress 리소스에 대한 추가 주석. 인증서 자동 생성을 활성화하려면 여기에 cert-manager 주석을 추가하십시오.
+  ## cert-manager 주석을 설정하는 데 필요한 주석을 설정하는 데 이 매개변수를 사용하십시오.
+  ## 참조: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ## 예:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  ##
+  annotations: 
+    kubernetes.io/ingress.class: nginx  # NGINX Ingress Controller를 사용한다고 가정
+  ## @param ingress.tls ingress.hostname 매개변수에 정의된 호스트에 대해 TLS 구성 활성화
+  ## TLS 인증서는 `{{- printf "%s-tls" .Values.ingress.hostname }}'이라는 이름의 TLS 비밀에서 검색됩니다.
+  ## 이를 수행할 수 있습니다:
+  ##   - `ingress.secrets` 매개변수를 사용하여 이 TLS 비밀을 생성
+  ##   - cert-manager에 해당 주석을 설정하여 자동 생성하도록 설정
+  ##   - `ingress.selfSigned=true`로 설정하여 Helm을 사용하여 자체 서명된 인증서 생성
+  ##
+  tls: true
+  ## @param ingress.selfSigned Helm을 사용하여 자체 서명된 인증서를 생성하기 위해 이 ingress 레코드에 대해 TLS 비밀 생성
+  ##
+  selfSigned: true
+  ## @param ingress.extraHosts Ingress 레코드에 추가로 포함될 호스트 이름 배열
+  ## 예:
+  ## extraHosts:
+  ##   - name: airflow.local
+  ##     path: /
+  ##
+  extraHosts: []
+  ## @param ingress.extraPaths 기본 호스트 아래에 추가해야 할 추가 경로 배열
+  ## 예:
+  ## extraPaths:
+  ## - path: /*
+  ##   backend:
+  ##     serviceName: ssl-redirect
+  ##     servicePort: use-annotation
+  ##
+  extraPaths: []
+  ## @param ingress.extraTls 이 ingress 레코드에 추가로 포함될 호스트 이름에 대한 TLS 구성
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+  ## 예:
+  ## extraTls:
+  ## - hosts:
+  ##     - airflow.local
+  ##   secretName: airflow.local-tls
+  ##
+  extraTls: []
+  ## @param ingress.secrets 사용자 지정 TLS 인증서로 비밀 구성
+  ## 참고: 'key'와 'certificate'은 PEM 형식으로 예상됩니다.
+  ## 참고: 'name'은 위에서 설정된 'secretName'과 일치해야 합니다.
+  ## 설정되지 않고 cert-manager를 사용하는 경우, 이것은 필요하지 않으며 cert-manager가 유효한 인증서로 비밀을 생성해줍니다.
+  ## cert-manager를 사용하지 않으며 설정되지 않은 경우, 자체 서명된 인증서가 365일 동안 유효하게 생성됩니다.
+  ## 또한 이 헬름 차트 외부에서 인증서를 생성하고 관리할 수도 있습니다.
+  ## 자세한 내용은 README.md를 참조하십시오.
+  ## 예:
+  ## secrets:
+  ##   - name: airflow.local-tls
+  ##     key: |-
+  ##       -----BEGIN RSA PRIVATE KEY-----
+  ##       ...
+  ##       -----END RSA PRIVATE KEY-----
+  ##     certificate: |-
+  ##       -----BEGIN CERTIFICATE-----
+  ##       ...
+  ##       -----END CERTIFICATE-----
+  ##
+  secrets: []
+  ## @param ingress.extraRules 이 ingress 레코드에 추가로 포함될 규칙
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+  ## 예:
+  ## extraRules:
+  ## - host: example.local
+  ##     http:
+  ##       path: /
+  ##       backend:
+  ##         service:
+  ##           name: example-svc
+  ##           port:
+  ##             name: http
+  ##
+  extraRules: []
+
+## @section Other Parameters
+## 기타 매개변수
+
+## Airflow 포드에서 사용할 서비스 계정.
+## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+##
+serviceAccount:
+  ## @param serviceAccount.create Airflow 포드를 위한 ServiceAccount 생성 활성화
+  ##
+  create: true
+  ## @param serviceAccount.name 사용할 ServiceAccount의 이름.
+  ## 설정되지 않고 생성이 true인 경우, common.names.fullname 템플릿을 사용하여 이름이 생성됩니다.
+  ##
+  name: "airflow-sc"
+  ## @param serviceAccount.automountServiceAccountToken 생성된 서비스 계정에 대한 ServiceAccountToken의 자동 마운트 허용
+  ## 이 서비스 계정을 사용하는 포드가 K8s API를 사용할 필요가 없는 경우 false로 설정할 수 있습니다.
+  ##
+  automountServiceAccountToken: true
+  ## @param serviceAccount.annotations ServiceAccount에 대한 추가 사용자 지정 주석
+  ##
+  annotations: {}
+
+## 역할 기반 접근 제어(RBAC)
+## 참조: https://kubernetes.io/docs/admin/authorization/rbac/
+## @param rbac.create 역할 및 RoleBinding 생성
+##
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "pods/log", "services", "endpoints", "persistentvolumeclaims"]
+      verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+    - apiGroups: [""]
+      resources: ["secrets"]
+      verbs: ["get"]
+    - apiGroups: ["batch", "extensions"]
+      resources: ["jobs", "cronjobs"]
+      verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+    - apiGroups: ["apps"]
+      resources: ["deployments"]
+      verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+## @section Airflow metrics parameters
+## Airflow 메트릭 매개변수
+
+metrics:
+  ## @param metrics.enabled Airflow 메트릭을 노출하는 독립형 Airflow 내보내기를 생성할지 여부
+  ##
+  enabled: false
+  ## Bitnami Airflow 내보내기 이미지
+  ## 참조: https://hub.docker.com/r/bitnami/airflow-exporter/tags/
+  ## @param metrics.image.registry [기본값: REGISTRY_NAME] Airflow 내보내기 이미지 레지스트리
+  ## @param metrics.image.repository [기본값: REPOSITORY_NAME/airflow-exporter] Airflow 내보내기 이미지 저장소
+  ## @skip metrics.image.tag Airflow 내보내기 이미지 태그(변경할 수 없는 태그 권장)
+  ## @param metrics.image.digest Airflow 내보내기 이미지 다이제스트 (예: sha256:aa....) 설정. 이 매개변수가 설정되면 태그가 덮어써집니다.
+  ## @param metrics.image.pullPolicy Airflow 내보내기 이미지 풀 정책
+  ## @param metrics.image.pullSecrets Airflow 내보내기 이미지 풀 비밀
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/airflow-exporter
+    tag: 0.20220314.0-debian-12-r42
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  ## @param metrics.extraEnvVars Airflow 내보내기 포드에 추가할 환경 변수 배열
+  ##
+  extraEnvVars: []
+  ## @param metrics.extraEnvVarsCM Airflow 내보내기 포드를 위한 환경 변수를 포함한 ConfigMap
+  ##
+  extraEnvVarsCM: ""
+  ## @param metrics.extraEnvVarsSecret Airflow 내보내기 포드를 위한 환경 변수를 포함한 비밀(민감한 데이터의 경우)
+  ##
+  extraEnvVarsSecret: ""
+  ## @param metrics.containerPorts.http Airflow 내보내기 메트릭 컨테이너 포트
+  ##
+  containerPorts:
+    http: 9112
+  ## Airflow 내보내기 리소스 요청 및 제한
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## @param metrics.resourcesPreset 하나의 일반적인 사전 설정에 따라 컨테이너 리소스 설정 (허용되는 값: none, nano, micro, small, medium, large, xlarge, 2xlarge). 이 설정은 metrics.resources가 설정된 경우 무시됩니다 (metrics.resources는 프로덕션에 권장됨).
+  resourcesPreset: "nano"
+  ## @param metrics.resources CPU 또는 메모리와 같은 다양한 리소스에 대한 컨테이너 요청 및 제한 설정(프로덕션 워크로드에 필수)
+  ## 예:
+  ## resources:
+  ##   requests:
+  ##     cpu: 2
+  ##     memory: 512Mi
+  ##   limits:
+  ##     cpu: 3
+  ##     memory: 1024Mi
+  ##
+  resources: {}
+  ## Airflow 내보내기 포드의 보안 컨텍스트
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param metrics.podSecurityContext.enabled 포드에 대한 보안 컨텍스트 활성화
+  ## @param metrics.podSecurityContext.fsGroupChangePolicy 파일 시스템 그룹 변경 정책 설정
+  ## @param metrics.podSecurityContext.sysctls sysctl 인터페이스를 사용하여 커널 설정 설정
+  ## @param metrics.podSecurityContext.supplementalGroups 파일 시스템 추가 그룹 설정
+  ## @param metrics.podSecurityContext.fsGroup Airflow 내보내기 포드의 보안 컨텍스트 fsGroup 설정
+  ##
+  podSecurityContext:
+    enabled: true
+    fsGroupChangePolicy: Always
+    sysctls: []
+    supplementalGroups: []
+    fsGroup: 1001
+  ## Airflow 내보내기 컨테이너의 보안 컨텍스트
+  ## 참조: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param metrics.containerSecurityContext.enabled Airflow 내보내기 컨테이너의 보안 컨텍스트 활성화
+  ## @param metrics.containerSecurityContext.seLinuxOptions [객체,nullable] 컨테이너에서 SELinux 옵션 설정
+  ## @param metrics.containerSecurityContext.runAsUser Airflow 내보내기 컨테이너의 보안 컨텍스트 runAsUser 설정
+  ## @param metrics.containerSecurityContext.runAsGroup Airflow 내보내기 컨테이너의 보안 컨텍스트 runAsGroup 설정
+  ## @param metrics.containerSecurityContext.runAsNonRoot Airflow 내보내기 컨테이너의 보안 컨텍스트 runAsNonRoot 설정
+  ## @param metrics.containerSecurityContext.privileged metrics 컨테이너의 보안 컨텍스트 privileged 설정
+  ## @param metrics.containerSecurityContext.allowPrivilegeEscalation metrics 컨테이너의 보안 컨텍스트 allowPrivilegeEscalation 설정
+  ## @param metrics.containerSecurityContext.readOnlyRootFilesystem metrics 컨테이너의 보안 컨텍스트 readOnlyRootFilesystem 설정
+  ## @param metrics.containerSecurityContext.capabilities.drop 제거할 기능 목록
+  ## @param metrics.containerSecurityContext.seccompProfile.type 컨테이너의 보안 컨텍스트 seccomp 프로파일 설정
+  ## 예:
+  ##   containerSecurityContext:
+  ##     enabled: true
+  ##     capabilities:
+  ##       drop: ["NET_RAW"]
+  ##     readOnlyRootFilesystem: true
+  ##
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## @param metrics.lifecycleHooks Airflow 내보내기 컨테이너의 시작 전후 구성 자동화를 위한 lifecycleHooks
+  ##
+  lifecycleHooks: {}
+  ## @param metrics.automountServiceAccountToken 포드에서 서비스 계정 토큰을 자동 마운트
+  ##
+  automountServiceAccountToken: false
+  ## @param metrics.hostAliases Airflow 내보내기 포드 호스트 별칭
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param metrics.podLabels Airflow 내보내기 포드에 대한 추가 레이블
+  ## 참조: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param metrics.podAnnotations Airflow 내보내기 포드에 대한 추가 주석
+  ## 참조: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param metrics.podAffinityPreset 포드 친화성 사전 설정. `metrics.affinity`가 설정된 경우 무시됩니다. 허용되는 값: `soft` 또는 `hard`
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param metrics.podAntiAffinityPreset 포드 반대 친화성 사전 설정. `metrics.affinity`가 설정된 경우 무시됩니다. 허용되는 값: `soft` 또는 `hard`
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node metrics.affinity 사전 설정
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param metrics.nodeAffinityPreset.type 노드 친화성 사전 설정 유형. `metrics.affinity`가 설정된 경우 무시됩니다. 허용되는 값: `soft` 또는 `hard`
+    ##
+    type: ""
+    ## @param metrics.nodeAffinityPreset.key 노드 라벨 키 일치. `metrics.affinity`가 설정된 경우 무시됩니다.
+    ## 예:
+    ## key: "kubernetes.io/e2e-az-name"
+    ##
+    key: ""
+    ## @param metrics.nodeAffinityPreset.values 노드 라벨 값 일치. `metrics.affinity`가 설정된 경우 무시됩니다.
+    ## 예:
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param metrics.affinity 포드 할당에 대한 친화성 설정
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## 참고: metrics.podAffinityPreset, metrics.podAntiAffinityPreset, 및 metrics.nodeAffinityPreset은 설정되면 무시됩니다.
+  ##
+  affinity: {}
+  ## @param metrics.nodeSelector 포드 할당을 위한 노드 레이블
+  ## 참조: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param metrics.tolerations 포드 할당에 대한 관용 설정
+  ## 참조: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param metrics.schedulerName Airflow 내보내기에 대한 k8s 스케줄러 이름 (기본값이 아닌 경우)
+  ## 참조: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+
+  ## Airflow 내보내기 서비스 구성
+  ##
+  service:
+    ## @param metrics.service.ports.http Airflow 내보내기 메트릭 서비스 포트
+    ##
+    ports:
+      http: 9112
+    ## @param metrics.service.clusterIP 정적 clusterIP 또는 헤드리스 서비스를 위한 None 설정
+    ## 참조: https://kubernetes.io/docs/concepts/services-networking/service/#choosing-your-own-ip-address
+    ##
+    clusterIP: ""
+    ## @param metrics.service.sessionAffinity 클라이언트 요청을 동일한 포드로 보낼지 아니면 라운드로빈 할지 제어
+    ## 값: ClientIP 또는 None
+    ## 참조: https://kubernetes.io/docs/concepts/services-networking/service/
+    ##
+    sessionAffinity: None
+    ## @param metrics.service.annotations Airflow 내보내기 서비스에 대한 주석
+    ##
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.metrics.service.ports.http }}"
+
+  ## Prometheus Operator ServiceMonitor 구성
+  ##
+  serviceMonitor:
+    ## @param metrics.serviceMonitor.enabled `true`인 경우 Prometheus Operator ServiceMonitor 생성 (`metrics.enabled`가 `true`여야 함)
+    ##
+    enabled: false
+    ## @param metrics.serviceMonitor.namespace Prometheus가 실행 중인 네임스페이스
+    ##
+    namespace: ""
+    ## @param metrics.serviceMonitor.interval 메트릭을 수집할 간격
+    ## 참조: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+    ##
+    interval: ""
+    ## @param metrics.serviceMonitor.scrapeTimeout 스크랩이 종료되는 시간 제한
+    ## 참조: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+    ##
+    scrapeTimeout: ""
+    ## @param metrics.serviceMonitor.labels ServiceMonitor가 Prometheus에 의해 발견되도록 사용할 수 있는 추가 레이블
+    ##
+    labels: {}
+    ## @param metrics.serviceMonitor.selector Prometheus 인스턴스 선택자 레이블
+    ## 참조: https://github.com/bitnami/charts/tree/main/bitnami/prometheus-operator#prometheus-configuration
+    ##
+    selector: {}
+    ## @param metrics.serviceMonitor.relabelings 수집 전 샘플에 적용할 RelabelConfigs
+    ##
+    relabelings: []
+    ## @param metrics.serviceMonitor.metricRelabelings 수집 전 샘플에 적용할 MetricRelabelConfigs
+    ##
+    metricRelabelings: []
+    ## @param metrics.serviceMonitor.honorLabels 스크랩 엔드포인트에 honorLabels 매개변수를 추가하도록 지정
+    ##
+    honorLabels: false
+    ## @param metrics.serviceMonitor.jobLabel Prometheus에서 작업 이름으로 사용할 대상 서비스의 레이블 이름.
+    ##
+    jobLabel: ""
+
+  ## Metrics 네트워크 정책
+  ## 참조: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  ##
+  networkPolicy:
+    ## @param metrics.networkPolicy.enabled 네트워크 정책을 생성할지 여부 지정
+    ##
+    enabled: true
+    ## @param metrics.networkPolicy.allowExternal 클라이언트 레이블 없이도 연결을 허용
+    ## 적용할 정책 모델. false로 설정된 경우, 올바른 클라이언트 레이블을 가진 포드만 Metrics가 듣고 있는 포트로 네트워크 액세스를 가집니다.
+    ## true로 설정된 경우, Metrics는 모든 소스에서의 연결을 수락합니다.
+    ## (올바른 대상 포트와 함께).
+    ##
+    allowExternal: true
+    ## @param metrics.networkPolicy.allowExternalEgress 포드가 모든 포트 범위와 모든 목적지에 액세스하도록 허용.
+    ##
+    allowExternalEgress: true
+    ## @param metrics.networkPolicy.extraIngress [배열] 네트워크 정책에 추가로 포함할 인그레스 규칙 추가
+    ## 예:
+    ## extraIngress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     from:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    extraIngress: []
+    ## @param metrics.networkPolicy.extraEgress [배열] 네트워크 정책에 추가로 포함할 이그레스 규칙 추가
+    ## 예:
+    ## extraEgress:
+    ##   - ports:
+    ##       - port: 1234
+    ##     to:
+    ##       - podSelector:
+    ##           - matchLabels:
+    ##               - role: frontend
+    ##       - podSelector:
+    ##           - matchExpressions:
+    ##               - key: role
+    ##                 operator: In
+    ##                 values:
+    ##                   - frontend
+    ##
+    extraEgress: []
+    ## @param metrics.networkPolicy.ingressNSMatchLabels [객체] 다른 네임스페이스로부터 트래픽을 허용하기 위해 일치시킬 레이블
+    ## @param metrics.networkPolicy.ingressNSPodMatchLabels [객체] 다른 네임스페이스로부터 트래픽을 허용하기 위해 일치시킬 포드 레이블
+    ##
+    ingressNSMatchLabels: {}
+    ingressNSPodMatchLabels: {}
+## @section Airflow database parameters
+## Airflow 데이터베이스 매개변수
+
+## PostgreSQL 차트 구성
+## 참조: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
+## @param postgresql.enabled PostgreSQL 헬름 차트를 활성화하거나 비활성화하는 스위치
+## @param postgresql.auth.enablePostgresUser "postgres" 관리자 사용자에게 비밀번호를 할당합니다. 그렇지 않으면 이 사용자에 대한 원격 액세스가 차단됩니다.
+## @param postgresql.auth.username 생성할 사용자 이름
+## @param postgresql.auth.password 생성할 사용자 비밀번호
+## @param postgresql.auth.database 생성할 데이터베이스 이름
+## @param postgresql.auth.existingSecret PostgreSQL 자격 증명에 사용할 기존 시크릿의 이름
+## @param postgresql.architecture PostgreSQL 아키텍처(`standalone` 또는 `replication`)
+##
+postgresql:
+  enabled: true
+  auth:
+    enablePostgresUser: true
+    existingSecret: "airflow-secrets"
+    usernameKey: "postgres-username"
+    passwordKey: "postgres-password"
+    database: bitnami_airflow
+  architecture: standalone
+  primary:
+    ## PostgreSQL Primary 리소스 요청 및 제한
+    ## 참조: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+    ## @param postgresql.primary.resourcesPreset 공통 사전 설정에 따라 컨테이너 리소스를 설정합니다 (허용되는 값: none, nano, small, medium, large, xlarge, 2xlarge). 이 설정은 primary.resources가 설정된 경우 무시됩니다 (production에서는 primary.resources 설정이 권장됨).
+    resourcesPreset: "nano"
+    ## @param postgresql.primary.resources CPU 또는 메모리와 같은 다양한 리소스에 대한 컨테이너 요청 및 제한 설정(프로덕션 워크로드에 필수)
+    ## 예:
+    ## resources:
+    ##   requests:
+    ##     cpu: 2
+    ##     memory: 512Mi
+    ##   limits:
+    ##     cpu: 3
+    ##     memory: 1024Mi
+    resources: {}
+    persistence:
+      enabled: true
+      existingClaim: "postgresql-pvc"
+      mountPath: "/bitnami/postgresql"
+    # extraVolumes:
+    #   - name: postgresql-pv
+    #     persistentVolumeClaim:
+    #       claimName: postgresql-pvc
+    # extraVolumeMounts:
+    #   - name: postgresql-pv
+    #     mountPath: /bitnami/postgresql
+
+## 외부 PostgreSQL 구성
+## 이 값들은 postgresql.enabled가 false로 설정된 경우에만 사용됩니다.
+## @param externalDatabase.host 데이터베이스 호스트
+## @param externalDatabase.port 데이터베이스 포트 번호
+## @param externalDatabase.user Airflow를 위한 비루트 사용자 이름
+## @param externalDatabase.password Airflow를 위한 비루트 사용자 비밀번호
+## @param externalDatabase.database Airflow 데이터베이스 이름
+## @param externalDatabase.existingSecret 데이터베이스 자격 증명을 포함하는 기존 시크릿의 이름
+## @param externalDatabase.existingSecretPasswordKey 데이터베이스 자격 증명을 포함하는 기존 시크릿 키의 이름
+##
+externalDatabase:
+  host: localhost
+  port: 5432
+  user: bn_airflow
+  database: bitnami_airflow
+  password: ""
+  existingSecret: ""
+  existingSecretPasswordKey: ""
+
+## Redis® 차트 구성
+## 참조: https://github.com/bitnami/charts/blob/main/bitnami/redis/values.yaml
+## @param redis.enabled Redis® 헬름을 활성화하거나 비활성화하는 스위치
+## @param redis.auth.enabled 비밀번호 인증 활성화
+## @param redis.auth.password Redis® 비밀번호
+## @param redis.auth.existingSecret Redis® 자격 증명을 포함하는 기존 시크릿의 이름
+## @param redis.architecture Redis® 아키텍처. 허용되는 값: `standalone` 또는 `replication`
+##
+redis:
+  enabled: false
+  auth:
+    enabled: true
+    ## Redis® 비밀번호 (마스터 및 슬레이브 모두). 설정되지 않았고 auth.enabled가 true인 경우 기본값은 임의의 10자리 영숫자 문자열입니다.
+    ## Airflow와 관련된 문제를 피하기 위해 항상 비밀번호 값을 설정하거나 기존 시크릿에 설정해야 합니다.
+    ## existingSecret이 설정된 경우 비밀번호 값은 무시됩니다.
+    password: ""
+    existingSecret: ""
+  architecture: standalone
+  master:
+    ## Redis® 마스터 리소스 요청 및 제한
+    ## 참조: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+    ## @param redis.master.resourcesPreset 공통 사전 설정에 따라 컨테이너 리소스를 설정합니다 (허용되는 값: none, nano, small, medium, large, xlarge, 2xlarge). 이 설정은 master.resources가 설정된 경우 무시됩니다 (production에서는 master.resources 설정이 권장됨).
+    resourcesPreset: "nano"
+    ## @param redis.master.resources CPU 또는 메모리와 같은 다양한 리소스에 대한 컨테이너 요청 및 제한 설정(프로덕션 워크로드에 필수)
+    ## 예:
+    ## resources:
+    ##   requests:
+    ##     cpu: 2
+    ##     memory: 512Mi
+    ##   limits:
+    ##     cpu: 3
+    ##     memory: 1024Mi
+    resources: {}
+
+## 외부 Redis® 구성
+## 이 값들은 redis.enabled가 false로 설정된 경우에만 사용됩니다.
+## @param externalRedis.host Redis® 호스트
+## @param externalRedis.port Redis® 포트 번호
+## @param externalRedis.username Redis® 사용자 이름
+## @param externalRedis.password Redis® 비밀번호
+## @param externalRedis.existingSecret Redis® 자격 증명을 포함하는 기존 시크릿의 이름
+## @param externalRedis.existingSecretPasswordKey Redis® 자격 증명을 포함하는 기존 시크릿 키의 이름
+##
+externalRedis:
+  host: localhost
+  port: 6379
+  ## 대부분의 Redis® 구현에서는 인증을 위해 사용자 이름이 필요하지 않으며 비밀번호만으로 충분합니다.
+  username: ""
+  password: ""
+  existingSecret: ""
+  existingSecretPasswordKey: ""

@@ -122,10 +122,10 @@ export function DashboardNavbar() {
           </Link>
           ):(
             <>
-              <Link to="/auth/sign-in">
-                <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
+              <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
+              <Typography variant="small" color="blue-gray" className="m-1">
                 {cookies.userName}
-              </Link>
+              </Typography>
               <Button
                 variant="text"
                 color="blue-gray"

@@ -20,7 +20,7 @@ COPY . /home/mydir/api-server
 
 # 가상환경 & 패키지 설치
 RUN apt update && \
-    apt -y install python3.10 python3-venv python3-pip && \
+    apt -y install python3.10 python3-pip && \
     pip install -r requirements.txt 
 
 # Flask 환경 변수를 설정합니다.

@@ -11,33 +11,50 @@ import {
 } from "@material-tailwind/react";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
+// axios custom header for evade cors error
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Headers"] = "*";
+axios.defaults.headers.post["Access-Control-Allow-Methods"] = "*";
+axios.defaults.headers.post["Content-Type"] = "application/json";
 
 export function SignIn() {
   const navigate = useNavigate();
   const [isError, setIsError] = React.useState(false);
+  const [loginForm, setLoginForm] = React.useState({
+    email: "",
+    password: "",
+  });
   
   function onClickLogin() {
       console.log("Login");
       // call login api
-      // if success
-      // save user data to local storage or cookie
-      // and redirect to dashboard with user data
-      if(true){
-        // save user data to cookie, expires in 1 hour
-        document.cookie = `userName=userName; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
-        document.cookie = `userAuth=auth; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
-        // redirect to dashboard
-        navigate("/dashboard/home");
-      } else { // if failed show error modal
+      axios.post("http://192.168.1.230:19020/v1/users/login/", {
+        email: loginForm.email,
+        password: btoa(loginForm.password),
+      }).then((res) => {
+        if(res.status === 200 || res.status === 201){
+          console.log(res);
+          document.cookie = `userEmail=${res.data.email}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`; 
+          document.cookie = `userName=${res.data.name}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+          document.cookie = `userAuth=${res.data.access_token}; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}; path=/`;
+          navigate("/dashboard/home");
+        } else if(res.status === 401){
+          alert("Invalid email or password");
+          // show modal
+          // setIsError(true);
+        }
+      }).catch((err) => {
+        console.log(err);
         // show modal
-        setIsError(true);
-      }
+        // setIsError(true);
+      });
   };
 
   return (
     <section className="m-8 flex gap-4">
-      <Dialog open={isError} onClose={() => setIsError(false)}>
+      {/* <Dialog open={isError} onClose={() => setIsError(false)}>
         <DialogHeader color="red" onClose={() => setIsError(false)}>
           Error
         </DialogHeader>
@@ -51,7 +68,7 @@ export function SignIn() {
             Close
           </Button>
         </DialogFooter>
-      </Dialog>
+      </Dialog> */}
       <div className="w-full lg:w-3/5 mt-24">
         <div className="text-center">
           <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>
@@ -69,6 +86,7 @@ export function SignIn() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
             />
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Password
@@ -81,6 +99,7 @@ export function SignIn() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
             />
           </div>
           {/* <Checkbox
