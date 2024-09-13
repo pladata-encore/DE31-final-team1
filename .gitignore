@@ -1,2 +1,11 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+.vscode/
+.env
+
 NiFi/nifi_project/conf/archive/
 NiFi/nifi_project/data
