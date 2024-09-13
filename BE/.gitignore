@@ -5,3 +5,4 @@
 .docker
 __pycache__/
 test-msk.ipynb
+test-genarator.ipynb
