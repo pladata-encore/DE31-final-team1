@@ -25,7 +25,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
-
+          
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
@@ -53,6 +53,8 @@ jobs:
       - name: Terraform Apply
         id: apply
         if: github.ref == 'refs/heads/feature/tfapply' && github.event_name == 'push'  # feature/tfapply 브랜치 push 시 apply 실행
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}  
         run: cd INFRA && terraform apply -auto-approve -input=false
 
       - name: Terraform Destroy
