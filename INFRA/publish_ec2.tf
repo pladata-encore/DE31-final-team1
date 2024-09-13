@@ -352,6 +352,12 @@ resource "aws_instance" "backend" {
 # Clone Git repository
 git clone https://github.com/pladata-encore/DE31-final-team1.git
 
+# AWS CLI configure
+mkdir -p /home/ubuntu/.aws
+echo '[default]' > /home/ubuntu/.aws/config
+echo 'region = ap-northeast-2' >> /home/ubuntu/.aws/config
+echo 'output = json' >> /home/ubuntu/.aws/config
+
 # Deploy Airflow using Docker Compose
 cd DE31-final-team1/BE
 docker-compose up -d
