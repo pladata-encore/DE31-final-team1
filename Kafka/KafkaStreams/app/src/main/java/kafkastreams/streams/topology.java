@@ -6,12 +6,14 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import kafkastreams.utils.util;
 import kafkastreams.kafka.topic;
 
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.Properties;
 
 public class topology {
@@ -20,22 +22,65 @@ public class topology {
     static topic topic = new topic();
     static properties props = new properties();
 
-    // 변환 수식을 이용하여 value 값 변환
-    public KafkaStreams mathExpression(String bootstrap_servers, String topic_Name, String user_Rule, String var_Name) {
+    public KafkaStreams createKafkaStreams(String bootstrap_servers, String topic_Name, String user_Rule) {
+        // user_Rule 파싱
+        String[] rule = user_Rule.split(",");
+        
+        // KafkaStreams Processor Builder
         StreamsBuilder builder = new StreamsBuilder();
 
+        // Input Stream Processor
         KStream<String, String> topic_Data = builder.stream(topic_Name);
-        
-        KStream<String, String> calculate = topic_Data.mapValues(
-            value -> {
+
+        int comparsion = ut.getComparsion(rule[0]);
+        double pivot = ut.getPivot(rule[0]);
+
+        String var_Name1 = ut.getVarName2(rule[0]);
+        String var_Name2 = ut.getVarName(rule[1]);
+
+        KStream<String, String> calculate = topic_Data.filter(
+            (key, value) -> {
+                if (rule[0] == null) {
+                    return value != null;
+                }
+
+                try {
+                    JSONObject value_Json = new JSONObject(value);
+                    double var = value_Json.getJSONObject("data").getDouble(var_Name1);
+
+                    switch (comparsion) {
+                        case 1:
+                            System.out.println(var);
+                            return var >= pivot;
+                        case 2:
+                            return var > pivot;
+                        case 3:
+                            return var <= pivot;
+                        case 4:
+                            return var < pivot;
+                        case 5:
+                            return var != pivot;
+                        case 6:
+                            return var == pivot;
+                        default:
+                            throw new IllegalArgumentException("Invalid comparison operator: " + comparsion);
+                    }
+                } catch (JSONException e) {
+                    return false;
+                } catch (EmptyStackException e) {
+                    return false;
+                }
+            }
+        ).mapValues(
+            (key, value) -> {
                 try {
                     // user_Role에 맞게 결과 도출
-                    ArrayList<String> regex_ArrayList = ut.parseUserRule(user_Rule, value);
+                    ArrayList<String> regex_ArrayList = ut.parseUserRule(rule[1], value);
                     double result = ut.parseCalculate(regex_ArrayList);
 
                     // 결과값 value_Json에 삽입
                     JSONObject value_Json = new JSONObject(value);
-                    JSONObject data_Json = value_Json.optJSONObject("data").put(var_Name, result);
+                    JSONObject data_Json = value_Json.optJSONObject("data").put(var_Name2, result);
                     value_Json.put("data", data_Json);
 
                     // String 타입으로 리턴
@@ -44,15 +89,56 @@ public class topology {
                     e.printStackTrace();
                     return value;
                 }      
+            }
+        );
+
+        Properties topic_Props = topic.topicProperties(bootstrap_servers);
+        topic.createTopic(topic_Props, topic_Name+"_Application");
+        calculate.to(topic_Name+"_Application", Produced.with(Serdes.String(), Serdes.String()));
+
+        
+        Topology topology = builder.build();
+        KafkaStreams streams = new KafkaStreams(topology, props.properties(bootstrap_servers, topic_Name+"_Application"));
+        return streams;
+    }
+
+    // 변환 수식을 이용하여 value 값 변환
+    public KafkaStreams mathExpression(String bootstrap_servers, String topic_Name, String user_Rule, String var_Name) {
+        StreamsBuilder builder = new StreamsBuilder();
+
+        KStream<String, String> topic_Data = builder.stream(topic_Name);
+
+        // user_Rule 파싱
+        String[] rule = user_Rule.split(",");
+        String var_Name2 = ut.getVarName(rule[1]);
+        
+        KStream<String, String> calculate = topic_Data.mapValues(
+            value -> {
+                try {
+                    // user_Role에 맞게 결과 도출
+                    ArrayList<String> regex_ArrayList = ut.parseUserRule(rule[1], value);
+                    double result = ut.parseCalculate(regex_ArrayList);
+
+                    // 결과값 value_Json에 삽입
+                    JSONObject value_Json = new JSONObject(value);
+                    JSONObject data_Json = value_Json.optJSONObject("data").put(var_Name2, result);
+                    value_Json.put("data", data_Json);
+
+                    // String 타입으로 리턴
+                    return value_Json.toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return value;
+                }     
             } 
         );
         
         Properties topic_Props = topic.topicProperties(bootstrap_servers);
-        topic.createTopic(topic_Props, topic_Name+"_Math");
-        calculate.to(topic_Name+"_Math", Produced.with(Serdes.String(), Serdes.String()));
+        topic.createTopic(topic_Props, topic_Name+"_MapValues");
+        calculate.to(topic_Name+"_MapValues", Produced.with(Serdes.String(), Serdes.String()));
 
         Topology topology = builder.build();
-        KafkaStreams streams = new KafkaStreams(topology, props.properties(bootstrap_servers, "MathExpression-Application"));
+        KafkaStreams streams = new KafkaStreams(topology, props.properties(bootstrap_servers, "MapValues-Application"));
 
         return streams;
     }
@@ -63,24 +149,34 @@ public class topology {
 
         KStream<String, String> topic_Data = builder.stream(topic_Name);
 
-        int comparsion = ut.getComparsion(user_Rule);
-        double pivot = ut.getPivot(user_Rule);
+        // user_Rule 파싱
+        String[] rule = user_Rule.split(",");
+
+        int comparsion = ut.getComparsion(rule[0]);
+        double pivot = ut.getPivot(rule[0]);
+
+        String var_Name1 = ut.getVarName2(rule[0]);
         
         KStream<String, String> record_Filter = topic_Data.filter(
             (key, value) -> {
+                if (rule[0] == null) {
+                    return value != null;
+                }
+
                 try {
                     JSONObject value_Json = new JSONObject(value);
-                    double var = value_Json.getJSONObject("data").getDouble(var_Name);
+                    double var = value_Json.getJSONObject("data").getDouble(var_Name1);
 
                     switch (comparsion) {
                         case 1:
-                            return var > pivot;
-                        case 2:
+                            System.out.println(var);
                             return var >= pivot;
+                        case 2:
+                            return var > pivot;
                         case 3:
-                            return var < pivot;
-                        case 4:
                             return var <= pivot;
+                        case 4:
+                            return var < pivot;
                         case 5:
                             return var != pivot;
                         case 6:
@@ -88,8 +184,9 @@ public class topology {
                         default:
                             throw new IllegalArgumentException("Invalid comparison operator: " + comparsion);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (JSONException e) {
+                    return false;
+                } catch (EmptyStackException e) {
                     return false;
                 }
             }
@@ -100,7 +197,7 @@ public class topology {
         record_Filter.to(topic_Name+"_Filter", Produced.with(Serdes.String(), Serdes.String()));
 
         Topology topology = builder.build();
-        KafkaStreams streams = new KafkaStreams(topology, props.properties(bootstrap_servers, "RecordFilter-Application"));
+        KafkaStreams streams = new KafkaStreams(topology, props.properties(bootstrap_servers, "Filter-Application"));
 
         return streams;
     }

@@ -20,7 +20,7 @@ public class util {
         }
     }
 
-    // user_Role 파싱하여 목적 변수 return
+    // user_Rule 파싱하여 목적 변수 return
     public String getVarName(String user_Rule) {
         String var = user_Rule.split("=")[0].strip();
 
@@ -33,7 +33,7 @@ public class util {
         return var;
     }
 
-    // user_Role 파싱하여 변환 수식 return
+    // user_Rule 파싱하여 변환 수식 return
     public String getVarExpresstion(String user_Rule) {
         return user_Rule.split("=")[1].strip();
     }
@@ -125,18 +125,18 @@ public class util {
 
     // --------------------> KafkaStreams.filter <------------------------------------ \\
     // 비교연산자 치환
-    public int getComparsion(String user_Role) {
-        if (user_Role.contains(">")) {
+    public int getComparsion(String user_Rule) {
+        if (user_Rule.contains(">=")) {
             return 1;
-        } else if (user_Role.contains(">=")) {
+        } else if (user_Rule.contains(">")) {
             return 2;
-        } else if (user_Role.contains("<")) {
+        } else if (user_Rule.contains("<=")) {
             return 3;
-        } else if (user_Role.contains("<=")) {
+        } else if (user_Rule.contains("<")) {
             return 4;
-        } else if (user_Role.contains("!=")) {
+        } else if (user_Rule.contains("!=")) {
             return 5;
-        } else if (user_Role.contains("==")) {
+        } else if (user_Rule.contains("==")) {
             return 6;
         } else {
             return 0;
@@ -144,32 +144,24 @@ public class util {
     }
 
     // pivot 값 파싱
-    public double getPivot(String user_Role) {
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(user_Role);
+    public double getPivot(String user_Rule) {
+        String[] split_String = user_Rule.split("\\s*(>=|<=|!=|==|>|<)\\s*");
 
-        String pivot = "";
-
-        if (matcher.find()) {
-            pivot = matcher.group();
-        }
+        String pivot = split_String[1];
 
         return Double.parseDouble(pivot);
     }
 
     public String getVarName2(String user_Rule) {
-        String regex = "\\.(\\w+)";
+        String var = user_Rule.split("\\s*(>=|<=|!=|==|>|<)\\s*")[0].strip();
 
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(user_Rule);
-
-        String result = "";
-
-        while (matcher.find()) {
-            result = matcher.group(1);
+        if (var.contains(".") || var.contains("_")) {
+            String[] split_String = var.split("[._]");
+            var = split_String[split_String.length - 1];
+            return var;
         }
 
-        return result;
+        return var;
     }
     // --------------------> KafkaStreams.filter <------------------------------------ \\
 }

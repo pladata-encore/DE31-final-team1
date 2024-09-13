@@ -45,7 +45,7 @@ if __name__ == '__main__':
   endpoint_list = read_json_file(JSON_FILE_PATH)
 
   # do forever
-  for i in range(2):
+  for i in range(10):
     # Read JSON file, if time_cursor is greater than 1min, read JSON file again
     if time.time() - time_cursor > 60:
       endpoint_list = read_json_file(JSON_FILE_PATH)
