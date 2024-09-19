@@ -9,3 +9,12 @@ build
 
 NiFi/nifi_project/conf/archive/
 NiFi/nifi_project/data
+
+
+Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_nar/target/*
+!Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_nar/target/*.nar
+
+Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_processors/src/main/resources/*
+
+Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_processors/target/*
+!Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_processors/target/*.jar
