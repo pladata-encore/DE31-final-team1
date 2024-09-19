@@ -10,11 +10,17 @@ build
 NiFi/nifi_project/conf/archive/
 NiFi/nifi_project/data
 
+NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-nar/target/*
+!NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-nar/target/*.nar
+NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-processors/target/*
+!NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-processors/target/*.jar
+NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-processors/src/main/resources/*
 
-Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_nar/target/*
-!Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_nar/target/*.nar
+NiFi/nifi_custom_processor/my-custom-kafkastreaming-processor_new_swap_swap/my-custom-kafkastreaming-new/nifi-custom_kafkastreaming_new-nar/target/*
+!NiFi/nifi_custom_processor/my-custom-kafkastreaming-processor_new_swap_swap/my-custom-kafkastreaming-new/nifi-custom_kafkastreaming_new-nar/target/*.nar
 
-Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_processors/src/main/resources/*
+NiFi/nifi_custom_processor/my-custom-kafkastreaming-processor_new_swap_swap/my-custom-kafkastreaming-new/nifi-custom_kafkastreaming_new-processors/src/main/resources/*
+NiFi/nifi_custom_processor/my-custom-kafkastreaming-processor_new_swap_swap/my-custom-kafkastreaming-new/nifi-custom_kafkastreaming_new-processors/target/*
+!NiFi/nifi_custom_processor/my-custom-kafkastreaming-processor_new_swap_swap/my-custom-kafkastreaming-new/nifi-custom_kafkastreaming_new-processors/target/*.jar
 
-Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_processors/target/*
-!Nifi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka_processors/target/*.jar
+NiFi/nifi_custom_processor/my-custom-kafkastreaming-processor_new_swap_swap/my-custom-kafkastreaming-new/target/*
