@@ -10,8 +10,9 @@ class MSKTokenProvider:
         self.region_name = region_name
 
     def token(self):
-        # token, _ = MSKAuthTokenProvider.generate_auth_token(self.region_name)
-        token, _ = MSKAuthTokenProvider.generate_auth_token(self.region_name, aws_debug_creds = True)
+        token, _ = MSKAuthTokenProvider.generate_auth_token(
+            self.region_name
+            )
         return token
 
 class KafkaPublisher:
@@ -20,6 +21,8 @@ class KafkaPublisher:
         self.name = name
         self.ds_id = ds_id
         self.region_name = region_name
+        self.bootstrap_servers = bootstrap_servers
+        self.topic = f'{email.split("@")[0]}_{name}_{ds_id}' 
 
         
         # SASL/IAM을 위한 Kafka 클라이언트 설정
@@ -31,12 +34,14 @@ class KafkaPublisher:
             sasl_mechanism='OAUTHBEARER',
             sasl_oauth_token_provider=self.token_provider,
             client_id=socket.gethostname(),
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            key_serializer=lambda v: json.dumps(v).encode('utf-8'),
+            value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+            acks=0
         )
 
-    def publish_data(self, topic, data):
+    def publish_data(self, data):
         try:
-            self.producer.send(topic, value=data)
+            self.producer.send(self.topic, value=data)
             self.producer.flush()
             print(f"Message sent: {data}")
         except KafkaError as e:
@@ -44,6 +49,3 @@ class KafkaPublisher:
 
     def close(self):
         self.producer.close()
-
-
-

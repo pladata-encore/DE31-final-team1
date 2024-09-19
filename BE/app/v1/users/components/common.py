@@ -156,7 +156,7 @@ async def verify_token(email):
         
         token = await create_token(email)
 
-        issued_time = datetime.now() + timedelta(hours=9)
+        issued_time = datetime.now()
         expiry_time = issued_time + timedelta(minutes=30)
 
         if update_token:
@@ -179,8 +179,8 @@ async def new_insert_token(id, token):
             new_token = JwtInfo(
                 UserID=id,
                 AccessToken=token, 
-                IssuedAt=datetime.now() + timedelta(hours=9), 
-                ExpiryAt=datetime.now() + timedelta(hours=9) + timedelta(hours=1)
+                IssuedAt=datetime.now(), 
+                ExpiryAt=datetime.now() + timedelta(hours=1)
             )
             session.add(new_token)
             await session.commit()

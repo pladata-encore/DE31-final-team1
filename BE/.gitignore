@@ -4,4 +4,5 @@
 .test
 .docker
 __pycache__/
-test-kafka.ipynb
+test-msk.ipynb
+test-genarator.ipynb

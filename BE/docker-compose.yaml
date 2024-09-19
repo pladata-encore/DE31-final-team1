@@ -11,5 +11,8 @@ services:
     environment:
       FLASK_APP: run.py
       FLASK_ENV: development
+      AWS_SDK_LOAD_CONFIG: "1"
+      AWS_EC2_METADATA_DISABLED: "false"
     volumes:
-      - /home/dp/workspace/DE31-final-team1/BE:/home/mydir/api-server
+      - /home/ubuntu/DE31-final-team1/BE:/home/mydir/api-server
+      - /home/ubuntu/.aws:/root/.aws:ro

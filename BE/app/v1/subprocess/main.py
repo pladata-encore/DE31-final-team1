@@ -31,11 +31,11 @@ async def stop_collection():
     topic = req.get("topic")
     token = req.get("access_token")
 
-    token_status = await check_token(email, token, topic)
+    token_status = await check_token(email, token)
     if token_status.startswith("ERR"):
         return jsonify({"error": token_status}), 400
 
-    if subprocess_manager.stop_process(email):
+    if subprocess_manager.stop_process(email, topic):
         return jsonify({"message": "Data collection stopped"}), 200
     
     else:
