@@ -125,6 +125,13 @@ resource "aws_security_group" "allow_all_internal" {
 
   # 인바운드 규칙: VPC 내부 IP에서 모든 포트 허용
   ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC CIDR 블록으로 변경
+  }
+
+  ingress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
@@ -340,15 +347,26 @@ resource "aws_instance" "backend" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
   subnet_id     = aws_subnet.be.id # Backend Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
-
+  key_name      = "nifi_test_key_pair" # Key Pair 이름
+  associate_public_ip_address = true
+  
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
   user_data = <<EOF
 #!/bin/bash
-# Install Java, Docker, Docker Compose
-# ... (Java, Docker, Docker Compose 설치 스크립트 추가)
+
+# Install Docker
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update
+apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Install Docker Compose
+curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 # Clone Git repository
 git clone https://github.com/pladata-encore/DE31-final-team1.git
@@ -359,6 +377,15 @@ echo '[default]' > /home/ubuntu/.aws/config
 echo 'region = ap-northeast-2' >> /home/ubuntu/.aws/config
 echo 'output = json' >> /home/ubuntu/.aws/config
 
+# Set Environment Variables
+echo 'KAFKA_BOOTSTRAP_SERVERS=${var.KAFKA_BOOTSTRAP_SERVERS}' >> /etc/environment  
+echo 'MONGO=${var.MONGO}' >> /etc/environment
+echo 'MONGO_COLLECTION_NAME=${var.MONGO_COLLECTION_NAME}' >> /etc/environment
+echo 'MONGO_DATABASE_NAME=${var.MONGO_DATABASE_NAME}' >> /etc/environment
+echo 'MONGO_URI=${var.MONGO_URI}' >> /etc/environment
+echo 'MYSQL_URI=${var.MYSQL_URI}' >> /etc/environment  
+echo 'NIFI_URL=${var.NIFI_URL}' >> /etc/environment
+
 # Deploy Airflow using Docker Compose
 cd DE31-final-team1/BE
 docker-compose up -d
@@ -367,6 +394,22 @@ EOF
   tags = {
     Name = "Backend-Server"
   }
+}
+
+# 고정 IP 할당(BE)
+resource "aws_eip" "backend_eip" {
+  instance = aws_instance.backend.id
+  vpc      = true
+
+  tags = {
+    Name = "Backend-EIP"
+  }
+}
+
+# 백엔드 IP 표시
+output "backend_public_ip" {
+  value       = aws_eip.backend_eip.public_ip
+  description = "The public IP address of the backend server"
 }
 
 # EC2 Instance 생성 (MongoDB)
