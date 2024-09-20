@@ -10,7 +10,7 @@ services:
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
     entrypoint: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
     volumes:
-      - ./airflow/postgresql-persistence:/bitnami/postgresql
+      - ../airflow/postgresql-persistence:/bitnami/postgresql
     networks:
       - airflow_net
 
@@ -21,7 +21,7 @@ services:
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
     entrypoint: /opt/bitnami/scripts/redis/entrypoint.sh /opt/bitnami/scripts/redis/run.sh
     volumes:
-      - ./airflow/redis-persistence:/bitnami/redis
+      - ../airflow/redis-persistence:/bitnami/redis
     networks:
       - airflow_net
 
@@ -43,9 +43,9 @@ services:
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
     entrypoint: /opt/bitnami/scripts/airflow-worker/entrypoint.sh /opt/bitnami/scripts/airflow-worker/run.sh
     volumes:
-      - ./airflow/airflow-dags:/opt/bitnami/airflow/dags
-      - ./airflow/logs:/opt/bitnami/airflow/logs
-      - ./airflow/plugins:/opt/bitnami/airflow/plugins
+      - ../airflow/airflow-dags:/opt/bitnami/airflow/dags
+      - ../airflow/logs:/opt/bitnami/airflow/logs
+      - ../airflow/plugins:/opt/bitnami/airflow/plugins
     networks:
       - airflow_net
 
@@ -67,9 +67,9 @@ services:
     user: "1001"  # 컨테이너 내 프로세스를 1001 UID로 실행
     entrypoint: /opt/bitnami/scripts/airflow-scheduler/entrypoint.sh /opt/bitnami/scripts/airflow-scheduler/run.sh
     volumes:
-      - ./airflow/airflow-dags:/opt/bitnami/airflow/dags
-      - ./airflow/logs:/opt/bitnami/airflow/logs
-      - ./airflow/plugins:/opt/bitnami/airflow/plugins
+      - ../airflow/airflow-dags:/opt/bitnami/airflow/dags
+      - ../airflow/logs:/opt/bitnami/airflow/logs
+      - ../airflow/plugins:/opt/bitnami/airflow/plugins
     networks:
       - airflow_net
 
@@ -99,9 +99,9 @@ services:
     ports:
       - '8080:8080'
     volumes:
-      - ./airflow/airflow-dags:/opt/bitnami/airflow/dags
-      - ./airflow/logs:/opt/bitnami/airflow/logs
-      - ./airflow/plugins:/opt/bitnami/airflow/plugins
+      - ../airflow/airflow-dags:/opt/bitnami/airflow/dags
+      - ../airflow/logs:/opt/bitnami/airflow/logs
+      - ../airflow/plugins:/opt/bitnami/airflow/plugins
     networks:
       - airflow_net
 
@@ -122,9 +122,9 @@ services:
       - postgresql
       - redis
     volumes:
-      - ./airflow/airflow-dags:/opt/bitnami/airflow/dags
-      - ./airflow/logs:/opt/bitnami/airflow/logs
-      - ./airflow/plugins:/opt/bitnami/airflow/plugins
+      - ../airflow/airflow-dags:/opt/bitnami/airflow/dags
+      - ../airflow/logs:/opt/bitnami/airflow/logs
+      - ../airflow/plugins:/opt/bitnami/airflow/plugins
     networks:
       - airflow_net
 

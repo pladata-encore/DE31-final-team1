@@ -263,27 +263,87 @@ resource "aws_instance" "airflow" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.airflow.id # airflow Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
+  key_name      = "airflow_test_key" # Key Pair 이름
+  associate_public_ip_address = true
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
   user_data = <<EOF
 #!/bin/bash
-# Install Java, Docker, Docker Compose
-# ... (Java, Docker, Docker Compose 설치 스크립트 추가)
+# 패키지 업데이트
+sudo apt-get update -y
 
-# Clone Git repository
+# Git 설치 (필요한 경우)
+sudo apt-get install git -y
+
+# Docker 설치
+echo "Installing Docker..."
+curl -sSL get.docker.com | sh
+
+# Docker Compose 설치
+echo "Installing Docker Compose..."
+wget https://github.com/docker/compose/releases/download/v2.28.1/docker-compose-linux-x86_64
+
+# Docker 소켓 권한 변경
+echo "Changing Docker socket permissions..."
+sudo chown -R ubuntu:ubuntu /var/run/docker.sock
+
+# Docker 그룹에 유저 추가
+echo "Adding user to Docker group..."
+sudo usermod -aG docker ubuntu
+
+# Docker Compose 실행 권한 부여 및 이동
+echo "Setting up Docker Compose..."
+chmod +x ./docker-compose-linux-x86_64
+sudo mv ./docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# 완료 메시지
+echo "Docker and Docker Compose installation is complete. You can now use Docker without sudo."
+
+# Git repository 클론
 git clone https://github.com/pladata-encore/DE31-final-team1.git
 
-# Deploy Airflow using Docker Compose
-cd DE31-final-team1/airflow
-docker-compose up -d
+# GitHub Secrets의 ENV_FILE을 .env 파일로 생성
+cd DE31-final-team1/Airflow/docker
+# GitHub Secrets에서 전달된 값을 .env로 저장
+echo 'AIRFLOW_DATABASE_PASSWORD=${var.AIRFLOW_DATABASE_PASSWORD}' >> .env
+echo 'AIRFLOW_EMAIL=${var.AIRFLOW_EMAIL}' >> .env
+echo 'AIRFLOW_FERNET_KEY=${var.AIRFLOW_FERNET_KEY}' >> .env
+echo 'AIRFLOW_PASSWORD=${var.AIRFLOW_PASSWORD}' >> .env
+echo 'AIRFLOW_SECERT_KEY=${var.AIRFLOW_SECRET_KEY}' >> .env
+echo 'AIRFLOW_USERNAME=${var.AIRFLOW_USERNAME}' >> .env
+echo 'POSTGRESQL_DATABASE=${var.POSTGRESQL_DATABASE}' >> .env
+echo 'POSTGRESQL_PASSWORD=${var.POSTGRESQL_PASSWORD}' >> .env
+echo 'POSTGRESQL_USERNAME=${var.POSTGRESQL_USERNAME}' >> .env
+
+
+# Airflow 설정 및 실행
+chmod +x ./setup_permission.sh
+./setup_permission.sh
+
+docker-compose --env-file .env up -d
 EOF
 
   tags = {
     Name = "Airflow-Server"
   }
+}
+# 고정 IP 할당(Airflow)
+resource "aws_eip" "backend_eip" {
+  instance = aws_instance.airflow.id
+  vpc      = true
+
+  tags = {
+    Name = "airflow-EIP"
+  }
+}
+
+# 백엔드 IP 표시
+output "airflow_public_ip" {
+  value       = aws_eip.backend_eip.public_ip
+  description = "The public IP address of the airflow server"
 }
 
 # EC2 Instance 생성 (NiFi)
