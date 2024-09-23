@@ -130,6 +130,14 @@ resource "aws_security_group" "allow_all_internal" {
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]  # VPC CIDR 블록으로 변경
   }
+  
+  # airflow 웹 UI 접근을 위한 8080포트 개방
+  ingress {
+    from_port = 8080
+    to_port = 8080
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     from_port = 0
@@ -266,6 +274,13 @@ resource "aws_instance" "airflow" {
   key_name      = "airflow_test_key" # Key Pair 이름
   associate_public_ip_address = true
 
+  # airflow 애플리케이션의 용량으로 인해 볼륨 지정
+  root_block_device {
+    volume_size = 30  # 볼륨 크기 (GB)
+    volume_type = "gp2"  # 기본 SSD (gp2)
+    delete_on_termination = true  # 인스턴스 종료 시 볼륨 삭제 여부
+  }  
+
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
@@ -323,7 +338,7 @@ echo 'POSTGRESQL_USERNAME=${var.POSTGRESQL_USERNAME}' >> .env
 chmod +x ./setup_permission.sh
 ./setup_permission.sh
 
-docker-compose --env-file .env up -d
+docker-compose up -d
 EOF
 
   tags = {
@@ -331,7 +346,7 @@ EOF
   }
 }
 # 고정 IP 할당(Airflow)
-resource "aws_eip" "backend_eip" {
+resource "aws_eip" "airflow_eip" {
   instance = aws_instance.airflow.id
   vpc      = true
 
@@ -342,7 +357,7 @@ resource "aws_eip" "backend_eip" {
 
 # 백엔드 IP 표시
 output "airflow_public_ip" {
-  value       = aws_eip.backend_eip.public_ip
+  value       = aws_eip.airflow_eip.public_ip
   description = "The public IP address of the airflow server"
 }
 
