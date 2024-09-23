@@ -472,7 +472,7 @@ echo 'AIRFLOW_USERNAME=${var.AIRFLOW_USERNAME}' >> /etc/environment
 echo 'AIRFLOW_PASSWORD=${var.AIRFLOW_PASSWORD}' >> /etc/environment
 
 # Copy environment variables to .env file
-grep -E 'KAFKA_BOOTSTRAP_SERVERS|MONGO|MONGO_COLLECTION_NAME|MONGO_DATABASE_NAME|MONGO_URI|MYSQL_URI|NIFI_URL' /etc/environment > /DE31-final-team1/BE/.env
+grep -E 'KAFKA_BOOTSTRAP_SERVERS|MONGO|MONGO_COLLECTION_NAME|MONGO_DATABASE_NAME|MONGO_URI|MYSQL_URI|NIFI_URL|AIRFLOW_USERNAME|AIRFLOW_PASSWORD' /etc/environment > /DE31-final-team1/BE/.env
 
 # Deploy Airflow using Docker Compose
 cd DE31-final-team1/BE
