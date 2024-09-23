@@ -291,6 +291,7 @@ async def update_putmongo_processor(version,position=None, Mongo_Database_Name_i
 @nifi_api_bp.route('/get_process_list/', methods=['GET', 'OPTIONS'])
 async def get_processors_list(UserId):
     token = await get_token()
+    
     user_process_group_id = await get_user_process_group_id(UserId)
     url = f"{NIFI_URL}process-groups/{user_process_group_id}/processors"
     headers = {
