@@ -13,13 +13,15 @@ jobs:
     environment: production # 배포 환경 지정 (예: production, staging)
 
     env:
-      KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
-      MONGO: ${{ secrets.MONGO }}
-      MONGO_COLLECTION_NAME: ${{ secrets.MONGO_COLLECTION_NAME }}  
-      MONGO_DATABASE_NAME: ${{ secrets.MONGO_DATABASE_NAME }}
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-      MYSQL_URI: ${{ secrets.MYSQL_URI }}
-      NIFI_URL: ${{ secrets.NIFI_URL }}
+      POSTGRESQL_DATABASE: ${{ secrets.POSTGRESQL_DATABASE }}
+      POSTGRESQL_PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
+      POSTGRESQL_USERNAME: ${{ secrets.POSTGRESQL_USERNAME }}
+      AIRFLOW_DATABASE_PASSWORD: ${{ secrets.AIRFLOW_DATABASE_PASSWORD }}
+      AIRFLOW_EMAIL: ${{ secrets.AIRFLOW_EMAIL }}
+      AIRFLOW_FERNET_KEY: ${{ secrets.AIRFLOW_FERNET_KEY }}
+      AIRFLOW_PASSWORD: ${{ secrets.AIRFLOW_PASSWORD }}
+      AIRFLOW_SECRET_KEY: ${{ secrets.AIRFLOW_SECRET_KEY }}
+      AIRFLOW_USERNAME: ${{ secrets.AIRFLOW_USERNAME }}
 
     steps:
       - name: Checkout

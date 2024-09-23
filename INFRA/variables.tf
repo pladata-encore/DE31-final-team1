@@ -1,36 +1,46 @@
 # Environment Define
 
-variable "KAFKA_BOOTSTRAP_SERVERS" {
+variable "AIRFLOW_DATABASE_PASSWORD" {
   type        = string
-  description = "Kafka bootstrap servers"
+  description = "AIRFLOW DATABASE PASSWORD"
 }
 
-variable "MONGO" {
+variable "AIRFLOW_EMAIL" {
   type        = string
-  description = "MongoDB connection string"
+  description = "AIRFLOW EMAIL"
 }
 
-variable "MONGO_COLLECTION_NAME" {
+variable "AIRFLOW_FERNET_KEY" {
   type        = string
-  description = "MongoDB collection name"
+  description = "AIRFLOW FERNET KEY"
 }
 
-variable "MONGO_DATABASE_NAME" {
+variable "AIRFLOW_PASSWORD" {
   type        = string
-  description = "MongoDB database name"
+  description = "AIRFLOW PASSWORD"
 }
 
-variable "MONGO_URI" {
+variable "AIRFLOW_SECRET_KEY" {
   type        = string
-  description = "MongoDB URI"
+  description = "AIRFLOW SECRET KEY"
 }
 
-variable "MYSQL_URI" {
+variable "AIRFLOW_USERNAME" {
   type        = string
-  description = "MySQL URI"
+  description = "AIRFLOW USERNAME"
 }
 
-variable "NIFI_URL" {
+variable "POSTGRESQL_DATABASE" {
   type        = string
-  description = "NiFi URL"
+  description = "POSTGRESQL DATABASE"
+}
+
+variable "POSTGRESQL_PASSWORD" {
+  type        = string
+  description = "POSTGRESQL PASSWORD"
+}
+
+variable "POSTGRESQL_USERNAME" {
+  type        = string
+  description = "POSTGRESQL USERNAME"
 }

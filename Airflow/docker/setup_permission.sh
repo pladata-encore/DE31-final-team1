@@ -5,7 +5,7 @@ USER_ID=1001
 GROUP_ID=1001
 
 # 마운트할 디렉토리 경로
-AIRFLOW_DIR="./airflow"
+AIRFLOW_DIR="../airflow"
 POSTGRESQL_DIR="$AIRFLOW_DIR/postgresql-persistence"
 REDIS_DIR="$AIRFLOW_DIR/redis-persistence"
 DAGS_DIR="$AIRFLOW_DIR/airflow-dags"
