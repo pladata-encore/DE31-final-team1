@@ -6,8 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: flask-api:1.0 
-    ports:
-      - "19020:19020"
+    network_mode: host
     environment:
       FLASK_APP: run.py
       FLASK_ENV: development
@@ -16,9 +15,3 @@ services:
     volumes:
       - /DE31-final-team1/BE:/home/mydir/api-server
       - /home/ubuntu/.aws:/root/.aws:ro
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
