@@ -131,6 +131,14 @@ resource "aws_security_group" "allow_all_internal" {
     cidr_blocks = ["0.0.0.0/0"]  # VPC CIDR 블록으로 변경
   }
   
+  # nifi 웹 UI 접근을 위한 8443포트 개방
+  ingress {
+    from_port = 8443
+    to_port = 8443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # airflow 웹 UI 접근을 위한 8080포트 개방
   ingress {
     from_port = 8080
@@ -366,8 +374,8 @@ resource "aws_instance" "nifi" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.nifi.id # nifi Subnet ID 참조
-  key_name      = "test_key_pair" # Key Pair 이름
-
+  key_name      = "nifi_test_key_pair" # Key Pair 이름
+  associate_public_ip_address = true
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
@@ -376,12 +384,25 @@ resource "aws_instance" "nifi" {
 # Install Java, Docker, Docker Compose
 # ... (Java, Docker, Docker Compose 설치 스크립트 추가)
 
+sudo apt-get update
+sudo apt-get install -y openjdk-11-jdk docker.io docker-compose git
+
+sudo systemctl enable docker
+sudo systemctl start docker
+
 # Clone Git repository
 git clone https://github.com/pladata-encore/DE31-final-team1.git
 
-# Deploy Airflow using Docker Compose
-cd DE31-final-team1/nifi
-docker-compose up -d
+# Get public IP from AWS EC2 metadata
+PUBLIC_IP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+
+# Update docker-compose.yaml with the public IP using sed
+sed -i "s/NIFI_WEB_PROXY_HOST=.*/NIFI_WEB_PROXY_HOST=$${PUBLIC_IP}:8443/" DE31-final-team1/NiFi/docker-compose.yaml
+
+# Deploy nifi using Docker Compose
+cd DE31-final-team1/Nifi
+
+sudo docker-compose up -d
 EOF
 
   tags = {
