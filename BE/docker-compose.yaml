@@ -16,3 +16,9 @@ services:
     volumes:
       - /DE31-final-team1/BE:/home/mydir/api-server
       - /home/ubuntu/.aws:/root/.aws:ro
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
