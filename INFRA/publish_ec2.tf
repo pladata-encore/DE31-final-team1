@@ -130,6 +130,14 @@ resource "aws_security_group" "allow_all_internal" {
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]  # VPC CIDR 블록으로 변경
   }
+
+  # 외부에서 BE에 요청하기 위한 19020 포트 개방
+  ingress {
+    from_port = 19020
+    to_port = 19020
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   
   # airflow 웹 UI 접근을 위한 8080포트 개방
   ingress {
@@ -460,9 +468,11 @@ echo 'MONGO_DATABASE_NAME=${var.MONGO_DATABASE_NAME}' >> /etc/environment
 echo 'MONGO_URI=${var.MONGO_URI}' >> /etc/environment
 echo 'MYSQL_URI=${var.MYSQL_URI}' >> /etc/environment  
 echo 'NIFI_URL=${var.NIFI_URL}' >> /etc/environment
+echo 'AIRFLOW_USERNAME=${var.AIRFLOW_USERNAME}' >> /etc/environment  
+echo 'AIRFLOW_PASSWORD=${var.AIRFLOW_PASSWORD}' >> /etc/environment
 
 # Copy environment variables to .env file
-grep -E 'KAFKA_BOOTSTRAP_SERVERS|MONGO|MONGO_COLLECTION_NAME|MONGO_DATABASE_NAME|MONGO_URI|MYSQL_URI|NIFI_URL' /etc/environment > /DE31-final-team1/BE/.env
+grep -E 'KAFKA_BOOTSTRAP_SERVERS|MONGO|MONGO_COLLECTION_NAME|MONGO_DATABASE_NAME|MONGO_URI|MYSQL_URI|NIFI_URL|AIRFLOW_USERNAME|AIRFLOW_PASSWORD' /etc/environment > /DE31-final-team1/BE/.env
 
 # Deploy Airflow using Docker Compose
 cd DE31-final-team1/BE
