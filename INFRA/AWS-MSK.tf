@@ -1,3 +1,4 @@
+# 라우팅 테이블과 서브넷 연결
 resource "aws_route_table_association" "msk1" {
   subnet_id      = aws_subnet.msk1.id
   route_table_id = aws_route_table.main.id
@@ -44,10 +45,13 @@ resource "aws_subnet" "msk3" {
   }
 }
 
+# 저장된 데이터 암호화
+# AWS Key Management Service(KMS)를 사용하여 CMK를 생성하고 관리
 resource "aws_kms_key" "kms" {
   description = "encore"
 }
 
+# AWS MSK 클러스터 생성
 resource "aws_msk_cluster" "DP" {
   cluster_name           = "DP"
   kafka_version          = "3.7.x.kraft"
@@ -69,7 +73,7 @@ resource "aws_msk_cluster" "DP" {
     ]
     storage_info {
       ebs_storage_info {
-        volume_size = 10
+        volume_size = 1000
       }
     }
     security_groups = [aws_security_group.allow_all_internal.id]
