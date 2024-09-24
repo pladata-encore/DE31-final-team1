@@ -23,9 +23,9 @@ provider "aws" {
 
 # VPC 생성
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16" # VPC CIDR 블록
-  enable_dns_hostnames = true          # DNS 호스트 이름 활성화
-  enable_dns_support   = true          # DNS 지원 활성화
+  cidr_block = "10.0.0.0/16" # VPC CIDR 블록
+  enable_dns_hostnames = true # DNS 호스트 이름 활성화
+  enable_dns_support   = true # DNS 지원 활성화
 
   tags = {
     Name = "main-vpc"
@@ -34,39 +34,10 @@ resource "aws_vpc" "main" {
 
 
 # 서브넷 생성 (각 서비스별로 하나씩)
-resource "aws_subnet" "msk1" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.10.0/24"
-  availability_zone = "ap-northeast-2a"
-
-  tags = {
-    Name = "msk1-subnet"
-  }
-}
-
-resource "aws_subnet" "msk2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.11.0/24"
-  availability_zone = "ap-northeast-2b"
-
-  tags = {
-    Name = "msk2-subnet"
-  }
-}
-
-resource "aws_subnet" "msk3" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.12.0/24"
-  availability_zone = "ap-northeast-2c"
-
-  tags = {
-    Name = "msk3-subnet"
-  }
-}
 
 resource "aws_subnet" "airflow" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
   availability_zone = "ap-northeast-2a"
 
   tags = {
@@ -75,8 +46,8 @@ resource "aws_subnet" "airflow" {
 }
 
 resource "aws_subnet" "nifi" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.2.0/24"
   availability_zone = "ap-northeast-2a"
 
   tags = {
@@ -85,8 +56,8 @@ resource "aws_subnet" "nifi" {
 }
 
 resource "aws_subnet" "fe" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.3.0/24"
   availability_zone = "ap-northeast-2a"
 
   tags = {
@@ -95,8 +66,8 @@ resource "aws_subnet" "fe" {
 }
 
 resource "aws_subnet" "be" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.4.0/24"
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.4.0/24"
   availability_zone = "ap-northeast-2b"
 
   tags = {
@@ -105,8 +76,8 @@ resource "aws_subnet" "be" {
 }
 
 resource "aws_subnet" "mongodb" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.5.0/24"
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.5.0/24"
   availability_zone = "ap-northeast-2c"
 
   tags = {
@@ -119,61 +90,61 @@ resource "aws_subnet" "mongodb" {
 # Security Groups
 # 모든 입출력을 허용하는 보안 그룹 생성 (VPC 내부 IP만 허용)
 resource "aws_security_group" "allow_all_internal" {
-  name        = "allow_all_internal"
+  name = "allow_all_internal"
   description = "Allow all traffic from internal IPs"
-  vpc_id      = aws_vpc.main.id
+  vpc_id = aws_vpc.main.id
 
   # 인바운드 규칙: VPC 내부 IP에서 모든 포트 허용
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # VPC CIDR 블록으로 변경
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC CIDR 블록으로 변경
   }
 
   # 외부에서 BE에 요청하기 위한 19020 포트 개방
   ingress {
-    from_port   = 19020
-    to_port     = 19020
-    protocol    = "tcp"
+    from_port = 19020
+    to_port = 19020
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
+  
   # nifi 웹 UI 접근을 위한 8443포트 개방
   ingress {
-    from_port   = 8443
-    to_port     = 8443
-    protocol    = "tcp"
+    from_port = 8443
+    to_port = 8443
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   # airflow 웹 UI 접근을 위한 8080포트 개방
   ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
+    from_port = 8080
+    to_port = 8080
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"] # VPC CIDR 블록으로 변경
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]  # VPC CIDR 블록으로 변경
   }
 
   ingress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "udp"
-    cidr_blocks = ["10.0.0.0/16"] # VPC CIDR 블록으로 변경
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    cidr_blocks = ["10.0.0.0/16"]  # VPC CIDR 블록으로 변경
   }
 
   # 아웃바운드 규칙: 모든 곳으로 모든 트래픽 허용
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -211,21 +182,6 @@ resource "aws_route_table" "main" {
 }
 
 # 서브넷 연결
-resource "aws_route_table_association" "msk1" {
-  subnet_id      = aws_subnet.msk1.id
-  route_table_id = aws_route_table.main.id
-}
-
-resource "aws_route_table_association" "msk2" {
-  subnet_id      = aws_subnet.msk2.id
-  route_table_id = aws_route_table.main.id
-}
-
-resource "aws_route_table_association" "msk3" {
-  subnet_id      = aws_subnet.msk3.id
-  route_table_id = aws_route_table.main.id
-}
-
 resource "aws_route_table_association" "airflow" {
   subnet_id      = aws_subnet.airflow.id
   route_table_id = aws_route_table.main.id
@@ -252,50 +208,20 @@ resource "aws_route_table_association" "mongodb" {
 }
 
 ##################################################################3
-
-# MSK Cluster 생성
-resource "aws_msk_cluster" "example" {
-  cluster_name           = "kafka-cluster"
-  kafka_version          = "2.8.1"
-  number_of_broker_nodes = 3
-
-  broker_node_group_info {
-    instance_type = "kafka.m5.large"
-    storage_info {
-      ebs_storage_info {
-        volume_size = 10
-      }
-    }
-    # Security Group 설정 (필요에 따라 추가)
-    security_groups = [aws_security_group.allow_all_internal.id]
-
-    # Subnet 설정
-    client_subnets = [
-      aws_subnet.msk1.id,
-      aws_subnet.msk2.id,
-      aws_subnet.msk3.id
-    ]
-  }
-
-  tags = {
-    Name = "main-kafka-cluster"
-  }
-}
-
 # EC2 Instance 생성 (Airflow)
 resource "aws_instance" "airflow" {
-  ami                         = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
-  instance_type               = "m5.xlarge"
-  subnet_id                   = aws_subnet.airflow.id # airflow Subnet ID 참조
-  key_name                    = "airflow_test_key"    # Key Pair 이름
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
+  instance_type = "m5.xlarge"
+  subnet_id     = aws_subnet.airflow.id # airflow Subnet ID 참조
+  key_name      = "airflow_test_key" # Key Pair 이름
   associate_public_ip_address = true
 
   # airflow 애플리케이션의 용량으로 인해 볼륨 지정
   root_block_device {
-    volume_size           = 30    # 볼륨 크기 (GB)
-    volume_type           = "gp2" # 기본 SSD (gp2)
+    volume_size = 30  # 볼륨 크기 (GB)
+    volume_type = "gp2"  # 기본 SSD (gp2)
     delete_on_termination = true  # 인스턴스 종료 시 볼륨 삭제 여부
-  }
+  }  
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -377,12 +303,24 @@ output "airflow_public_ip" {
   description = "The public IP address of the airflow server"
 }
 
+# 프라이빗 IP를 .env 파일로 저장
+resource "null_resource" "save_airflow_ip" {
+  provisioner "local-exec" {
+    # Airflow 인스턴스의 프라이빗 IP를 .env 파일로 저장
+    command = "echo AIRFLOW_PRIVATE_IP=${aws_instance.airflow.private_ip} > airflow_ip.env"
+  }
+  
+  # Airflow 인스턴스가 생성된 후 실행되도록 설정
+  depends_on = [aws_instance.airflow]
+}
+
+
 # EC2 Instance 생성 (NiFi)
 resource "aws_instance" "nifi" {
-  ami                         = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
-  instance_type               = "m5.xlarge"
-  subnet_id                   = aws_subnet.nifi.id   # nifi Subnet ID 참조
-  key_name                    = "nifi_test_key_pair" # Key Pair 이름
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
+  instance_type = "m5.xlarge"
+  subnet_id     = aws_subnet.nifi.id # nifi Subnet ID 참조
+  key_name      = "nifi_test_key_pair" # Key Pair 이름
   associate_public_ip_address = true
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -408,9 +346,9 @@ PUBLIC_IP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 sed -i "s/NIFI_WEB_PROXY_HOST=.*/NIFI_WEB_PROXY_HOST=$${PUBLIC_IP}:8443/" DE31-final-team1/NiFi/docker-compose.yaml
 
 # Deploy nifi using Docker Compose
-cd DE31-final-team1/NiFi
+cd DE31-final-team1/Nifi
 
-sudo docker-compose up -d 
+sudo docker-compose up -d
 EOF
 
   tags = {
@@ -423,7 +361,7 @@ resource "aws_instance" "frontend" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.large"
   subnet_id     = aws_subnet.fe.id # Frontend Subnet ID 참조
-  key_name      = "test_key_pair"  # Key Pair 이름
+  key_name      = "test_key_pair" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
@@ -448,12 +386,12 @@ EOF
 
 # EC2 Instance 생성 (BE)
 resource "aws_instance" "backend" {
-  ami                         = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
-  instance_type               = "m5.large"
-  subnet_id                   = aws_subnet.be.id     # Backend Subnet ID 참조
-  key_name                    = "nifi_test_key_pair" # Key Pair 이름
+  ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
+  instance_type = "m5.large"
+  subnet_id     = aws_subnet.be.id # Backend Subnet ID 참조
+  key_name      = "nifi_test_key_pair" # Key Pair 이름
   associate_public_ip_address = true
-
+  
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
 
@@ -492,6 +430,10 @@ echo 'NIFI_URL=${var.NIFI_URL}' >> /etc/environment
 echo 'AIRFLOW_USERNAME=${var.AIRFLOW_USERNAME}' >> /etc/environment  
 echo 'AIRFLOW_PASSWORD=${var.AIRFLOW_PASSWORD}' >> /etc/environment
 
+#airflow의 내부 IP를 파일로 저장
+echo "AIRFLOW_PRIVATE_IP=${aws_instance.airflow.private_ip}" > /etc/airflow_ip.env
+source /etc/airflow_ip.env
+
 # Copy environment variables to .env file
 grep -E 'KAFKA_BOOTSTRAP_SERVERS|MONGO|MONGO_COLLECTION_NAME|MONGO_DATABASE_NAME|MONGO_URI|MYSQL_URI|NIFI_URL|AIRFLOW_USERNAME|AIRFLOW_PASSWORD' /etc/environment > /DE31-final-team1/BE/.env
 
@@ -499,6 +441,9 @@ grep -E 'KAFKA_BOOTSTRAP_SERVERS|MONGO|MONGO_COLLECTION_NAME|MONGO_DATABASE_NAME
 cd DE31-final-team1/BE
 docker-compose up -d
 EOF
+
+#airflow 인스턴스 생성 후에 진행되게끔 설정
+depends_on = [aws_instance.airflow]
 
   tags = {
     Name = "Backend-Server"
@@ -526,7 +471,7 @@ resource "aws_instance" "mongo" {
   ami           = "ami-056a29f2eddc40520" # Ubuntu 22.04 LTS AMI (서울 리전)
   instance_type = "m5.xlarge"
   subnet_id     = aws_subnet.mongodb.id # MongoDB Subnet ID 참조
-  key_name      = "test_key_pair"       # Key Pair 이름
+  key_name      = "test_key_pair" # Key Pair 이름
 
   # 보안 그룹 설정
   vpc_security_group_ids = [aws_security_group.allow_all_internal.id]
