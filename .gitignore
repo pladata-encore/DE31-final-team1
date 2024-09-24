@@ -9,3 +9,22 @@ build
 
 NiFi/nifi_project/conf/archive/
 NiFi/nifi_project/data
+
+NiFi/nifi_custom_processor/another_custom_kafka_streaming/nifi-another_custom_kafka_streaming-nar/target/*
+!NiFi/nifi_custom_processor/another_custom_kafka_streaming/nifi-another_custom_kafka_streaming-nar/target/*.nar
+
+NiFi/nifi_custom_processor/another_custom_kafka_streaming/nifi-another_custom_kafka_streaming-processors/target/*
+!NiFi/nifi_custom_processor/another_custom_kafka_streaming/nifi-another_custom_kafka_streaming-processors/target/*.jar
+
+NiFi/nifi_custom_processor/another_custom_kafka_streaming/target/*
+
+NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-nar/target/*
+!NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-nar/target/*.nar
+
+NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-processors/target/*
+!NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-processors/target/*.jar
+
+NiFi/nifi_custom_processor/my-custom-consumekafka-processor/nifi-custom_consumekafka-processors/src/main/resources/*
+NiFi/nifi_custom_processor/another_custom_kafka_streaming/nifi-another_custom_kafka_streaming-processors/src/main/resources/*
+
+NiFi/nifi_custom_processor/my-custom-consumekafka-processor/target/*
