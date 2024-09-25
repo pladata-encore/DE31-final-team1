@@ -72,7 +72,7 @@ public class topology {
                 }
             }
         ).mapValues(
-            (key, value) -> {
+            value -> {
                 try {
                     // user_Role에 맞게 결과 도출
                     ArrayList<String> regex_ArrayList = ut.parseUserRule(rule[1], value);

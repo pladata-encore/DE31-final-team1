@@ -20,56 +20,56 @@ public class Main {
         Dotenv dotenv = Dotenv.load();
 
         String bootstrap_servers = dotenv.get("BOOTSTRAP_SERVER");
-        String topic_Name = "user2_device1";
-        String user_Rule = "pm1 <= 20, pm1 = pm1 + 20";
+        String topic_Name = "user1_device1";
+        String user_Rule = "pm1 < 20, result = (pm1 + 20) / 0.5";
 
         // <------------------------------ case 1: Filter.MapValues 통합 ----------------------------------> \\
-        // KafkaStreams streams = topo.createKafkaStreams(bootstrap_servers, topic_Name, user_Rule);
+        KafkaStreams streams = topo.createKafkaStreams(bootstrap_servers, topic_Name, user_Rule);
 
-        // streams.cleanUp();
-        // streams.start();
+        streams.cleanUp();
+        streams.start();
 
-        // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         // ------------------------------> case 1: Filter.MapValues 통합 <---------------------------------- \\
 
 
         // <------------------------------ case 2: Filter, MapValues 분리 ---------------------------------> \\
-        String[] patterns = {">", ">=", "<", "<=", "!=", "=="};
+        // String[] patterns = {">", ">=", "<", "<=", "!=", "=="};
 
-        boolean pattern_Found = false;
+        // boolean pattern_Found = false;
 
-        for (String e : patterns) {
-            if (user_Rule.contains(e)) {
-                pattern_Found = true;
-                break;
-            }
-        }
+        // for (String e : patterns) {
+        //     if (user_Rule.contains(e)) {
+        //         pattern_Found = true;
+        //         break;
+        //     }
+        // }
 
-        if (pattern_Found == false) {
-            if (user_Rule.contains("=")) {
-                // KafkaStreams Experssion
-                String var_Name = ut.getVarName(user_Rule);
+        // if (pattern_Found == false) {
+        //     if (user_Rule.contains("=")) {
+        //         // KafkaStreams Experssion
+        //         String var_Name = ut.getVarName(user_Rule);
 
-                KafkaStreams streams = topo.mathExpression(bootstrap_servers, topic_Name, user_Rule, var_Name);
+        //         KafkaStreams streams = topo.mathExpression(bootstrap_servers, topic_Name, user_Rule, var_Name);
 
-                streams.cleanUp();
-                streams.start();
+        //         streams.cleanUp();
+        //         streams.start();
 
-                Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            } else {
-                System.out.println("KafkaStreams 기능 없음");
-            }
-        } else {
-            // KafkaStreams Filter
-            String var_Name = ut.getVarName2(user_Rule);
+        //         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+        //     } else {
+        //         System.out.println("KafkaStreams 기능 없음");
+        //     }
+        // } else {
+        //     // KafkaStreams Filter
+        //     String var_Name = ut.getVarName2(user_Rule);
 
-            KafkaStreams streams = topo.recordFilter(bootstrap_servers, topic_Name, user_Rule, var_Name);
+        //     KafkaStreams streams = topo.recordFilter(bootstrap_servers, topic_Name, user_Rule, var_Name);
 
-            streams.cleanUp();
-            streams.start();
+        //     streams.cleanUp();
+        //     streams.start();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        }
+        //     Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+        // }
         // ------------------------------> case 1: Filter.MapValues 분리 <---------------------------------- \\
     }
 }

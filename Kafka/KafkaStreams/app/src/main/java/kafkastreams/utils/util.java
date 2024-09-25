@@ -48,18 +48,18 @@ public class util {
         JSONObject data_Json = input_Json.getJSONObject("data");
 
         // 문자열 수식을 정규표현식을 사용하여 ArrayList에 적재
-        Pattern pattern = Pattern.compile("([a-zA-Z][a-zA-Z0-9_\\.]*|\\+|\\-|\\*|\\/|\\=|\\(|\\))");
+        Pattern pattern = Pattern.compile("\\s*([()])|\\s*([+\\-*/])|\\s*([0-9]+\\.[0-9]+|[0-9]+)|\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*");
         Matcher matcher = pattern.matcher(var_Expresstion);
 
         ArrayList<String> regex_ArrayList = new ArrayList<>();
 
         while (matcher.find()) {
-            regex_ArrayList.add(matcher.group());
+            regex_ArrayList.add(matcher.group().strip());
         }
 
         // 변수를 value 값으로 치환
         for (int i=0; i<regex_ArrayList.size(); i++) {
-            String token = regex_ArrayList.get(i);
+            String token = regex_ArrayList.get(i).strip();
 
             if (token.contains(".") || token.contains("_")) {
                 String[] split_String = token.split("[._]");
@@ -88,7 +88,7 @@ public class util {
                     arrayList.add(stack.pop());
                 }
             } else if (e.equals("+") || e.equals("-")) {
-                while (!stack.empty() && stack.peek().equals("*") || stack.peek().equals("/")) {
+                while (!stack.empty() && (stack.peek().equals("*") || stack.peek().equals("/"))) {
                     arrayList.add(stack.pop());
                 }
                 stack.push(e);

@@ -17,7 +17,7 @@ public class consumer {
     // 클래스 객체 생성
     static topic topic = new topic();
 
-    public static Properties consumerProperties(String bootstrap_servers) {
+    public Properties consumerProperties(String bootstrap_servers) {
         Properties props = new Properties();
         
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
@@ -33,7 +33,7 @@ public class consumer {
         return props;
     }
 
-    public static void kafkaCosumer(Properties props, String topic_Name) {
+    public void kafkaCosumer(Properties props, String topic_Name) {
         // <String, String> --> <Key type, Value type>
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
@@ -51,12 +51,5 @@ public class consumer {
         } finally {
             consumer.close();
         }
-    }
-
-    public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
-
-        Properties props = consumerProperties(dotenv.get("BOOTSTRAP_SERVER"));
-        kafkaCosumer(props, "sswtest89s_sswtest89s_tst100");
     }
 }
