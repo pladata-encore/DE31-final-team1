@@ -32,3 +32,19 @@ async def trigger_dag_run(dag_id, conf):
     async with httpx.AsyncClient() as client:
         response = await client.post(url, json={"conf": conf}, headers=headers)
     return response
+
+# DAG 상태 변경 함수
+async def change_dag_state(user_id, dag_id, is_paused):
+    url = f"{AIRFLOW_BASE_URL}/{user_id}_{dag_id}"
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": create_basic_auth_header(USERNAME, PASSWORD)
+    }
+    data = {
+        "is_paused": is_paused
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(url, json=data, headers=headers)
+    return response
