@@ -9,7 +9,7 @@ data_source_bp = Blueprint('data-source',__name__)
 # 2. create data source (POST)
 # 3. get data source info (GET)
 
-@main_ds.route('/getdslist/', methods=['GET', 'OPTIONS'])
+@data_source_bp.route('/getdslist/', methods=['GET', 'OPTIONS'])
 async def getlist():
     # check token
     status_message = await check_token(req.email, req.token)
@@ -25,7 +25,7 @@ async def getlist():
 
     return ds_list_data, 200
 
-@main_ds.route('/createds/', methods=['POST', 'OPTIONS'])
+@data_source_bp.route('/createds/', methods=['POST', 'OPTIONS'])
 async def createds():
     # check token
     status_message = await check_token(req.email, req.token)

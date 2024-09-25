@@ -14,5 +14,5 @@ services:
       AWS_SDK_LOAD_CONFIG: "1"
       AWS_EC2_METADATA_DISABLED: "false"
     volumes:
-      - /home/ubuntu/DE31-final-team1/BE:/home/mydir/api-server
+      - /DE31-final-team1/BE:/home/mydir/api-server
       - /home/ubuntu/.aws:/root/.aws:ro
